@@ -156,3 +156,16 @@ def wheel_reference(time, twists, geometry=None):
     wheels = np.array([geometry.inverse(*twist) for twist in twists])
     accelerations = np.gradient(wheels, time, axis=0, edge_order=2)
     return wheels, accelerations
+
+
+def time_scale(time, wheels, max_rate, max_acceleration):
+    time, wheels = np.asarray(time), np.asarray(wheels)
+    if min(max_rate, max_acceleration) <= 0 or len(time) < 3 or np.any(np.diff(time) <= 0):
+        raise ValueError("invalid wheel timing limits")
+    acceleration = np.gradient(wheels, time, axis=0)
+    factor = max(
+        1,
+        float(np.max(np.abs(wheels))) / max_rate,
+        np.sqrt(float(np.max(np.abs(acceleration))) / max_acceleration),
+    )
+    return time[0] + (time - time[0]) * factor, wheels / factor, factor

@@ -68,3 +68,12 @@ def test_wheel_reference_linear_acceleration():
     wheels, acc = m.wheel_reference(time, np.column_stack([time, np.zeros(20)]))
     assert np.allclose(acc, 1 / DriveGeometry().left_radius)
     assert np.allclose(wheels[-1], [12.5, 12.5])
+
+
+def test_time_scaling_enforces_both_limits():
+    time = np.linspace(0, 1, 20)
+    wheels = np.column_stack([20 * time, 10 * time])
+    scaled, rates, factor = m.time_scale(time, wheels, 10, 5)
+    assert factor >= 2
+    assert np.max(abs(rates)) <= 10
+    assert np.max(abs(np.gradient(rates, scaled, axis=0))) <= 5 + 1e-12
