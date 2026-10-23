@@ -23,3 +23,10 @@ def test_winding_time_constant():
     motor = m.Motor()
     current = m.current_step(motor, 0, 0, 10, motor.inductance / motor.resistance)
     assert current == pytest.approx(10 / motor.resistance * (1 - np.exp(-1)))
+
+
+def test_loaded_motor_equilibrium():
+    motor = m.Motor()
+    state = m.motor_equilibrium(motor, 12, 0.3)
+    assert np.allclose(motor.derivative(*state, 12, 0.3), 0, atol=1e-10)
+    assert m.stall_torque(motor, 12) > 0.3

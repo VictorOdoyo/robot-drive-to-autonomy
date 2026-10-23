@@ -46,3 +46,15 @@ def current_step(motor, current, omega, voltage, dt):
         raise ValueError("negative timestep")
     equilibrium = (voltage - motor.constant * omega) / motor.resistance
     return equilibrium + (current - equilibrium) * np.exp(-dt * motor.resistance / motor.inductance)
+
+
+def motor_equilibrium(motor, voltage, load_torque=0):
+    omega = (motor.constant * voltage - motor.resistance * load_torque) / (
+        motor.constant**2 + motor.resistance * motor.viscous
+    )
+    current = (voltage - motor.constant * omega) / motor.resistance
+    return np.array([current, omega])
+
+
+def stall_torque(motor, voltage):
+    return motor.constant * voltage / motor.resistance
