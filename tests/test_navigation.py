@@ -27,3 +27,7 @@ def test_docking_turns_in_place_at_position_goal():
     twist = m.dock_control([1, 2, 0], [1, 2, 0.4])
     assert twist[0] == 0 and twist[1] > 0
     assert m.dock_control([0, 0, 0], [1, 0, 0])[0] > 0
+
+
+def test_dynamic_window_respects_reachability():
+    assert np.allclose(m.dynamic_window([0.5, 0.2], 0.1), [[0.44, 0.56], [0, 0.4]])

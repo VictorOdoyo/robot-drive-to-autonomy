@@ -61,3 +61,15 @@ def dock_control(pose, target, max_speed=0.25, max_yaw=0.8, position_tolerance=0
     beta = wrap(target[2] - pose[2] - alpha)
     speed = min(max_speed, 0.8 * rho) * max(0, np.cos(alpha))
     return np.array([speed, np.clip(2.5 * alpha - 0.6 * beta, -max_yaw, max_yaw)])
+
+
+def dynamic_window(current, dt, max_speed=1, max_yaw=2, max_acceleration=0.6, max_yaw_acceleration=2):
+    if min(dt, max_speed, max_yaw, max_acceleration, max_yaw_acceleration) <= 0:
+        raise ValueError("positive dynamic window constraints required")
+    speed, yaw = current
+    return np.array(
+        [
+            [max(0, speed - max_acceleration * dt), min(max_speed, speed + max_acceleration * dt)],
+            [max(-max_yaw, yaw - max_yaw_acceleration * dt), min(max_yaw, yaw + max_yaw_acceleration * dt)],
+        ]
+    )
