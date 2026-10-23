@@ -145,3 +145,13 @@ def confidence_ellipse(covariance, probability=0.95):
     axes = np.sqrt(np.maximum(values[order], 0) * chi2.ppf(probability, 2))
     direction = vectors[:, order[0]]
     return axes, float(np.arctan2(direction[1], direction[0]))
+
+
+def observability_rank(transition, observation, horizon=None, tolerance=1e-9):
+    transition, observation = np.asarray(transition), np.asarray(observation)
+    horizon = len(transition) if horizon is None else horizon
+    if horizon <= 0:
+        raise ValueError("positive observability horizon required")
+    blocks = [observation @ np.linalg.matrix_power(transition, k) for k in range(horizon)]
+    singular = np.linalg.svd(np.vstack(blocks), compute_uv=False)
+    return int(np.sum(singular > tolerance)), singular

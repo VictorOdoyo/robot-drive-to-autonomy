@@ -77,3 +77,11 @@ def test_uncertainty_ellipse():
     axes, _ = m.confidence_ellipse(np.diag([4.0, 1.0]))
     assert axes[0] / axes[1] == pytest.approx(2)
     assert axes[1] == pytest.approx(np.sqrt(5.991464547), rel=1e-8)
+
+
+def test_heading_and_bias_observability():
+    transition = np.eye(2)
+    transition[0, 1] = -0.1
+    rank, _ = m.observability_rank(transition, [[1, 0]])
+    assert rank == 2
+    assert m.observability_rank(np.eye(2), [[1, 0]])[0] == 1
