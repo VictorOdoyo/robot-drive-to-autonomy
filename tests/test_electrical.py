@@ -56,3 +56,10 @@ def test_pwm_ripple_extrema():
     assert m.pwm_ripple(24, 0.5, 0.001, 20000) == pytest.approx(0.3)
     assert m.pwm_ripple(24, 1, 0.001, 20000) == 0
     assert m.switching_loss(24, -10, 20000, 100e-9) > 0
+
+
+def test_hot_winding_limits_stall_current():
+    cold = m.copper_resistance(0.35, 25)
+    hot = m.copper_resistance(0.35, 125)
+    assert hot / cold == pytest.approx(1.393)
+    assert 24 / hot < 24 / cold

@@ -104,3 +104,10 @@ def switching_loss(bus_voltage, current, frequency, rise_fall_time, devices=2):
     if min(bus_voltage, frequency, rise_fall_time, devices) < 0:
         raise ValueError("negative switching parameter")
     return 0.5 * devices * bus_voltage * abs(current) * frequency * rise_fall_time
+
+
+def copper_resistance(reference, temperature, reference_temperature=25, coefficient=0.00393):
+    resistance = reference * (1 + coefficient * (temperature - reference_temperature))
+    if reference <= 0 or resistance <= 0:
+        raise ValueError("nonphysical winding resistance")
+    return resistance
