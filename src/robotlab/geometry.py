@@ -65,3 +65,18 @@ def path_error(pose, start, end):
     cross = (delta[0] * relative[1] - delta[1] * relative[0]) / length
     heading = wrap(pose[2] - np.arctan2(delta[1], delta[0]))
     return float(cross), float(heading)
+
+
+def rectangle_clearance(center, rectangle):
+    """Signed point distance to an axis-aligned rectangle [xmin,ymin,xmax,ymax]."""
+    low, high = np.asarray(rectangle[:2]), np.asarray(rectangle[2:])
+    if np.any(high <= low):
+        raise ValueError("rectangle bounds must increase")
+    q = np.abs(np.asarray(center) - (low + high) / 2) - (high - low) / 2
+    return float(np.linalg.norm(np.maximum(q, 0)) + min(max(q), 0))
+
+
+def circle_clearance(center, radius, rectangles):
+    if radius < 0:
+        raise ValueError("negative radius")
+    return min((rectangle_clearance(center, r) - radius for r in rectangles), default=np.inf)

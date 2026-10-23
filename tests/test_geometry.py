@@ -49,3 +49,10 @@ def test_signed_path_error():
     cross, heading = m.path_error([1, 2, np.pi / 4], [0, 0], [3, 0])
     assert cross == 2
     assert heading == pytest.approx(np.pi / 4)
+
+
+def test_signed_clearance():
+    rect = [0, 0, 2, 2]
+    assert m.rectangle_clearance([1, 1], rect) == -1
+    assert m.circle_clearance([3, 1], 0.25, [rect]) == pytest.approx(0.75)
+    assert m.rectangle_clearance([3, 3], rect) == pytest.approx(np.sqrt(2))
