@@ -49,3 +49,10 @@ def test_risk_cost_avoids_expensive_corridor():
     assert all(not (p[0] == 3 and 2 <= p[1] <= 6) for p in path)
     assert cost < 20
     assert m.clearance_cost([0, 1])[0] > m.clearance_cost([0, 1])[1]
+
+
+def test_time_expanded_path_waits_for_obstacle():
+    blocked = np.zeros((1, 3), bool)
+    path = m.space_time_path(blocked, (0, 0), (0, 2), {1: {(0, 1)}})
+    assert path[1] == ((0, 0), 1)
+    assert path[-1] == ((0, 2), 3)

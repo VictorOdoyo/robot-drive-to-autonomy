@@ -109,3 +109,30 @@ def clearance_cost(clearance, weight=1, scale=0.3):
     if weight < 0 or scale <= 0 or np.any(np.asarray(clearance) < 0):
         raise ValueError("invalid clearance cost")
     return 1 + weight * np.exp(-np.asarray(clearance) / scale)
+
+
+def space_time_path(blocked, start, goal, reservations, horizon=100):
+    from collections import deque
+
+    start, goal = tuple(start), tuple(goal)
+    if blocked[start] or blocked[goal] or start in reservations.get(0, set()):
+        raise ValueError("invalid space-time endpoints")
+    queue = deque([(start, 0)])
+    parent = {(start, 0): None}
+    while queue:
+        cell, tick = queue.popleft()
+        if cell == goal:
+            result, key = [], (cell, tick)
+            while key is not None:
+                result.append(key)
+                key = parent[key]
+            return result[::-1]
+        if tick >= horizon:
+            continue
+        for nxt, _ in [(cell, 0), *neighbors(cell, blocked, False)]:
+            key = (nxt, tick + 1)
+            if nxt in reservations.get(tick + 1, set()) or key in parent:
+                continue
+            parent[key] = (cell, tick)
+            queue.append(key)
+    raise ValueError("no path within reservation horizon")
