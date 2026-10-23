@@ -25,3 +25,10 @@ def test_disconnected_region_unreachable():
     distance = m.distance_map(blocked, (1, 1))
     assert distance[3, 1] == 2
     assert np.isinf(distance[1, 3])
+
+
+def test_line_of_sight_checks_diagonal_corner():
+    blocked = np.zeros((3, 3), bool)
+    blocked[0, 1] = True
+    assert not m.line_free(blocked, (0, 0), (2, 2))
+    assert m.line_free(blocked, (1, 0), (2, 0))

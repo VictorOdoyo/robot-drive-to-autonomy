@@ -71,3 +71,20 @@ def distance_map(blocked, start):
                 distances[nxt] = candidate
                 heapq.heappush(queue, (candidate, nxt))
     return distances
+
+
+def line_free(blocked, start, end):
+    start, end = np.asarray(start, dtype=float), np.asarray(end, dtype=float)
+    count = max(1, int(np.ceil(np.linalg.norm(end - start) * 4)))
+    for point in np.linspace(start, end, count + 1):
+        # Integer coordinates denote cell centers. Check both sides of exact boundaries.
+        for epsilon in ((-1e-10, -1e-10), (-1e-10, 1e-10), (1e-10, -1e-10), (1e-10, 1e-10)):
+            cell = np.floor(point + 0.5 + epsilon).astype(int)
+            if (
+                np.any(cell < 0)
+                or cell[0] >= blocked.shape[0]
+                or cell[1] >= blocked.shape[1]
+                or blocked[tuple(cell)]
+            ):
+                return False
+    return True
