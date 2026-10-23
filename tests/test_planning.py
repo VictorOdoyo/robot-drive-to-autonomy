@@ -17,3 +17,11 @@ def test_astar_known_optimum_and_detour():
     blocked[1:7, 3] = True
     path, cost = m.astar(blocked, (2, 1), (2, 5))
     assert cost > 4 and all(not blocked[p] for p in path)
+
+
+def test_disconnected_region_unreachable():
+    blocked = np.zeros((5, 5), bool)
+    blocked[:, 2] = True
+    distance = m.distance_map(blocked, (1, 1))
+    assert distance[3, 1] == 2
+    assert np.isinf(distance[1, 3])

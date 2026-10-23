@@ -50,3 +50,24 @@ def astar(blocked, start, goal, cost=None):
                 best[nxt], parent[nxt] = candidate, cell
                 heapq.heappush(queue, (candidate + octile(nxt, goal), candidate, nxt))
     raise ValueError("goal is unreachable")
+
+
+def distance_map(blocked, start):
+    import heapq
+
+    blocked = np.asarray(blocked, dtype=bool)
+    if not (0 <= start[0] < blocked.shape[0] and 0 <= start[1] < blocked.shape[1]) or blocked[start]:
+        raise ValueError("free start required")
+    distances = np.full(blocked.shape, np.inf)
+    distances[start] = 0
+    queue = [(0.0, tuple(start))]
+    while queue:
+        distance, cell = heapq.heappop(queue)
+        if distance > distances[cell]:
+            continue
+        for nxt, length in neighbors(cell, blocked):
+            candidate = distance + length
+            if candidate < distances[nxt]:
+                distances[nxt] = candidate
+                heapq.heappush(queue, (candidate, nxt))
+    return distances
