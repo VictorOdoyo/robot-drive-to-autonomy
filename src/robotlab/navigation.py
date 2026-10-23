@@ -46,3 +46,18 @@ def trajectory_control(pose, reference, reference_twist, kx=1.5, ky=3, kheading=
     ex, ey, heading = pose_error(pose, reference)
     speed, yaw = reference_twist
     return np.array([speed * np.cos(heading) + kx * ex, yaw + speed * ky * ey + kheading * np.sin(heading)])
+
+
+def dock_control(pose, target, max_speed=0.25, max_yaw=0.8, position_tolerance=0.02):
+    from .geometry import wrap
+
+    delta = np.asarray(target[:2]) - pose[:2]
+    rho = np.linalg.norm(delta)
+    if min(max_speed, max_yaw, position_tolerance) <= 0:
+        raise ValueError("invalid docking limits")
+    if rho < position_tolerance:
+        return np.array([0.0, np.clip(2 * wrap(target[2] - pose[2]), -max_yaw, max_yaw)])
+    alpha = wrap(np.arctan2(delta[1], delta[0]) - pose[2])
+    beta = wrap(target[2] - pose[2] - alpha)
+    speed = min(max_speed, 0.8 * rho) * max(0, np.cos(alpha))
+    return np.array([speed, np.clip(2.5 * alpha - 0.6 * beta, -max_yaw, max_yaw)])
