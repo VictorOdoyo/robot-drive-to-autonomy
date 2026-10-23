@@ -98,3 +98,11 @@ def inflated_mask(grid, radius, margin=0, unknown_occupied=True):
     if min(radius, margin) < 0:
         raise ValueError("negative footprint")
     return distance_field(grid, unknown_occupied=unknown_occupied) <= radius + margin
+
+
+def frontiers(grid, free_threshold=0.35):
+    from scipy.ndimage import binary_dilation
+
+    free = grid.observed & (grid.probability() < free_threshold)
+    adjacent_unknown = binary_dilation(~grid.observed, structure=np.array([[0, 1, 0], [1, 1, 1], [0, 1, 0]]))
+    return np.argwhere(free & adjacent_unknown)

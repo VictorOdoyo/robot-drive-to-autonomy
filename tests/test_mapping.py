@@ -45,3 +45,12 @@ def test_narrow_passage_disappears_after_inflation():
     grid = m.rasterize(m.OccupancyGrid(30, 30, 0.1), [[0, 0, 1.3, 3], [1.7, 0, 3, 3]])
     assert not m.inflated_mask(grid, 0.01)[15, 15]
     assert m.inflated_mask(grid, 0.25)[15, 15]
+
+
+def test_frontier_cells_are_observed_free():
+    grid = m.OccupancyGrid(5, 5, 1)
+    grid.observed[2, 1:4] = True
+    grid.log_odds[2, 1:4] = -4
+    result = m.frontiers(grid)
+    assert len(result) == 3
+    assert np.all(result[:, 0] == 2)
