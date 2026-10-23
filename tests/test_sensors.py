@@ -56,3 +56,10 @@ def test_packet_timing_checks():
     assert not m.valid_stamp(1.1, 1, 0.8, 0.2)
     assert not m.valid_stamp(0.7, 1, 0.8, 0.2)
     assert not m.valid_stamp(0.9, 1, 0.9, 0.2)
+
+
+def test_lidar_rays():
+    rectangles = [[2, -1, 3, 1]]
+    assert m.ray_range([0, 0], 0, rectangles) == pytest.approx(2)
+    assert m.ray_range([0, 0], np.pi / 2, rectangles) == 10
+    assert m.ray_range([2.5, 0], 0, rectangles) == 0

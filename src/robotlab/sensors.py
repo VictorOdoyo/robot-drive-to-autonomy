@@ -90,3 +90,24 @@ def valid_stamp(stamp, now, last_stamp, max_age):
     if max_age < 0:
         raise ValueError("negative allowed age")
     return bool(np.isfinite(stamp) and stamp <= now and stamp > last_stamp and now - stamp <= max_age)
+
+
+def ray_range(origin, angle, rectangles, max_range=10.0):
+    if max_range <= 0:
+        raise ValueError("positive range required")
+    direction = np.array([np.cos(angle), np.sin(angle)])
+    nearest = max_range
+    for rectangle in rectangles:
+        low, high = 0.0, max_range
+        for axis in range(2):
+            if abs(direction[axis]) < 1e-14:
+                if not rectangle[axis] <= origin[axis] <= rectangle[axis + 2]:
+                    high = -1.0
+                    break
+            else:
+                a = (rectangle[axis] - origin[axis]) / direction[axis]
+                b = (rectangle[axis + 2] - origin[axis]) / direction[axis]
+                low, high = max(low, min(a, b)), min(high, max(a, b))
+        if high >= low:
+            nearest = min(nearest, low)
+    return float(nearest)
