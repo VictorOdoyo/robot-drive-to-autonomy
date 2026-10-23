@@ -108,3 +108,19 @@ def nonholonomic_residual(pose_before, pose_after, dt):
     delta = pose_error(pose_before, pose_after)
     half = delta[2] / 2
     return float((-np.sin(half) * delta[0] + np.cos(half) * delta[1]) / dt)
+
+
+def acceleration_polygon(max_linear, max_angular, geometry=DriveGeometry()):
+    if min(max_linear, max_angular) <= 0:
+        raise ValueError("acceleration limits must be positive")
+    return np.array(
+        [
+            geometry.inverse(a, b)
+            for a, b in [
+                (-max_linear, -max_angular),
+                (-max_linear, max_angular),
+                (max_linear, max_angular),
+                (max_linear, -max_angular),
+            ]
+        ]
+    )

@@ -67,3 +67,9 @@ def test_lateral_consistency():
     before = [2, 3, 0.7]
     assert m.nonholonomic_residual(before, integrate(before, 1, 0.8, 0.5), 0.5) == pytest.approx(0, abs=1e-14)
     assert m.nonholonomic_residual([0, 0, 0], [0, 1, 0], 1) == 1
+
+
+def test_wheel_acceleration_polygon():
+    drive = m.DriveGeometry()
+    bounds = np.array([drive.forward(p) for p in m.acceleration_polygon(1, 2, drive)])
+    assert np.allclose(abs(bounds), [1, 2])
