@@ -47,3 +47,13 @@ def battery_step(pack, soc, polarization, current, dt):
 
 def terminal_voltage(pack, soc, polarization, current):
     return pack.ocv(soc) - polarization - pack.resistance * current
+
+
+def chemical_energy(pack, soc):
+    if not 0 <= soc <= 1:
+        raise ValueError("SOC outside [0,1]")
+    return (
+        3600
+        * pack.capacity_ah
+        * (pack.empty_voltage * soc + 0.5 * (pack.full_voltage - pack.empty_voltage) * soc**2)
+    )
