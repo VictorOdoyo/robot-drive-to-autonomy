@@ -46,3 +46,11 @@ def test_jerk_limited_start():
     speed, acceleration = m.jerk_step(0, 0, 1, 2, 5, 0.1)
     assert acceleration == pytest.approx(0.5)
     assert speed == pytest.approx(0.025)
+
+
+def test_derivative_filter_decay():
+    filt = m.DerivativeFilter(0.1)
+    first = filt.step(1, 0.01)
+    second = filt.step(1, 0.01)
+    assert second / first == pytest.approx(np.exp(-0.1))
+    assert first < 100

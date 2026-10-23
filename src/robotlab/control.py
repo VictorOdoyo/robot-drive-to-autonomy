@@ -69,3 +69,18 @@ def jerk_step(speed, acceleration, target_speed, max_acceleration, max_jerk, dt)
     next_acceleration = slew(acceleration, desired, max_jerk, dt)
     next_speed = speed + 0.5 * (acceleration + next_acceleration) * dt
     return next_speed, next_acceleration
+
+
+@dataclass
+class DerivativeFilter:
+    time_constant: float = 0.02
+    previous: float = 0.0
+    value: float = 0.0
+
+    def step(self, measurement, dt):
+        if self.time_constant <= 0 or dt <= 0:
+            raise ValueError("positive filter timing required")
+        alpha = np.exp(-dt / self.time_constant)
+        self.value = alpha * self.value + (1 - alpha) * (measurement - self.previous) / dt
+        self.previous = measurement
+        return self.value
