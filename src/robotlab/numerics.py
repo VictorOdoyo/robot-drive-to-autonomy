@@ -84,3 +84,26 @@ def convergence_order(coarse, medium, fine):
     if min(first, second) <= 0:
         raise ValueError("distinct nonzero refinement errors required")
     return float(np.log2(first / second))
+
+
+def bisect(function, low, high, tolerance=1e-10, iterations=100):
+    a, b = float(low), float(high)
+    fa, fb = function(a), function(b)
+    if a >= b or tolerance <= 0 or not np.isfinite(fa + fb) or fa * fb > 0:
+        raise ValueError("finite bracket with a sign change required")
+    if fa == 0:
+        return a
+    if fb == 0:
+        return b
+    for _ in range(iterations):
+        middle = (a + b) / 2
+        fm = function(middle)
+        if not np.isfinite(fm):
+            raise ValueError("nonfinite residual")
+        if b - a <= tolerance or fm == 0:
+            return middle
+        if fa * fm <= 0:
+            b = middle
+        else:
+            a, fa = middle, fm
+    raise RuntimeError("root iteration limit")

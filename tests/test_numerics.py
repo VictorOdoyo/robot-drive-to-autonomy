@@ -56,3 +56,9 @@ def test_vector_energy_integral():
 
 def test_refinement_order():
     assert m.convergence_order([1 + 0.2**4], [1 + 0.1**4], [1 + 0.05**4]) == pytest.approx(4)
+
+
+def test_nonlinear_root_and_bracket():
+    assert m.bisect(lambda x: x * x - 2, 0, 2) == pytest.approx(np.sqrt(2), abs=1e-9)
+    with pytest.raises(ValueError):
+        m.bisect(lambda x: x * x + 1, -2, 2)
