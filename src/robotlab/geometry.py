@@ -18,3 +18,10 @@ def compose(a, b):
 
 def inverse(pose):
     return np.r_[-rotation(pose[2]).T @ pose[:2], wrap(-pose[2])]
+
+
+def transform_points(pose, points):
+    points = np.asarray(points, dtype=float)
+    if points.ndim != 2 or points.shape[1] != 2:
+        raise ValueError("points must have shape (N,2)")
+    return points @ rotation(pose[2]).T + pose[:2]
