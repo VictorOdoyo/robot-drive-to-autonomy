@@ -54,3 +54,8 @@ def test_derivative_filter_decay():
     second = filt.step(1, 0.01)
     assert second / first == pytest.approx(np.exp(-0.1))
     assert first < 100
+
+
+def test_friction_feedforward_symmetry():
+    assert np.allclose(m.friction_feedforward([-2, 0, 2]), -m.friction_feedforward([2, 0, -2]))
+    assert m.friction_feedforward(10) > 0.03

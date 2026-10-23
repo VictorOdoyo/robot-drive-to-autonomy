@@ -84,3 +84,9 @@ class DerivativeFilter:
         self.value = alpha * self.value + (1 - alpha) * (measurement - self.previous) / dt
         self.previous = measurement
         return self.value
+
+
+def friction_feedforward(target_rate, coulomb=0.03, viscous=0.004, smoothing=0.1):
+    if min(coulomb, viscous) < 0 or smoothing <= 0:
+        raise ValueError("invalid friction compensation")
+    return coulomb * np.tanh(np.asarray(target_rate) / smoothing) + viscous * np.asarray(target_rate)
