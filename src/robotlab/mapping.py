@@ -111,3 +111,15 @@ def frontiers(grid, free_threshold=0.35):
 def map_entropy(grid):
     probability = np.clip(grid.probability(), 1e-15, 1 - 1e-15)
     return float(np.sum(-probability * np.log(probability) - (1 - probability) * np.log1p(-probability)))
+
+
+def merge_maps(target, source):
+    if (
+        target.log_odds.shape != source.log_odds.shape
+        or target.resolution != source.resolution
+        or not np.allclose(target.origin, source.origin)
+    ):
+        raise ValueError("maps must have identical registration")
+    target.log_odds = np.clip(target.log_odds + source.log_odds, -8, 8)
+    target.observed |= source.observed
+    return target

@@ -62,3 +62,12 @@ def test_mapping_reduces_entropy():
     m.insert_scan(grid, [0.05, 0.45, 0], [0], [0.7], 1)
     assert m.map_entropy(grid) < initial
     assert initial == pytest.approx(100 * np.log(2))
+
+
+def test_registered_map_fusion():
+    first, second = m.OccupancyGrid(2, 2), m.OccupancyGrid(2, 2)
+    first.log_odds[0, 0] = 1
+    second.log_odds[0, 0] = 2
+    second.observed[0, 0] = True
+    m.merge_maps(first, second)
+    assert first.log_odds[0, 0] == 3 and first.observed[0, 0]
