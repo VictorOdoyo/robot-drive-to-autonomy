@@ -204,3 +204,35 @@ def coverage_path(blocked, start, row_stride=2):
             result.extend(connection[1:])
             current = target
     return result
+
+
+def heading_path(blocked, start, goal, turn_cost=0.4):
+    import heapq
+
+    if turn_cost <= 0:
+        raise ValueError("positive turning cost required")
+    directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+    start = tuple(start)
+    queue = [(0.0, start)]
+    best, parent = {start: 0.0}, {}
+    while queue:
+        cost, state = heapq.heappop(queue)
+        if cost > best[state]:
+            continue
+        row, col, heading = state
+        if (row, col) == tuple(goal):
+            path = [state]
+            while state != start:
+                state = parent[state]
+                path.append(state)
+            return path[::-1], cost
+        dr, dc = directions[heading]
+        candidates = [((row, col, (heading + 1) % 4), turn_cost), ((row, col, (heading - 1) % 4), turn_cost)]
+        nr, nc = row + dr, col + dc
+        if 0 <= nr < blocked.shape[0] and 0 <= nc < blocked.shape[1] and not blocked[nr, nc]:
+            candidates.append(((nr, nc, heading), 1.0))
+        for nxt, edge in candidates:
+            if cost + edge < best.get(nxt, np.inf):
+                best[nxt], parent[nxt] = cost + edge, state
+                heapq.heappush(queue, (cost + edge, nxt))
+    raise ValueError("unreachable heading path")

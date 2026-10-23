@@ -82,3 +82,9 @@ def test_coverage_connects_disjoint_row_intervals():
     path = m.coverage_path(blocked, (0, 0), 1)
     assert len(set(path)) == np.sum(~blocked)
     assert all(not blocked[p] for p in path)
+
+
+def test_heading_lattice_charges_turns():
+    path, cost = m.heading_path(np.zeros((4, 4), bool), (1, 1, 0), (2, 2), 0.4)
+    assert cost == pytest.approx(2.4)
+    assert path[-1][:2] == (2, 2)
