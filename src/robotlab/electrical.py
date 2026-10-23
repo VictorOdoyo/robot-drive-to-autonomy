@@ -39,3 +39,10 @@ def motor_power(motor, current, omega, voltage, load_torque=0):
 
 def motor_energy(motor, current, omega):
     return 0.5 * (motor.inductance * current**2 + motor.inertia * omega**2)
+
+
+def current_step(motor, current, omega, voltage, dt):
+    if dt < 0:
+        raise ValueError("negative timestep")
+    equilibrium = (voltage - motor.constant * omega) / motor.resistance
+    return equilibrium + (current - equilibrium) * np.exp(-dt * motor.resistance / motor.inductance)

@@ -17,3 +17,9 @@ def test_motor_power_conservation():
     for current, omega, voltage, load in [(5, 100, 12, 0.1), (-3, 200, 5, -0.2)]:
         p = m.motor_power(motor, current, omega, voltage, load)
         assert p["input"] == pytest.approx(sum(p[k] for k in ("copper", "friction", "shaft", "stored_rate")))
+
+
+def test_winding_time_constant():
+    motor = m.Motor()
+    current = m.current_step(motor, 0, 0, 10, motor.inductance / motor.resistance)
+    assert current == pytest.approx(10 / motor.resistance * (1 - np.exp(-1)))
