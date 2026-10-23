@@ -43,3 +43,9 @@ def test_segment_endpoints():
     assert np.allclose(point, [2, 0])
     assert fraction == 1
     assert distance == pytest.approx(np.sqrt(2))
+
+
+def test_signed_path_error():
+    cross, heading = m.path_error([1, 2, np.pi / 4], [0, 0], [3, 0])
+    assert cross == 2
+    assert heading == pytest.approx(np.pi / 4)

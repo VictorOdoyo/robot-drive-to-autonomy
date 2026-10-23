@@ -54,3 +54,14 @@ def segment_projection(point, start, end):
     fraction = 0.0 if norm2 == 0 else float(np.clip((np.asarray(point) - start) @ delta / norm2, 0, 1))
     projected = np.asarray(start) + fraction * delta
     return projected, fraction, float(np.linalg.norm(np.asarray(point) - projected))
+
+
+def path_error(pose, start, end):
+    delta = np.asarray(end) - start
+    length = np.linalg.norm(delta)
+    if length == 0:
+        raise ValueError("zero length path segment")
+    relative = np.asarray(pose[:2]) - start
+    cross = (delta[0] * relative[1] - delta[1] * relative[0]) / length
+    heading = wrap(pose[2] - np.arctan2(delta[1], delta[0]))
+    return float(cross), float(heading)
