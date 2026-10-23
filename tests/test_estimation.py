@@ -18,3 +18,11 @@ def test_bias_corrected_arc_and_jacobian():
     assert np.allclose(result[:3], [0, 2, np.pi], atol=1e-14)
     transition, _ = m.motion_jacobians(state, 1, 1.1, 0.1)
     assert transition[2, 3] == pytest.approx(-0.1)
+
+
+def test_ekf_prediction_preserves_psd():
+    filt = m.PoseEKF()
+    for _ in range(30):
+        filt.predict(1, 0.2, 0.1)
+    assert np.linalg.eigvalsh(filt.covariance).min() > 0
+    assert filt.mean[0] > 2

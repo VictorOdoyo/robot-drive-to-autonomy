@@ -37,3 +37,30 @@ def motion_jacobians(mean, speed, gyro, dt):
         jacobian(lambda x: motion(x, speed, gyro, dt), mean),
         jacobian(lambda u: motion(mean, u[0], u[1], dt), [speed, gyro]),
     )
+
+
+class PoseEKF:
+    def __init__(self, mean=None, covariance=None):
+        from .numerics import covariance as validate
+
+        self.mean = np.array([0.0, 0.0, 0.0, 0.0] if mean is None else mean, dtype=float)
+        if self.mean.shape != (4,) or not np.all(np.isfinite(self.mean)):
+            raise ValueError("finite [x,y,yaw,bias] state required")
+        self.covariance = validate(
+            np.diag([0.01, 0.01, 0.01, 0.001]) if covariance is None else covariance, 4
+        )
+        self.last_nis = None
+
+    def predict(self, speed, gyro, dt, speed_density=0.002, gyro_density=0.0004, bias_density=1e-7):
+        from .geometry import wrap
+
+        if dt <= 0 or min(speed_density, gyro_density, bias_density) < 0:
+            raise ValueError("invalid EKF process noise or dt")
+        transition, inputs = motion_jacobians(self.mean, speed, gyro, dt)
+        process = inputs @ np.diag([speed_density, gyro_density]) @ inputs.T / dt
+        process[3, 3] += bias_density * dt
+        self.mean = motion(self.mean, speed, gyro, dt)
+        self.mean[2] = wrap(self.mean[2])
+        self.covariance = transition @ self.covariance @ transition.T + process
+        self.covariance = (self.covariance + self.covariance.T) / 2
+        return transition
