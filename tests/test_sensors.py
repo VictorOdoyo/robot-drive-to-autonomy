@@ -10,3 +10,10 @@ def test_encoder_rollover():
     delta = encoder.increment(a, b)
     assert delta == pytest.approx(0.02, abs=2 * np.pi / 1024)
     assert np.isfinite(delta)
+
+
+def test_encoder_uncertainty_rate_scaling():
+    encoder = m.Encoder()
+    assert m.encoder_speed_variance(encoder, 0.01) / m.encoder_speed_variance(encoder, 0.02) == pytest.approx(
+        4
+    )

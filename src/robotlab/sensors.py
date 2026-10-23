@@ -21,3 +21,10 @@ class Encoder:
         if abs(difference) == modulus // 2:
             raise ValueError("ambiguous half-range rollover")
         return difference * 2 * np.pi / self.counts_per_revolution
+
+
+def encoder_speed_variance(encoder, dt):
+    if dt <= 0:
+        raise ValueError("positive sampling period required")
+    quantum = 2 * np.pi / encoder.counts_per_revolution
+    return quantum**2 / (6 * dt**2)
