@@ -261,3 +261,18 @@ def energy_path(graph, start, goal, budget=np.inf):
                 best[nxt], parent[nxt] = candidate, node
                 heapq.heappush(queue, (candidate, nxt))
     raise ValueError("no route within energy budget")
+
+
+def elastic_smooth(path, blocked, weight=0.3, iterations=100):
+    if not 0 < weight < 0.5 or iterations < 0:
+        raise ValueError("invalid smoothing parameters")
+    points = np.asarray(path, dtype=float).copy()
+    for _ in range(iterations):
+        previous = points.copy()
+        for k in range(1, len(points) - 1):
+            candidate = points[k] + weight * (points[k - 1] + points[k + 1] - 2 * points[k])
+            if line_free(blocked, points[k - 1], candidate) and line_free(blocked, candidate, points[k + 1]):
+                points[k] = candidate
+        if np.max(np.abs(points - previous), initial=0) < 1e-7:
+            break
+    return points

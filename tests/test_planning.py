@@ -96,3 +96,14 @@ def test_energy_path_prefers_efficient_detour():
     assert path == [0, 2, 1] and energy == 50
     with pytest.raises(ValueError):
         m.energy_path(graph, 0, 1, 40)
+
+
+def test_elastic_smoothing_preserves_endpoints():
+    blocked = np.zeros((10, 10), bool)
+    path = np.array([[1, 1], [2, 5], [5, 2], [8, 8.0]])
+    smooth = m.elastic_smooth(path, blocked)
+    assert np.allclose(smooth[[0, -1]], path[[0, -1]])
+    assert (
+        np.linalg.norm(np.diff(smooth, axis=0), axis=1).sum()
+        < np.linalg.norm(np.diff(path, axis=0), axis=1).sum()
+    )
