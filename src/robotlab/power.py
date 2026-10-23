@@ -126,3 +126,14 @@ def route_energy(length, speed, mass=18, rolling=0.015, efficiency=0.75, auxilia
     work = mass * 9.80665 * (rolling * np.cos(grade) + np.sin(grade)) * length
     traction = work / efficiency if work >= 0 else work * efficiency
     return traction + auxiliary * length / speed
+
+
+def reserve_margin(available_energy, mission_energy, return_energy, reserve_fraction=0.15):
+    if min(available_energy, mission_energy, return_energy) < 0 or not 0 <= reserve_fraction < 1:
+        raise ValueError("invalid energy budget")
+    required = (mission_energy + return_energy) / (1 - reserve_fraction)
+    return {
+        "required_j": required,
+        "margin_j": available_energy - required,
+        "feasible": available_energy >= required,
+    }

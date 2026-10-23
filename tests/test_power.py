@@ -70,3 +70,10 @@ def test_auxiliary_energy_penalizes_slow_routes():
     slow = m.route_energy(10, 0.25)
     fast = m.route_energy(10, 1)
     assert slow - fast == pytest.approx(12 * (40 - 10))
+
+
+def test_return_reserve():
+    result = m.reserve_margin(1000, 500, 200, 0.2)
+    assert result["required_j"] == pytest.approx(875)
+    assert result["feasible"]
+    assert not m.reserve_margin(800, 500, 200, 0.2)["feasible"]
