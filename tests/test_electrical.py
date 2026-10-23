@@ -30,3 +30,10 @@ def test_loaded_motor_equilibrium():
     state = m.motor_equilibrium(motor, 12, 0.3)
     assert np.allclose(motor.derivative(*state, 12, 0.3), 0, atol=1e-10)
     assert m.stall_torque(motor, 12) > 0.3
+
+
+def test_exact_motor_step_composes():
+    motor = m.Motor()
+    first = m.motor_step(motor, [0, 0], 12, 0.1, 0.01)
+    twice = m.motor_step(motor, first, 12, 0.1, 0.01)
+    assert np.allclose(twice, m.motor_step(motor, [0, 0], 12, 0.1, 0.02))

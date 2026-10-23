@@ -58,3 +58,21 @@ def motor_equilibrium(motor, voltage, load_torque=0):
 
 def stall_torque(motor, voltage):
     return motor.constant * voltage / motor.resistance
+
+
+def motor_state_space(motor):
+    matrix = np.array(
+        [
+            [-motor.resistance / motor.inductance, -motor.constant / motor.inductance],
+            [motor.constant / motor.inertia, -motor.viscous / motor.inertia],
+        ]
+    )
+    inputs = np.array([[1 / motor.inductance, 0], [0, -1 / motor.inertia]])
+    return matrix, inputs
+
+
+def motor_step(motor, state, voltage, load_torque, dt):
+    from .numerics import discretize
+
+    ad, bd = discretize(*motor_state_space(motor), dt)
+    return ad @ state + bd @ [voltage, load_torque]
