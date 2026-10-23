@@ -76,3 +76,11 @@ def cumulative_integral(time, values):
     scale = np.diff(time).reshape((-1,) + (1,) * (values.ndim - 1))
     intervals = scale * (values[1:] + values[:-1]) / 2
     return np.concatenate([np.zeros_like(values[:1]), np.cumsum(intervals, axis=0)])
+
+
+def convergence_order(coarse, medium, fine):
+    first = np.linalg.norm(np.asarray(coarse) - medium)
+    second = np.linalg.norm(np.asarray(medium) - fine)
+    if min(first, second) <= 0:
+        raise ValueError("distinct nonzero refinement errors required")
+    return float(np.log2(first / second))

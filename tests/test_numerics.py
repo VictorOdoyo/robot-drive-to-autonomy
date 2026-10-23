@@ -52,3 +52,7 @@ def test_vector_energy_integral():
     time = np.array([0, 0.2, 0.7, 1])
     power = np.column_stack([2 * time, np.ones(4) * 3])
     assert np.allclose(m.cumulative_integral(time, power)[-1], [1, 3])
+
+
+def test_refinement_order():
+    assert m.convergence_order([1 + 0.2**4], [1 + 0.1**4], [1 + 0.05**4]) == pytest.approx(4)
