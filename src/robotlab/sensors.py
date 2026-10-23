@@ -42,3 +42,9 @@ def count_window_speed(times, unwrapped_counts, counts_per_revolution):
     centered = times - times.mean()
     slope = centered @ (counts - counts.mean()) / (centered @ centered)
     return float(slope * 2 * np.pi / counts_per_revolution)
+
+
+def gyro_measurement(yaw_rate, bias, noise_std, rng):
+    if noise_std < 0:
+        raise ValueError("negative noise standard deviation")
+    return float(yaw_rate + bias + rng.normal(0, noise_std))

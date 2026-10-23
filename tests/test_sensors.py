@@ -23,3 +23,10 @@ def test_count_window_rejects_dc_count_offset():
     times = np.array([0, 0.1, 0.2, 0.3])
     counts = 100000 + 100 * times
     assert m.count_window_speed(times, counts, 100) == pytest.approx(2 * np.pi)
+
+
+def test_seeded_gyro_noise():
+    rng = np.random.default_rng(42)
+    samples = np.array([m.gyro_measurement(0.2, 0.03, 0.01, rng) for _ in range(5000)])
+    assert samples.mean() == pytest.approx(0.23, abs=0.0005)
+    assert samples.std() == pytest.approx(0.01, rel=0.04)
