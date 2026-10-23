@@ -21,3 +21,9 @@ def test_current_loop_pole_cancellation():
     kp, ki = m.current_gains(0.4, 0.002, 500)
     assert ki / kp == pytest.approx(0.4 / 0.002)
     assert kp / 0.002 == pytest.approx(500)
+
+
+def test_speed_loop_characteristic():
+    kp, ki = m.velocity_gains(0.04, 0.01, 0.7, 8, 0.8)
+    roots = np.roots([0.04, 0.01 + 0.7 * kp, 0.7 * ki])
+    assert np.allclose(roots, [-6.4 + 4.8j, -6.4 - 4.8j])

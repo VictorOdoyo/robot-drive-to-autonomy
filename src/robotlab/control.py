@@ -33,3 +33,13 @@ def current_gains(resistance, inductance, bandwidth):
     if min(resistance, inductance, bandwidth) <= 0:
         raise ValueError("positive winding parameters required")
     return inductance * bandwidth, resistance * bandwidth
+
+
+def velocity_gains(inertia, damping, torque_constant, bandwidth, damping_ratio=1):
+    if min(inertia, torque_constant, bandwidth, damping_ratio) <= 0 or damping < 0:
+        raise ValueError("invalid speed loop parameters")
+    kp = (2 * damping_ratio * bandwidth * inertia - damping) / torque_constant
+    ki = inertia * bandwidth**2 / torque_constant
+    if kp < 0:
+        raise ValueError("requested bandwidth below passive damping")
+    return kp, ki
