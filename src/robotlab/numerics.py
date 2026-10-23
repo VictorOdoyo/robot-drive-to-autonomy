@@ -56,3 +56,14 @@ def covariance(matrix, size=None):
     if np.linalg.eigvalsh(matrix).min() < -1e-12:
         raise ValueError("covariance must be positive semidefinite")
     return (matrix + matrix.T) / 2
+
+
+def timeline(duration, dt, events=()):
+    if not np.isfinite(duration) or duration <= 0 or not np.isfinite(dt) or dt <= 0:
+        raise ValueError("duration and dt must be finite and positive")
+    events = np.asarray(events, dtype=float)
+    if np.any(~np.isfinite(events)) or np.any((events < 0) | (events > duration)):
+        raise ValueError("events outside simulation interval")
+    regular = np.arange(int(np.floor(duration / dt)) + 1) * dt
+    values = np.unique(np.r_[regular[regular < duration], events, duration])
+    return values

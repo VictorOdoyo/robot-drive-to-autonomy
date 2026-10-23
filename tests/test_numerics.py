@@ -39,3 +39,10 @@ def test_invalid_covariances():
     for bad in ([[1, 2], [0, 1]], [[1, 2], [2, 1]], [[float("nan")]]):
         with pytest.raises(ValueError):
             m.covariance(bad)
+
+
+def test_timeline_hits_disturbances():
+    times = m.timeline(1, 0.3, [0.17, 0.81])
+    assert np.all(np.diff(times) > 0)
+    assert times[-1] == 1
+    assert 0.17 in times and 0.81 in times
