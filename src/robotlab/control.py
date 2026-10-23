@@ -21,3 +21,9 @@ class PI:
         output = float(np.clip(raw, lower, upper))
         self.integral += dt * (self.ki * error + self.tracking_gain * (output - raw))
         return output
+
+
+def reset_pi(controller, output, error=0, feedforward=0):
+    if not np.isfinite(output + error + feedforward):
+        raise ValueError("nonfinite reset")
+    controller.integral = output - controller.kp * error - feedforward
