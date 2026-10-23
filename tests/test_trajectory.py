@@ -23,3 +23,9 @@ def test_resample_duplicate_waypoints():
     points = m.resample_path([[0, 0], [0, 0], [1, 0], [1, 1]], 0.1)
     assert np.allclose(points[[0, -1]], [[0, 0], [1, 1]])
     assert m.arc_length(points)[-1] == pytest.approx(2)
+
+
+def test_circular_path_curvature():
+    angle = np.linspace(0, np.pi, 100)
+    points = np.column_stack([2 * np.cos(angle), 2 * np.sin(angle)])
+    assert np.allclose(m.path_curvature(points), 0.5, atol=1e-10)

@@ -74,3 +74,16 @@ def resample_path(points, spacing=0.05):
         raise ValueError("path has zero length")
     samples = np.linspace(0, distance[-1], max(2, int(np.ceil(distance[-1] / spacing)) + 1))
     return np.column_stack([np.interp(samples, distance[keep], points[keep, k]) for k in range(2)])
+
+
+def path_curvature(points):
+    points = np.asarray(points, dtype=float)
+    arc_length(points)
+    curvature = np.zeros(len(points))
+    for k in range(1, len(points) - 1):
+        a, b = points[k] - points[k - 1], points[k + 1] - points[k]
+        denominator = np.linalg.norm(a) * np.linalg.norm(b) * np.linalg.norm(a + b)
+        curvature[k] = 0 if denominator < 1e-12 else 2 * (a[0] * b[1] - a[1] * b[0]) / denominator
+    if len(points) > 2:
+        curvature[0], curvature[-1] = curvature[1], curvature[-2]
+    return curvature
