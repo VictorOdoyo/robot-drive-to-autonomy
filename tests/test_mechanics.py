@@ -42,3 +42,11 @@ def test_grade_energy():
 def test_friction_circle():
     assert m.traction_limit(100, 0.5, 30) == pytest.approx(40)
     assert m.traction_limit(100, 0.5, 60) == 0
+
+
+def test_lateral_load_transfer():
+    loads, lift = m.normal_loads(20, 0.4, 0.2, 2)
+    assert loads.sum() == pytest.approx(20 * 9.80665)
+    assert loads[1] - loads[0] == pytest.approx(40)
+    assert not lift
+    assert m.normal_loads(20, 0.4, 0.2, 20)[1]

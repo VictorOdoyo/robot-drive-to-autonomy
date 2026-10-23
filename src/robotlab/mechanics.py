@@ -59,3 +59,11 @@ def traction_limit(normal_force, friction, lateral_force=0):
     if np.any(normal_force < 0) or np.any(friction < 0):
         raise ValueError("negative contact parameter")
     return np.sqrt(np.maximum((normal_force * friction) ** 2 - lateral_force**2, 0))
+
+
+def normal_loads(mass, track, height, lateral_acceleration, gravity=9.80665):
+    if min(mass, track, gravity) <= 0 or height < 0:
+        raise ValueError("invalid support geometry")
+    transfer = mass * lateral_acceleration * height / track
+    loads = mass * gravity / 2 + np.array([-transfer, transfer])
+    return np.maximum(loads, 0), bool(np.any(loads <= 0))
