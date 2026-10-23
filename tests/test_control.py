@@ -40,3 +40,9 @@ def test_feedforward_cancels_winding_rhs():
 def test_asymmetric_slew():
     assert m.slew(0, 1, 2, 0.1) == pytest.approx(0.2)
     assert m.slew(1, 0, 2, 0.1, 4) == pytest.approx(0.6)
+
+
+def test_jerk_limited_start():
+    speed, acceleration = m.jerk_step(0, 0, 1, 2, 5, 0.1)
+    assert acceleration == pytest.approx(0.5)
+    assert speed == pytest.approx(0.025)

@@ -60,3 +60,12 @@ def slew(previous, target, rate, dt, deceleration=None):
         raise ValueError("positive slew bounds required")
     bound = rate if deceleration is None or abs(target) > abs(previous) else deceleration
     return float(previous + np.clip(target - previous, -bound * dt, bound * dt))
+
+
+def jerk_step(speed, acceleration, target_speed, max_acceleration, max_jerk, dt):
+    if min(max_acceleration, max_jerk, dt) <= 0:
+        raise ValueError("positive motion bounds required")
+    desired = np.clip((target_speed - speed) / dt, -max_acceleration, max_acceleration)
+    next_acceleration = slew(acceleration, desired, max_jerk, dt)
+    next_speed = speed + 0.5 * (acceleration + next_acceleration) * dt
+    return next_speed, next_acceleration
