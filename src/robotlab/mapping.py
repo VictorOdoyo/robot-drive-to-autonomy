@@ -26,3 +26,17 @@ class OccupancyGrid:
         from scipy.special import expit
 
         return expit(self.log_odds)
+
+
+def rasterize(grid, rectangles):
+    half = grid.resolution / 2
+    for row in range(grid.log_odds.shape[0]):
+        for col in range(grid.log_odds.shape[1]):
+            x, y = grid.center((row, col))
+            occupied = any(
+                x + half >= r[0] and x - half <= r[2] and y + half >= r[1] and y - half <= r[3]
+                for r in rectangles
+            )
+            grid.log_odds[row, col] = 8.0 if occupied else -8.0
+            grid.observed[row, col] = True
+    return grid
