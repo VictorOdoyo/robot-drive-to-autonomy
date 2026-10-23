@@ -28,3 +28,17 @@ def encoder_speed_variance(encoder, dt):
         raise ValueError("positive sampling period required")
     quantum = 2 * np.pi / encoder.counts_per_revolution
     return quantum**2 / (6 * dt**2)
+
+
+def count_window_speed(times, unwrapped_counts, counts_per_revolution):
+    times, counts = np.asarray(times), np.asarray(unwrapped_counts)
+    if (
+        len(times) < 2
+        or counts.shape != times.shape
+        or np.any(np.diff(times) <= 0)
+        or counts_per_revolution <= 0
+    ):
+        raise ValueError("ordered count-time pairs required")
+    centered = times - times.mean()
+    slope = centered @ (counts - counts.mean()) / (centered @ centered)
+    return float(slope * 2 * np.pi / counts_per_revolution)
