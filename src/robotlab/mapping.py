@@ -40,3 +40,23 @@ def rasterize(grid, rectangles):
             grid.log_odds[row, col] = 8.0 if occupied else -8.0
             grid.observed[row, col] = True
     return grid
+
+
+def ray_cells(start, end):
+    y0, x0 = start
+    y1, x1 = end
+    dx, dy = abs(x1 - x0), -abs(y1 - y0)
+    sx, sy = (1 if x0 < x1 else -1), (1 if y0 < y1 else -1)
+    error = dx + dy
+    cells = []
+    while True:
+        cells.append((y0, x0))
+        if (y0, x0) == (y1, x1):
+            return cells
+        twice = 2 * error
+        if twice >= dy:
+            error += dy
+            x0 += sx
+        if twice <= dx:
+            error += dx
+            y0 += sy
