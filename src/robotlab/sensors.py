@@ -54,3 +54,11 @@ def bias_step(bias, spectral_density, dt, rng):
     if spectral_density < 0 or dt < 0:
         raise ValueError("invalid bias random walk")
     return float(bias + rng.normal(0, np.sqrt(spectral_density * dt)))
+
+
+def adc(value, full_scale, bits, offset=0):
+    if full_scale <= 0 or not 2 <= bits <= 24:
+        raise ValueError("invalid ADC range")
+    maximum = (1 << (bits - 1)) - 1
+    raw = np.clip(np.rint((np.asarray(value) + offset) / full_scale * maximum), -maximum, maximum)
+    return raw * full_scale / maximum

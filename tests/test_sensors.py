@@ -36,3 +36,8 @@ def test_bias_noise_discretization():
     rng = np.random.default_rng(7)
     changes = np.array([m.bias_step(0, 0.02, 0.1, rng) for _ in range(10000)])
     assert changes.var() == pytest.approx(0.002, rel=0.04)
+
+
+def test_adc_saturation():
+    assert np.allclose(m.adc([-100, 0, 100], 20, 12), [-20, 0, 20])
+    assert m.adc(1, 20, 12, 0.1) == pytest.approx(1.1, abs=20 / 2047)
