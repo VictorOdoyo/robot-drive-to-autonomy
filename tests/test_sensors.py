@@ -49,3 +49,10 @@ def test_delayed_measurements_keep_acquisition_stamp():
     assert queue.ready(0.14) == []
     assert queue.ready(0.15) == [(0.1, 7)]
     assert queue.ready(1) == []
+
+
+def test_packet_timing_checks():
+    assert m.valid_stamp(0.9, 1, 0.8, 0.2)
+    assert not m.valid_stamp(1.1, 1, 0.8, 0.2)
+    assert not m.valid_stamp(0.7, 1, 0.8, 0.2)
+    assert not m.valid_stamp(0.9, 1, 0.9, 0.2)
