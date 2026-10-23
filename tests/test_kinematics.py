@@ -28,3 +28,12 @@ def test_curvature_preserving_limit():
     wheels, scale = m.limit_twist(2, 3, 10, drive)
     assert max(abs(wheels)) == pytest.approx(10)
     assert np.allclose(drive.forward(wheels), np.array([2, 3]) * scale)
+
+
+def test_radius_identification():
+    drive = m.DriveGeometry(0.077, 0.084, 0.43)
+    increments = np.array([[10, 10], [-5, 5], [20, 15]])
+    body = np.array([drive.forward(row) for row in increments])
+    fitted = m.calibrate_radii(increments, body, 0.43)
+    assert fitted.left_radius == pytest.approx(0.077)
+    assert fitted.right_radius == pytest.approx(0.084)

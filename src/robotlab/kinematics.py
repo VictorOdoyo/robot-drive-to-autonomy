@@ -58,3 +58,16 @@ def limit_twist(speed, yaw_rate, max_wheel_rate, geometry=DriveGeometry()):
     wheels = geometry.inverse(speed, yaw_rate)
     scale = min(1.0, max_wheel_rate / max(np.max(np.abs(wheels)), 1e-15))
     return wheels * scale, scale
+
+
+def calibrate_radii(wheel_increments, body_increments, track):
+    wheels, body = np.asarray(wheel_increments), np.asarray(body_increments)
+    if wheels.ndim != 2 or wheels.shape[1] != 2 or body.shape != wheels.shape or track <= 0:
+        raise ValueError("need paired Nx2 wheel and body measurements")
+    matrix = np.zeros((2 * len(wheels), 2))
+    matrix[0::2] = wheels / 2
+    matrix[1::2] = wheels * np.array([-1, 1]) / track
+    if np.linalg.matrix_rank(matrix) < 2:
+        raise ValueError("wheel radii are unobservable")
+    radii = np.linalg.lstsq(matrix, body.reshape(-1), rcond=None)[0]
+    return DriveGeometry(*radii, track)
