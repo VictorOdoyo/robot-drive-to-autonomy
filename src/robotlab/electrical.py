@@ -23,3 +23,19 @@ class Motor:
                 (self.constant * current - self.viscous * omega - load_torque) / self.inertia,
             ]
         )
+
+
+def motor_power(motor, current, omega, voltage, load_torque=0):
+    derivative = motor.derivative(current, omega, voltage, load_torque)
+    stored_rate = motor.inductance * current * derivative[0] + motor.inertia * omega * derivative[1]
+    return {
+        "input": voltage * current,
+        "copper": motor.resistance * current**2,
+        "friction": motor.viscous * omega**2,
+        "shaft": load_torque * omega,
+        "stored_rate": stored_rate,
+    }
+
+
+def motor_energy(motor, current, omega):
+    return 0.5 * (motor.inductance * current**2 + motor.inertia * omega**2)
