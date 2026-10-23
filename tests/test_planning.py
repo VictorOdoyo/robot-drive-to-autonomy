@@ -32,3 +32,10 @@ def test_line_of_sight_checks_diagonal_corner():
     blocked[0, 1] = True
     assert not m.line_free(blocked, (0, 0), (2, 2))
     assert m.line_free(blocked, (1, 0), (2, 0))
+
+
+def test_shortcut_open_route():
+    blocked = np.zeros((10, 10), bool)
+    path, _ = m.astar(blocked, (1, 1), (8, 7))
+    result = m.shortcut(path, blocked)
+    assert result == [(1, 1), (8, 7)]

@@ -88,3 +88,18 @@ def line_free(blocked, start, end):
             ):
                 return False
     return True
+
+
+def shortcut(path, blocked):
+    if len(path) < 2:
+        return list(path)
+    result, index = [path[0]], 0
+    while index < len(path) - 1:
+        target = len(path) - 1
+        while target > index + 1 and not line_free(blocked, path[index], path[target]):
+            target -= 1
+        if not line_free(blocked, path[index], path[target]):
+            raise ValueError("input path contains unsafe segment")
+        result.append(path[target])
+        index = target
+    return result
