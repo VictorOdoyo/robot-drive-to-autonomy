@@ -92,3 +92,9 @@ def distance_field(grid, threshold=0.65, unknown_occupied=True):
     free = np.pad(~occupied, 1, constant_values=False)
     distance = distance_transform_edt(free)[1:-1, 1:-1] * grid.resolution
     return np.maximum(distance - grid.resolution * np.sqrt(2) / 2, 0)
+
+
+def inflated_mask(grid, radius, margin=0, unknown_occupied=True):
+    if min(radius, margin) < 0:
+        raise ValueError("negative footprint")
+    return distance_field(grid, unknown_occupied=unknown_occupied) <= radius + margin
