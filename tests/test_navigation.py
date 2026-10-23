@@ -42,3 +42,9 @@ def test_moving_circle_collision():
     assert m.collision_time([3, 0], [-1, 0], 1) == pytest.approx(2)
     assert np.isinf(m.collision_time([3, 0], [1, 0], 1))
     assert np.isinf(m.collision_time([3, 2], [-1, 0], 1))
+
+
+def test_safe_speed_exact_stopping_constraint():
+    speed = m.safe_speed(1, 0.6, 0.2, 0.05)
+    assert speed * 0.2 + speed**2 / (2 * 0.6) == pytest.approx(0.85)
+    assert m.safe_speed(0.1, position_sigma=0.1) == 0

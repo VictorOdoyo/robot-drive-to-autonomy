@@ -111,3 +111,12 @@ def collision_time(relative_position, relative_velocity, combined_radius, horizo
         return np.inf
     collision = (-b - np.sqrt(discriminant)) / (2 * a)
     return float(collision) if collision <= horizon else np.inf
+
+
+def safe_speed(clearance, deceleration=0.6, latency=0.1, position_sigma=0, sigma_multiplier=3):
+    if deceleration <= 0 or min(latency, position_sigma, sigma_multiplier) < 0:
+        raise ValueError("invalid stopping constraints")
+    available = max(0, clearance - sigma_multiplier * position_sigma)
+    return float(
+        max(0, np.sqrt((deceleration * latency) ** 2 + 2 * deceleration * available) - deceleration * latency)
+    )
