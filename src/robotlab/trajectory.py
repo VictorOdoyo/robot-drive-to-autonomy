@@ -130,3 +130,17 @@ def circle(time, radius=1, speed=0.5):
     pose = np.column_stack([radius * np.sin(angle), radius * (1 - np.cos(angle)), angle])
     twist = np.tile([speed, speed / radius], (len(time), 1))
     return pose, twist
+
+
+def figure_eight(time, scale=1, frequency=0.15):
+    if scale <= 0 or frequency <= 0:
+        raise ValueError("positive figure-eight dimensions required")
+    time = np.asarray(time)
+    angle = frequency * time
+    x, y = scale * np.sin(angle), scale * np.sin(2 * angle) / 2
+    dx, dy = scale * frequency * np.cos(angle), scale * frequency * np.cos(2 * angle)
+    ddx, ddy = -scale * frequency**2 * np.sin(angle), -2 * scale * frequency**2 * np.sin(2 * angle)
+    speed = np.hypot(dx, dy)
+    yaw = np.unwrap(np.arctan2(dy, dx))
+    yaw_rate = (dx * ddy - dy * ddx) / np.maximum(speed**2, 1e-12)
+    return np.column_stack([x, y, yaw]), np.column_stack([speed, yaw_rate])

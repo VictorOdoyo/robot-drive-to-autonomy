@@ -51,3 +51,11 @@ def test_circle_reference_derivative():
     pose, twist = m.circle(time, 2, 0.5)
     velocity = np.gradient(pose[:, :2], time, axis=0)
     assert np.allclose(np.linalg.norm(velocity[1:-1], axis=1), twist[1:-1, 0], atol=1e-7)
+
+
+def test_figure_eight_closed_reference():
+    period = 2 * np.pi / 0.2
+    pose, twist = m.figure_eight(np.linspace(0, period, 1001), frequency=0.2)
+    assert np.allclose(pose[0, :2], pose[-1, :2], atol=1e-12)
+    assert np.all(np.isfinite(twist))
+    assert np.max(twist[:, 1]) > 0 and np.min(twist[:, 1]) < 0
