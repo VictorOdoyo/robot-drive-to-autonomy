@@ -170,3 +170,17 @@ def visit_order(distance_matrix, start=0, return_to_start=True):
     if not candidates:
         raise ValueError("no finite tour")
     return min(candidates)
+
+
+def rank_frontiers(frontiers, distances, information_gain, travel_penalty=1):
+    frontiers = np.asarray(frontiers, dtype=int)
+    gains = np.asarray(information_gain)
+    if len(frontiers) != len(gains) or travel_penalty <= 0 or np.any(gains < 0):
+        raise ValueError("invalid frontier utilities")
+    scores = np.array(
+        [
+            gain / (travel_penalty + distances[tuple(cell)])
+            for cell, gain in zip(frontiers, gains, strict=True)
+        ]
+    )
+    return np.argsort(-scores), scores

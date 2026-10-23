@@ -68,3 +68,9 @@ def test_multi_stop_optimum_against_enumeration():
         for p in itertools.permutations([1, 2, 3])
     )
     assert cost == brute and path[0] == path[-1] == 0
+
+
+def test_frontier_utility_balances_gain_and_distance():
+    distance = np.array([[0.0, 1, 10]])
+    order, scores = m.rank_frontiers([[0, 1], [0, 2]], distance, [3, 5])
+    assert order[0] == 0 and scores[0] > scores[1]
