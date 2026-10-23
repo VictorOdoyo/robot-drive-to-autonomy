@@ -107,3 +107,11 @@ def test_elastic_smoothing_preserves_endpoints():
         np.linalg.norm(np.diff(smooth, axis=0), axis=1).sum()
         < np.linalg.norm(np.diff(path, axis=0), axis=1).sum()
     )
+
+
+def test_route_invalidated_by_new_obstacle():
+    blocked = np.zeros((10, 10), bool)
+    route = [(1, 1), (8, 8)]
+    assert m.route_valid(route, blocked)
+    blocked[4, 4] = True
+    assert not m.route_valid(route, blocked)

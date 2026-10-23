@@ -276,3 +276,13 @@ def elastic_smooth(path, blocked, weight=0.3, iterations=100):
         if np.max(np.abs(points - previous), initial=0) < 1e-7:
             break
     return points
+
+
+def route_valid(path, blocked):
+    from itertools import pairwise
+
+    return bool(
+        len(path) > 0
+        and all(line_free(blocked, a, b) for a, b in pairwise(path))
+        and line_free(blocked, path[-1], path[-1])
+    )
