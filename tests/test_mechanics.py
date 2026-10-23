@@ -50,3 +50,11 @@ def test_lateral_load_transfer():
     assert loads[1] - loads[0] == pytest.approx(40)
     assert not lift
     assert m.normal_loads(20, 0.4, 0.2, 20)[1]
+
+
+def test_tire_slip_dissipation():
+    for surface, ground in [(1, 0), (-1, 0), (0, 2)]:
+        force = m.tire_force(surface, ground, 100, 0.4)
+        assert abs(force) <= 40
+        assert force * (surface - ground) >= 0
+    assert m.slip_ratio(0, 0) == 0

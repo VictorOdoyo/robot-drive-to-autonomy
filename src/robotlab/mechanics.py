@@ -67,3 +67,17 @@ def normal_loads(mass, track, height, lateral_acceleration, gravity=9.80665):
     transfer = mass * lateral_acceleration * height / track
     loads = mass * gravity / 2 + np.array([-transfer, transfer])
     return np.maximum(loads, 0), bool(np.any(loads <= 0))
+
+
+def tire_force(surface_speed, ground_speed, normal_force, friction=0.6, stiffness=120):
+    if normal_force < 0 or friction < 0 or stiffness <= 0:
+        raise ValueError("invalid tire model")
+    difference = surface_speed - ground_speed
+    bound = friction * normal_force
+    return float(np.clip(stiffness * difference, -bound, bound))
+
+
+def slip_ratio(surface_speed, ground_speed, regularization=0.1):
+    if regularization <= 0:
+        raise ValueError("regularization must be positive")
+    return (surface_speed - ground_speed) / max(abs(surface_speed), abs(ground_speed), regularization)
