@@ -48,3 +48,9 @@ def gyro_measurement(yaw_rate, bias, noise_std, rng):
     if noise_std < 0:
         raise ValueError("negative noise standard deviation")
     return float(yaw_rate + bias + rng.normal(0, noise_std))
+
+
+def bias_step(bias, spectral_density, dt, rng):
+    if spectral_density < 0 or dt < 0:
+        raise ValueError("invalid bias random walk")
+    return float(bias + rng.normal(0, np.sqrt(spectral_density * dt)))

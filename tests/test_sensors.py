@@ -30,3 +30,9 @@ def test_seeded_gyro_noise():
     samples = np.array([m.gyro_measurement(0.2, 0.03, 0.01, rng) for _ in range(5000)])
     assert samples.mean() == pytest.approx(0.23, abs=0.0005)
     assert samples.std() == pytest.approx(0.01, rel=0.04)
+
+
+def test_bias_noise_discretization():
+    rng = np.random.default_rng(7)
+    changes = np.array([m.bias_step(0, 0.02, 0.1, rng) for _ in range(10000)])
+    assert changes.var() == pytest.approx(0.002, rel=0.04)
