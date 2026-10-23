@@ -25,3 +25,12 @@ def test_chemical_energy_gradient():
     delta = 1e-5
     gradient = (m.chemical_energy(pack, 0.6 + delta) - m.chemical_energy(pack, 0.6 - delta)) / (2 * delta)
     assert gradient == pytest.approx(3600 * pack.capacity_ah * pack.ocv(0.6), rel=1e-9)
+
+
+def test_battery_power_solution():
+    pack = m.Battery()
+    for power in (0, 100, -80):
+        current = m.current_for_power(pack, 0.6, 0.2, power)
+        assert current * m.terminal_voltage(pack, 0.6, 0.2, current) == pytest.approx(power)
+    with pytest.raises(ValueError):
+        m.current_for_power(pack, 0.6, 0, 1e6)

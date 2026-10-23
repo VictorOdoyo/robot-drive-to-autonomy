@@ -57,3 +57,14 @@ def chemical_energy(pack, soc):
         * pack.capacity_ah
         * (pack.empty_voltage * soc + 0.5 * (pack.full_voltage - pack.empty_voltage) * soc**2)
     )
+
+
+def current_for_power(pack, soc, polarization, power):
+    source = pack.ocv(soc) - polarization
+    if source <= 0:
+        raise ValueError("nonpositive battery source voltage")
+    discriminant = source**2 - 4 * pack.resistance * power
+    if discriminant < 0:
+        raise ValueError("requested power exceeds battery maximum")
+    # Rationalized expression avoids cancellation near zero power.
+    return float(2 * power / (source + np.sqrt(discriminant)))
