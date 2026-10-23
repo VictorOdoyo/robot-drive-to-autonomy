@@ -78,3 +78,10 @@ def test_map_decay():
     grid.log_odds[:] = 4
     m.decay_map(grid, 2, 2)
     assert np.allclose(grid.log_odds, 4 / np.e)
+
+
+def test_likelihood_prefers_wall_alignment():
+    grid = m.rasterize(m.OccupancyGrid(50, 30, 0.1), [[3, 0, 3.2, 3]])
+    good = m.scan_likelihood(grid, [1, 1, 0], [0], [2.0])
+    bad = m.scan_likelihood(grid, [0.5, 1, 0], [0], [2.0])
+    assert good > bad

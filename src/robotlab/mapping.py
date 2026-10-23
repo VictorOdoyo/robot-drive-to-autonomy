@@ -129,3 +129,20 @@ def decay_map(grid, dt, time_constant):
     if dt < 0 or time_constant <= 0:
         raise ValueError("invalid occupancy decay timing")
     grid.log_odds *= np.exp(-dt / time_constant)
+
+
+def scan_likelihood(grid, pose, angles, ranges, sigma=0.15, max_range=10):
+    if sigma <= 0:
+        raise ValueError("positive range likelihood scale required")
+    field = distance_field(grid, unknown_occupied=False)
+    logs = []
+    for angle, distance in zip(angles, ranges, strict=True):
+        if not np.isfinite(distance) or distance >= max_range or distance < 0:
+            continue
+        endpoint = np.asarray(pose[:2]) + distance * np.array(
+            [np.cos(pose[2] + angle), np.sin(pose[2] + angle)]
+        )
+        cell = grid.cell(endpoint)
+        error = field[cell] if grid.contains(cell) else max_range
+        logs.append(-0.5 * (error / sigma) ** 2)
+    return float(np.mean(logs)) if logs else -np.inf
