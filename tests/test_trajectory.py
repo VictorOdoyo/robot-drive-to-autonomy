@@ -29,3 +29,11 @@ def test_circular_path_curvature():
     angle = np.linspace(0, np.pi, 100)
     points = np.column_stack([2 * np.cos(angle), 2 * np.sin(angle)])
     assert np.allclose(m.path_curvature(points), 0.5, atol=1e-10)
+
+
+def test_retiming_satisfies_squared_speed_constraints():
+    points = m.resample_path([[0, 0], [3, 0], [3, 3]], 0.05)
+    speed = m.speed_profile(points)
+    ds = np.diff(m.arc_length(points))
+    assert np.all(np.abs(np.diff(speed**2)) <= 2 * 0.6 * ds + 1e-12)
+    assert np.all(speed**2 * np.abs(m.path_curvature(points)) <= 0.8 + 1e-12)

@@ -87,3 +87,22 @@ def path_curvature(points):
     if len(points) > 2:
         curvature[0], curvature[-1] = curvature[1], curvature[-2]
     return curvature
+
+
+def speed_profile(points, max_speed=1, max_acceleration=0.6, max_lateral=0.8, start_speed=0, end_speed=0):
+    if min(max_speed, max_acceleration, max_lateral) <= 0 or min(start_speed, end_speed) < 0:
+        raise ValueError("invalid retiming limits")
+    distance = arc_length(points)
+    curvature = np.abs(path_curvature(points))
+    speed = np.minimum(max_speed, np.sqrt(max_lateral / np.maximum(curvature, 1e-12)))
+    speed[0] = min(speed[0], start_speed)
+    for k in range(1, len(speed)):
+        speed[k] = min(
+            speed[k], np.sqrt(speed[k - 1] ** 2 + 2 * max_acceleration * (distance[k] - distance[k - 1]))
+        )
+    speed[-1] = min(speed[-1], end_speed)
+    for k in range(len(speed) - 2, -1, -1):
+        speed[k] = min(
+            speed[k], np.sqrt(speed[k + 1] ** 2 + 2 * max_acceleration * (distance[k + 1] - distance[k]))
+        )
+    return speed
