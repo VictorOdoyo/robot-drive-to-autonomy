@@ -71,3 +71,10 @@ def test_winding_identification():
     omega = np.arange(5) * 10
     voltage = 0.4 * current + 0.002 * derivative + 0.07 * omega
     assert m.identify_winding(current, derivative, voltage, omega, 0.07) == pytest.approx((0.4, 0.002))
+
+
+def test_torque_speed_envelope():
+    motor = m.Motor()
+    _, upper = m.torque_limit(motor, np.array([0, 24 / motor.constant]), 24, 10)
+    assert upper[0] == pytest.approx(0.65)
+    assert upper[1] == pytest.approx(0)

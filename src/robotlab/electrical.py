@@ -122,3 +122,11 @@ def identify_winding(current, derivative, voltage, omega, constant):
     if min(resistance, inductance) <= 0:
         raise ValueError("nonphysical winding fit")
     return float(resistance), float(inductance)
+
+
+def torque_limit(motor, omega, bus_voltage, current_limit):
+    if bus_voltage <= 0 or current_limit <= 0:
+        raise ValueError("positive voltage and current limit required")
+    lower = np.maximum(-current_limit, (-bus_voltage - motor.constant * np.asarray(omega)) / motor.resistance)
+    upper = np.minimum(current_limit, (bus_voltage - motor.constant * np.asarray(omega)) / motor.resistance)
+    return motor.constant * lower, motor.constant * upper
