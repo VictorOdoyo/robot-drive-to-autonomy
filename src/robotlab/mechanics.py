@@ -52,3 +52,10 @@ def road_load(speed, mass, radius, grade=0, rolling_coefficient=0.015, gravity=9
         raise ValueError("invalid road load parameters")
     force = mass * gravity * (np.sin(grade) + rolling_coefficient * np.cos(grade) * np.tanh(speed / 0.02))
     return np.ones(2) * force * radius / 2
+
+
+def traction_limit(normal_force, friction, lateral_force=0):
+    normal_force, friction, lateral_force = np.broadcast_arrays(normal_force, friction, lateral_force)
+    if np.any(normal_force < 0) or np.any(friction < 0):
+        raise ValueError("negative contact parameter")
+    return np.sqrt(np.maximum((normal_force * friction) ** 2 - lateral_force**2, 0))

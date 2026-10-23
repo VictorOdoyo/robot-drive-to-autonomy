@@ -37,3 +37,8 @@ def test_friction_is_dissipative():
 def test_grade_energy():
     torque = m.road_load(1, 20, 0.1, grade=np.arcsin(0.1), rolling_coefficient=0)
     assert np.sum(torque) / 0.1 == pytest.approx(20 * 9.80665 * 0.1)
+
+
+def test_friction_circle():
+    assert m.traction_limit(100, 0.5, 30) == pytest.approx(40)
+    assert m.traction_limit(100, 0.5, 60) == 0
