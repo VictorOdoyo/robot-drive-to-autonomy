@@ -31,3 +31,22 @@ def odometry(pose, delta_angles, geometry=DriveGeometry()):
 
     distance, angle = geometry.forward(delta_angles)
     return integrate(pose, distance, angle, 1.0)
+
+
+def wheel_jacobian(geometry=DriveGeometry()):
+    return np.array(
+        [
+            [geometry.left_radius / 2, geometry.right_radius / 2],
+            [-geometry.left_radius / geometry.track, geometry.right_radius / geometry.track],
+        ]
+    )
+
+
+def twist_covariance(wheel_covariance, geometry=DriveGeometry()):
+    covariance = np.asarray(wheel_covariance)
+    if covariance.shape != (2, 2) or not np.allclose(covariance, covariance.T):
+        raise ValueError("wheel covariance must be symmetric 2x2")
+    if np.linalg.eigvalsh(covariance).min() < 0:
+        raise ValueError("wheel covariance must be positive semidefinite")
+    jacobian = wheel_jacobian(geometry)
+    return jacobian @ covariance @ jacobian.T
