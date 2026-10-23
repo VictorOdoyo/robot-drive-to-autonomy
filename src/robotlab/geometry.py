@@ -46,3 +46,11 @@ def interpolate(a, b, fraction):
         raise ValueError("fraction outside [0,1]")
     xy = (1 - fraction) * np.asarray(a[:2]) + fraction * np.asarray(b[:2])
     return np.r_[xy, wrap(a[2] + fraction * wrap(b[2] - a[2]))]
+
+
+def segment_projection(point, start, end):
+    delta = np.asarray(end) - start
+    norm2 = float(delta @ delta)
+    fraction = 0.0 if norm2 == 0 else float(np.clip((np.asarray(point) - start) @ delta / norm2, 0, 1))
+    projected = np.asarray(start) + fraction * delta
+    return projected, fraction, float(np.linalg.norm(np.asarray(point) - projected))

@@ -36,3 +36,10 @@ def test_interpolation_crosses_angle_branch():
     result = m.interpolate([0, 0, 3.1], [2, 4, -3.1], 0.5)
     assert np.allclose(result[:2], [1, 2])
     assert abs(result[2]) == pytest.approx(np.pi)
+
+
+def test_segment_endpoints():
+    point, fraction, distance = m.segment_projection([3, 1], [0, 0], [2, 0])
+    assert np.allclose(point, [2, 0])
+    assert fraction == 1
+    assert distance == pytest.approx(np.sqrt(2))
