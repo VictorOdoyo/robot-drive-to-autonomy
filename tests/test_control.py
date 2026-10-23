@@ -66,3 +66,9 @@ def test_delay_shrinks_current_stability_margin():
     delayed = m.current_loop_matrix(0.35, 0.0015, 2.0, 466.6666667, 0.001, True)
     assert np.max(abs(np.linalg.eigvals(direct))) < 1
     assert np.max(abs(np.linalg.eigvals(delayed))) > 1
+
+
+def test_lqr_stabilizes_integrator():
+    gain, solution = m.discrete_lqr([[1.1]], [[0.1]], [[1]], [[0.1]])
+    assert abs(1.1 - 0.1 * gain[0, 0]) < 1
+    assert solution[0, 0] > 0

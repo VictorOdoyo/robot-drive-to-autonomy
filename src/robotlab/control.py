@@ -100,3 +100,16 @@ def current_loop_matrix(resistance, inductance, kp, ki, dt, delayed=False):
     if delayed:
         return np.array([[a, 0, b], [-ki * dt, 1, 0], [-kp, 1, 0]])
     return np.array([[a - b * kp, b], [-ki * dt, 1]])
+
+
+def discrete_lqr(transition, input_matrix, state_cost, input_cost):
+    from scipy.linalg import solve_discrete_are
+
+    transition, input_matrix, state_cost, input_cost = map(
+        np.asarray, (transition, input_matrix, state_cost, input_cost)
+    )
+    solution = solve_discrete_are(transition, input_matrix, state_cost, input_cost)
+    gain = np.linalg.solve(
+        input_cost + input_matrix.T @ solution @ input_matrix, input_matrix.T @ solution @ transition
+    )
+    return gain, solution
