@@ -56,3 +56,8 @@ def test_signed_clearance():
     assert m.rectangle_clearance([1, 1], rect) == -1
     assert m.circle_clearance([3, 1], 0.25, [rect]) == pytest.approx(0.75)
     assert m.rectangle_clearance([3, 3], rect) == pytest.approx(np.sqrt(2))
+
+
+def test_swept_footprint_catches_tunneling():
+    assert m.swept_clearance([0, 0, 0], 4, 0, 1, 0.2, [[1.9, -1, 2.1, 1]]) < 0
+    assert m.swept_clearance([0, 2, 0], 4, 0, 1, 0.2, [[1.9, -1, 2.1, 1]]) > 0.7

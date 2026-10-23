@@ -80,3 +80,15 @@ def circle_clearance(center, radius, rectangles):
     if radius < 0:
         raise ValueError("negative radius")
     return min((rectangle_clearance(center, r) - radius for r in rectangles), default=np.inf)
+
+
+def swept_clearance(pose, speed, yaw_rate, dt, radius, rectangles, spacing=0.02):
+    if spacing <= 0:
+        raise ValueError("spacing must be positive")
+    count = max(1, int(np.ceil(abs(speed) * dt / spacing)))
+    values = [
+        circle_clearance(integrate(pose, speed, yaw_rate, t)[:2], radius, rectangles)
+        for t in np.linspace(0, dt, count + 1)
+    ]
+    # Distance is 1-Lipschitz: subtract half a sample gap for a conservative lower bound.
+    return min(values) - abs(speed) * dt / (2 * count)
