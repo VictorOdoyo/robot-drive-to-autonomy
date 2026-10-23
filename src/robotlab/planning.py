@@ -236,3 +236,28 @@ def heading_path(blocked, start, goal, turn_cost=0.4):
                 best[nxt], parent[nxt] = cost + edge, state
                 heapq.heappush(queue, (cost + edge, nxt))
     raise ValueError("unreachable heading path")
+
+
+def energy_path(graph, start, goal, budget=np.inf):
+    import heapq
+
+    queue = [(0.0, start)]
+    best, parent = {start: 0.0}, {}
+    while queue:
+        cost, node = heapq.heappop(queue)
+        if cost > best[node]:
+            continue
+        if node == goal:
+            path = [node]
+            while node != start:
+                node = parent[node]
+                path.append(node)
+            return path[::-1], cost
+        for nxt, energy in graph.get(node, []):
+            if energy < 0 or not np.isfinite(energy):
+                raise ValueError("energy edges must be finite and nonnegative")
+            candidate = cost + energy
+            if candidate <= budget and candidate < best.get(nxt, np.inf):
+                best[nxt], parent[nxt] = candidate, node
+                heapq.heappush(queue, (candidate, nxt))
+    raise ValueError("no route within energy budget")

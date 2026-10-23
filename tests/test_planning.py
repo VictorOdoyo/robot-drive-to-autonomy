@@ -88,3 +88,11 @@ def test_heading_lattice_charges_turns():
     path, cost = m.heading_path(np.zeros((4, 4), bool), (1, 1, 0), (2, 2), 0.4)
     assert cost == pytest.approx(2.4)
     assert path[-1][:2] == (2, 2)
+
+
+def test_energy_path_prefers_efficient_detour():
+    graph = {0: [(1, 100), (2, 20)], 2: [(1, 30)]}
+    path, energy = m.energy_path(graph, 0, 1, 60)
+    assert path == [0, 2, 1] and energy == 50
+    with pytest.raises(ValueError):
+        m.energy_path(graph, 0, 1, 40)
