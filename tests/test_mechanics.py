@@ -58,3 +58,9 @@ def test_tire_slip_dissipation():
         assert abs(force) <= 40
         assert force * (surface - ground) >= 0
     assert m.slip_ratio(0, 0) == 0
+
+
+def test_backlash_deadzone():
+    assert m.backlash_torque(0.001, 0, 0, 0, 1) == 0
+    assert m.backlash_torque(0.02, 0, 0, 0, 1) == pytest.approx(0.75)
+    assert m.backlash_torque(-0.02, 0, 0, 0, 1) == pytest.approx(-0.75)

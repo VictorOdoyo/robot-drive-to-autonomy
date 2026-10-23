@@ -81,3 +81,17 @@ def slip_ratio(surface_speed, ground_speed, regularization=0.1):
     if regularization <= 0:
         raise ValueError("regularization must be positive")
     return (surface_speed - ground_speed) / max(abs(surface_speed), abs(ground_speed), regularization)
+
+
+def backlash_torque(
+    motor_angle, wheel_angle, motor_rate, wheel_rate, ratio, half_gap=0.005, stiffness=50, damping=0.05
+):
+    if ratio <= 0 or min(half_gap, stiffness, damping) < 0:
+        raise ValueError("invalid backlash parameters")
+    error = motor_angle / ratio - wheel_angle
+    if abs(error) <= half_gap:
+        return 0.0
+    elastic = stiffness * (error - np.sign(error) * half_gap)
+    viscous = damping * (motor_rate / ratio - wheel_rate)
+    # A unilateral tooth contact cannot pull the opposite tooth flank.
+    return float(np.sign(error) * max(0, np.sign(error) * (elastic + viscous)))
