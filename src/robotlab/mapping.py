@@ -146,3 +146,33 @@ def scan_likelihood(grid, pose, angles, ranges, sigma=0.15, max_range=10):
         error = field[cell] if grid.contains(cell) else max_range
         logs.append(-0.5 * (error / sigma) ** 2)
     return float(np.mean(logs)) if logs else -np.inf
+
+
+def icp(source, target, iterations=30, max_correspondence=0.5, tolerance=1e-7):
+    from scipy.spatial import cKDTree
+
+    from .geometry import compose, transform_points
+
+    source, target = np.asarray(source), np.asarray(target)
+    if min(len(source), len(target)) < 3 or iterations <= 0 or max_correspondence <= 0:
+        raise ValueError("at least three points and positive ICP bounds required")
+    tree = cKDTree(target)
+    pose = np.zeros(3)
+    previous = np.inf
+    for _ in range(iterations):
+        moved = transform_points(pose, source)
+        distance, index = tree.query(moved)
+        keep = distance < max_correspondence
+        if np.sum(keep) < 3:
+            raise ValueError("insufficient ICP correspondences")
+        a, b = moved[keep], target[index[keep]]
+        ac, bc = a.mean(axis=0), b.mean(axis=0)
+        u, _, vt = np.linalg.svd((a - ac).T @ (b - bc))
+        rotation = vt.T @ np.diag([1, np.linalg.det(vt.T @ u.T)]) @ u.T
+        delta = np.r_[bc - rotation @ ac, np.arctan2(rotation[1, 0], rotation[0, 0])]
+        pose = compose(delta, pose)
+        residual = float(np.mean(distance[keep] ** 2))
+        if abs(previous - residual) < tolerance:
+            break
+        previous = residual
+    return pose, residual

@@ -85,3 +85,15 @@ def test_likelihood_prefers_wall_alignment():
     good = m.scan_likelihood(grid, [1, 1, 0], [0], [2.0])
     bad = m.scan_likelihood(grid, [0.5, 1, 0], [0], [2.0])
     assert good > bad
+
+
+def test_icp_recovers_small_rigid_displacement():
+    from robotlab.geometry import transform_points
+
+    rng = np.random.default_rng(8)
+    source = rng.uniform(-1, 1, (100, 2))
+    expected = np.array([0.04, -0.03, 0.025])
+    target = transform_points(expected, source)
+    pose, residual = m.icp(source, target)
+    assert np.allclose(pose, expected, atol=1e-6)
+    assert residual < 1e-10
