@@ -120,3 +120,13 @@ def profile_time(points, speed):
         2 * np.diff(distance), denominator, out=np.zeros_like(denominator), where=denominator > 0
     )
     return np.r_[0, np.cumsum(intervals)]
+
+
+def circle(time, radius=1, speed=0.5):
+    if radius <= 0:
+        raise ValueError("positive circle radius required")
+    time = np.asarray(time)
+    angle = speed * time / radius
+    pose = np.column_stack([radius * np.sin(angle), radius * (1 - np.cos(angle)), angle])
+    twist = np.tile([speed, speed / radius], (len(time), 1))
+    return pose, twist

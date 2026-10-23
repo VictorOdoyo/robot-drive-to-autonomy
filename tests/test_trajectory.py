@@ -44,3 +44,10 @@ def test_profile_duration_constant_speed():
     assert np.allclose(m.profile_time(points, [0.5, 0.5, 0.5]), [0, 2, 4])
     with pytest.raises(ValueError):
         m.profile_time(points, [0, 0, 0])
+
+
+def test_circle_reference_derivative():
+    time = np.linspace(0, 1, 1001)
+    pose, twist = m.circle(time, 2, 0.5)
+    velocity = np.gradient(pose[:, :2], time, axis=0)
+    assert np.allclose(np.linalg.norm(velocity[1:-1], axis=1), twist[1:-1, 0], atol=1e-7)
