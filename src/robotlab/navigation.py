@@ -120,3 +120,33 @@ def safe_speed(clearance, deceleration=0.6, latency=0.1, position_sigma=0, sigma
     return float(
         max(0, np.sqrt((deceleration * latency) ** 2 + 2 * deceleration * available) - deceleration * latency)
     )
+
+
+class WaypointMission:
+    def __init__(self, waypoints, tolerance=0.15, dwell=0):
+        self.waypoints = np.asarray(waypoints, dtype=float)
+        if (
+            self.waypoints.ndim != 2
+            or self.waypoints.shape[1] != 2
+            or len(self.waypoints) == 0
+            or tolerance <= 0
+            or dwell < 0
+        ):
+            raise ValueError("invalid waypoint mission")
+        self.tolerance, self.dwell = tolerance, dwell
+        self.index, self.arrived_at = 0, None
+        self.done = False
+
+    def update(self, position, time):
+        if self.done:
+            return None
+        close = np.linalg.norm(np.asarray(position) - self.waypoints[self.index]) <= self.tolerance
+        if close and self.arrived_at is None:
+            self.arrived_at = time
+        if not close:
+            self.arrived_at = None
+        if close and time - self.arrived_at >= self.dwell:
+            self.index += 1
+            self.arrived_at = None
+            self.done = self.index == len(self.waypoints)
+        return None if self.done else self.waypoints[self.index].copy()

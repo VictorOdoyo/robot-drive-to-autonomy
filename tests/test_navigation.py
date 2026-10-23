@@ -48,3 +48,11 @@ def test_safe_speed_exact_stopping_constraint():
     speed = m.safe_speed(1, 0.6, 0.2, 0.05)
     assert speed * 0.2 + speed**2 / (2 * 0.6) == pytest.approx(0.85)
     assert m.safe_speed(0.1, position_sigma=0.1) == 0
+
+
+def test_waypoint_dwell_resets_on_departure():
+    mission = m.WaypointMission([[1, 0]], dwell=0.5)
+    assert mission.update([1, 0], 0) is not None
+    mission.update([0, 0], 0.4)
+    assert mission.update([1, 0], 0.6) is not None
+    assert mission.update([1, 0], 1.2) is None and mission.done
