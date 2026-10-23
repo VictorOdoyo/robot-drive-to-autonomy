@@ -103,3 +103,9 @@ def shortcut(path, blocked):
         result.append(path[target])
         index = target
     return result
+
+
+def clearance_cost(clearance, weight=1, scale=0.3):
+    if weight < 0 or scale <= 0 or np.any(np.asarray(clearance) < 0):
+        raise ValueError("invalid clearance cost")
+    return 1 + weight * np.exp(-np.asarray(clearance) / scale)

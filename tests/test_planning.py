@@ -39,3 +39,13 @@ def test_shortcut_open_route():
     path, _ = m.astar(blocked, (1, 1), (8, 7))
     result = m.shortcut(path, blocked)
     assert result == [(1, 1), (8, 7)]
+
+
+def test_risk_cost_avoids_expensive_corridor():
+    blocked = np.zeros((7, 9), bool)
+    risk = np.ones((7, 9))
+    risk[3, 2:7] = 20
+    path, cost = m.astar(blocked, (3, 0), (3, 8), risk)
+    assert all(not (p[0] == 3 and 2 <= p[1] <= 6) for p in path)
+    assert cost < 20
+    assert m.clearance_cost([0, 1])[0] > m.clearance_cost([0, 1])[1]
