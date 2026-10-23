@@ -118,3 +118,11 @@ def regenerative_dispatch(requested_power, charge_power_limit, chopper_limit):
         "brake_power": brake,
         "unabsorbed_power": regenerative - battery - brake,
     }
+
+
+def route_energy(length, speed, mass=18, rolling=0.015, efficiency=0.75, auxiliary=12, grade=0):
+    if length < 0 or speed <= 0 or mass <= 0 or not 0 < efficiency <= 1 or min(rolling, auxiliary) < 0:
+        raise ValueError("invalid route energy parameters")
+    work = mass * 9.80665 * (rolling * np.cos(grade) + np.sin(grade)) * length
+    traction = work / efficiency if work >= 0 else work * efficiency
+    return traction + auxiliary * length / speed

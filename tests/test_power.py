@@ -64,3 +64,9 @@ def test_regen_dispatch_full_battery():
     result = m.regenerative_dispatch(-100, 0, 70)
     assert result == {"battery_power": 0, "brake_power": 70, "unabsorbed_power": 30}
     assert sum([30, 70]) == 100
+
+
+def test_auxiliary_energy_penalizes_slow_routes():
+    slow = m.route_energy(10, 0.25)
+    fast = m.route_energy(10, 1)
+    assert slow - fast == pytest.approx(12 * (40 - 10))
