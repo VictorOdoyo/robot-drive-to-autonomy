@@ -37,3 +37,9 @@ def test_exact_motor_step_composes():
     first = m.motor_step(motor, [0, 0], 12, 0.1, 0.01)
     twice = m.motor_step(motor, first, 12, 0.1, 0.01)
     assert np.allclose(twice, m.motor_step(motor, [0, 0], 12, 0.1, 0.02))
+
+
+def test_bridge_regeneration_balance():
+    p = m.bridge(0.5, 24, -4)
+    assert p["bus_current"] < 0
+    assert 24 * p["bus_current"] == pytest.approx(p["voltage"] * (-4) + p["loss"])

@@ -76,3 +76,12 @@ def motor_step(motor, state, voltage, load_torque, dt):
 
     ad, bd = discretize(*motor_state_space(motor), dt)
     return ad @ state + bd @ [voltage, load_torque]
+
+
+def bridge(duty, bus_voltage, current, on_resistance=0.02):
+    if bus_voltage <= 0 or on_resistance < 0:
+        raise ValueError("invalid bridge parameters")
+    duty = float(np.clip(duty, -1, 1))
+    loss = on_resistance * current**2
+    voltage = duty * bus_voltage - on_resistance * current
+    return {"voltage": voltage, "bus_current": duty * current, "loss": loss, "duty": duty}
