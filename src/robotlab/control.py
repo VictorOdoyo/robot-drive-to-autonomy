@@ -113,3 +113,9 @@ def discrete_lqr(transition, input_matrix, state_cost, input_cost):
         input_cost + input_matrix.T @ solution @ input_matrix, input_matrix.T @ solution @ transition
     )
     return gain, solution
+
+
+def position_hold(position, target, kp, max_speed):
+    if kp <= 0 or max_speed <= 0:
+        raise ValueError("positive hold gains required")
+    return float(np.clip(kp * (target - position), -max_speed, max_speed))

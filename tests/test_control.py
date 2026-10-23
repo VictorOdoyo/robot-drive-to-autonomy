@@ -72,3 +72,10 @@ def test_lqr_stabilizes_integrator():
     gain, solution = m.discrete_lqr([[1.1]], [[0.1]], [[1]], [[0.1]])
     assert abs(1.1 - 0.1 * gain[0, 0]) < 1
     assert solution[0, 0] > 0
+
+
+def test_position_hold_converges():
+    position = 0.0
+    for _ in range(100):
+        position += 0.05 * m.position_hold(position, 1, 3, 0.5)
+    assert position == pytest.approx(1, abs=0.002)
