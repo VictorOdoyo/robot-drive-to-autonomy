@@ -73,3 +73,25 @@ def dynamic_window(current, dt, max_speed=1, max_yaw=2, max_acceleration=0.6, ma
             [max(-max_yaw, yaw - max_yaw_acceleration * dt), min(max_yaw, yaw + max_yaw_acceleration * dt)],
         ]
     )
+
+
+def dwa(pose, current, target, rectangles, radius=0.22, dt=0.1, horizon=1.0, samples=7):
+    from .geometry import integrate, swept_clearance
+    from .trajectory import braking_distance
+
+    if samples < 2 or horizon <= 0:
+        raise ValueError("invalid rollout sampling")
+    window = dynamic_window(current, dt)
+    best = None
+    for speed in np.linspace(*window[0], samples):
+        for yaw in np.linspace(*window[1], samples):
+            clearance = swept_clearance(pose, speed, yaw, horizon, radius, rectangles)
+            if clearance <= braking_distance(speed, 0.6):
+                continue
+            end = integrate(pose, speed, yaw, horizon)
+            score = (
+                np.linalg.norm(end[:2] - target) + 0.15 * abs(yaw) - 0.2 * speed + 0.05 / max(clearance, 0.01)
+            )
+            if best is None or score < best[0]:
+                best = (score, np.array([speed, yaw]))
+    return np.zeros(2) if best is None else best[1]

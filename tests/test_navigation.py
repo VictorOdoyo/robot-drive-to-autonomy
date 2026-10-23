@@ -31,3 +31,8 @@ def test_docking_turns_in_place_at_position_goal():
 
 def test_dynamic_window_respects_reachability():
     assert np.allclose(m.dynamic_window([0.5, 0.2], 0.1), [[0.44, 0.56], [0, 0.4]])
+
+
+def test_dwa_stops_when_forward_commands_collide():
+    assert np.allclose(m.dwa([0, 0, 0], [0.5, 0], [2, 0], [[0.25, -1, 0.4, 1]]), 0)
+    assert m.dwa([0, 0, 0], [0, 0], [2, 0], [])[0] > 0
