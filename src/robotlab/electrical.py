@@ -130,3 +130,15 @@ def torque_limit(motor, omega, bus_voltage, current_limit):
     lower = np.maximum(-current_limit, (-bus_voltage - motor.constant * np.asarray(omega)) / motor.resistance)
     upper = np.minimum(current_limit, (bus_voltage - motor.constant * np.asarray(omega)) / motor.resistance)
     return motor.constant * lower, motor.constant * upper
+
+
+def dynamic_brake(motor, omega, brake_resistance):
+    if brake_resistance < 0:
+        raise ValueError("negative brake resistance")
+    current = -motor.constant * omega / (motor.resistance + brake_resistance)
+    return {
+        "current": current,
+        "torque": motor.constant * current,
+        "resistor_power": current**2 * brake_resistance,
+        "copper_power": current**2 * motor.resistance,
+    }

@@ -78,3 +78,9 @@ def test_torque_speed_envelope():
     _, upper = m.torque_limit(motor, np.array([0, 24 / motor.constant]), 24, 10)
     assert upper[0] == pytest.approx(0.65)
     assert upper[1] == pytest.approx(0)
+
+
+def test_dynamic_brake_power():
+    motor = m.Motor()
+    brake = m.dynamic_brake(motor, 100, 2)
+    assert -brake["torque"] * 100 == pytest.approx(brake["resistor_power"] + brake["copper_power"])
