@@ -89,3 +89,16 @@ def update_heading(filter_, heading, variance, gate=6.63):
     filter_.mean, filter_.covariance, filter_.last_nis, accepted = result
     filter_.mean[2] = wrap(filter_.mean[2])
     return accepted
+
+
+def landmark_observation(mean, landmark):
+    from .geometry import wrap
+
+    dx, dy = np.asarray(landmark) - mean[:2]
+    distance2 = dx * dx + dy * dy
+    if distance2 < 1e-12:
+        raise ValueError("landmark coincides with robot")
+    distance = np.sqrt(distance2)
+    expected = np.array([distance, wrap(np.arctan2(dy, dx) - mean[2])])
+    jacobian = np.array([[-dx / distance, -dy / distance, 0, 0], [dy / distance2, -dx / distance2, -1, 0]])
+    return expected, jacobian

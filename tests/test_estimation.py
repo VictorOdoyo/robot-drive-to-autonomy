@@ -41,3 +41,13 @@ def test_heading_branch_cut():
     assert m.update_heading(filt, -3.13, 0.001)
     assert abs(filt.mean[2]) > 3.12
     assert filt.last_nis < 0.01
+
+
+def test_landmark_jacobian_independent_differences():
+    from robotlab.numerics import jacobian
+
+    mean = np.array([1.0, 2.0, 0.3, 0.01])
+    expected, analytic = m.landmark_observation(mean, [4, 6])
+    numeric = jacobian(lambda x: m.landmark_observation(x, [4, 6])[0], mean)
+    assert expected[0] == pytest.approx(5)
+    assert np.allclose(analytic, numeric, atol=1e-8)
