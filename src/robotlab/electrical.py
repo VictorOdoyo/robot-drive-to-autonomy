@@ -111,3 +111,14 @@ def copper_resistance(reference, temperature, reference_temperature=25, coeffici
     if reference <= 0 or resistance <= 0:
         raise ValueError("nonphysical winding resistance")
     return resistance
+
+
+def identify_winding(current, derivative, voltage, omega, constant):
+    current, derivative, voltage, omega = map(np.asarray, (current, derivative, voltage, omega))
+    design = np.column_stack([current, derivative])
+    if np.linalg.matrix_rank(design) < 2:
+        raise ValueError("insufficient winding excitation")
+    resistance, inductance = np.linalg.lstsq(design, voltage - constant * omega, rcond=None)[0]
+    if min(resistance, inductance) <= 0:
+        raise ValueError("nonphysical winding fit")
+    return float(resistance), float(inductance)

@@ -63,3 +63,11 @@ def test_hot_winding_limits_stall_current():
     hot = m.copper_resistance(0.35, 125)
     assert hot / cold == pytest.approx(1.393)
     assert 24 / hot < 24 / cold
+
+
+def test_winding_identification():
+    current = np.array([1, 2, 3, 2, 1.0])
+    derivative = np.array([100, 40, -20, -80, 0.0])
+    omega = np.arange(5) * 10
+    voltage = 0.4 * current + 0.002 * derivative + 0.07 * omega
+    assert m.identify_winding(current, derivative, voltage, omega, 0.07) == pytest.approx((0.4, 0.002))
