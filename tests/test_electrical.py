@@ -43,3 +43,10 @@ def test_bridge_regeneration_balance():
     p = m.bridge(0.5, 24, -4)
     assert p["bus_current"] < 0
     assert 24 * p["bus_current"] == pytest.approx(p["voltage"] * (-4) + p["loss"])
+
+
+def test_deadtime_current_polarity():
+    positive = m.deadtime_voltage(0.3, 24, 2, 1e-6, 20000)
+    negative = m.deadtime_voltage(0.3, 24, -2, 1e-6, 20000)
+    assert (positive + negative) / 2 == pytest.approx(0.3 * 24)
+    assert positive < negative

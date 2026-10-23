@@ -85,3 +85,10 @@ def bridge(duty, bus_voltage, current, on_resistance=0.02):
     loss = on_resistance * current**2
     voltage = duty * bus_voltage - on_resistance * current
     return {"voltage": voltage, "bus_current": duty * current, "loss": loss, "duty": duty}
+
+
+def deadtime_voltage(duty, bus_voltage, current, deadtime, switching_frequency):
+    if deadtime < 0 or switching_frequency <= 0 or deadtime * switching_frequency >= 0.5:
+        raise ValueError("invalid PWM timing")
+    effective = np.clip(duty, -1, 1) - 2 * deadtime * switching_frequency * np.sign(current)
+    return float(np.clip(effective, -1, 1) * bus_voltage)
