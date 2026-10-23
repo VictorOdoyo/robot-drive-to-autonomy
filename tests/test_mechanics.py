@@ -26,3 +26,9 @@ def test_reflected_rotational_energy():
     matrix = m.reflected_inertia(chassis, 0.00012, 12)
     difference = 0.5 * rates @ (matrix - chassis.wheel_mass_matrix()) @ rates
     assert difference == pytest.approx(0.5 * 0.00012 * np.sum((12 * rates) ** 2))
+
+
+def test_friction_is_dissipative():
+    rates = np.linspace(-20, 20, 101)
+    assert np.all(m.friction_torque(rates) * rates >= 0)
+    assert m.friction_torque(0) == 0

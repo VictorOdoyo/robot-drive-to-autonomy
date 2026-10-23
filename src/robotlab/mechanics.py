@@ -38,3 +38,10 @@ def reflected_inertia(chassis, motor_inertia, ratio):
     if motor_inertia < 0 or ratio <= 0:
         raise ValueError("invalid reflected inertia")
     return chassis.wheel_mass_matrix() + motor_inertia * ratio**2 * np.eye(2)
+
+
+def friction_torque(rates, coulomb=0.03, viscous=0.004, smoothing=0.05):
+    if min(coulomb, viscous) < 0 or smoothing <= 0:
+        raise ValueError("invalid friction parameters")
+    rates = np.asarray(rates)
+    return coulomb * np.tanh(rates / smoothing) + viscous * rates
