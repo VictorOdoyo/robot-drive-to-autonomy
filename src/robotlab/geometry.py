@@ -39,3 +39,10 @@ def integrate(pose, speed, yaw_rate, dt):
 def pose_error(actual, reference):
     """Reference relative to actual, in actual body axes."""
     return compose(inverse(actual), reference)
+
+
+def interpolate(a, b, fraction):
+    if not 0 <= fraction <= 1:
+        raise ValueError("fraction outside [0,1]")
+    xy = (1 - fraction) * np.asarray(a[:2]) + fraction * np.asarray(b[:2])
+    return np.r_[xy, wrap(a[2] + fraction * wrap(b[2] - a[2]))]

@@ -30,3 +30,9 @@ def test_exact_arc():
 
 def test_body_error():
     assert np.allclose(m.pose_error([0, 0, np.pi / 2], [0, 2, np.pi / 2]), [2, 0, 0], atol=1e-14)
+
+
+def test_interpolation_crosses_angle_branch():
+    result = m.interpolate([0, 0, 3.1], [2, 4, -3.1], 0.5)
+    assert np.allclose(result[:2], [1, 2])
+    assert abs(result[2]) == pytest.approx(np.pi)
