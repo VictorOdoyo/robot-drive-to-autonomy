@@ -50,3 +50,9 @@ def test_deadtime_current_polarity():
     negative = m.deadtime_voltage(0.3, 24, -2, 1e-6, 20000)
     assert (positive + negative) / 2 == pytest.approx(0.3 * 24)
     assert positive < negative
+
+
+def test_pwm_ripple_extrema():
+    assert m.pwm_ripple(24, 0.5, 0.001, 20000) == pytest.approx(0.3)
+    assert m.pwm_ripple(24, 1, 0.001, 20000) == 0
+    assert m.switching_loss(24, -10, 20000, 100e-9) > 0

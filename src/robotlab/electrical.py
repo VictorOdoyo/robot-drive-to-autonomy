@@ -92,3 +92,15 @@ def deadtime_voltage(duty, bus_voltage, current, deadtime, switching_frequency):
         raise ValueError("invalid PWM timing")
     effective = np.clip(duty, -1, 1) - 2 * deadtime * switching_frequency * np.sign(current)
     return float(np.clip(effective, -1, 1) * bus_voltage)
+
+
+def pwm_ripple(bus_voltage, duty, inductance, frequency):
+    if min(bus_voltage, inductance, frequency) <= 0 or not 0 <= duty <= 1:
+        raise ValueError("invalid unipolar PWM parameters")
+    return bus_voltage * duty * (1 - duty) / (inductance * frequency)
+
+
+def switching_loss(bus_voltage, current, frequency, rise_fall_time, devices=2):
+    if min(bus_voltage, frequency, rise_fall_time, devices) < 0:
+        raise ValueError("negative switching parameter")
+    return 0.5 * devices * bus_voltage * abs(current) * frequency * rise_fall_time
