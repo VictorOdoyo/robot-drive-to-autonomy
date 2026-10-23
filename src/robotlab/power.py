@@ -137,3 +137,15 @@ def reserve_margin(available_energy, mission_energy, return_energy, reserve_frac
         "margin_j": available_energy - required,
         "feasible": available_energy >= required,
     }
+
+
+def battery_power_audit(pack, soc, polarization, current):
+    capacitance = pack.polarization_time / pack.polarization_resistance
+    derivative = (pack.polarization_resistance * current - polarization) / pack.polarization_time
+    return {
+        "chemical_power": pack.ocv(soc) * current,
+        "terminal_power": terminal_voltage(pack, soc, polarization, current) * current,
+        "ohmic_loss": pack.resistance * current**2,
+        "polarization_loss": polarization**2 / pack.polarization_resistance,
+        "polarization_storage_rate": capacitance * polarization * derivative,
+    }

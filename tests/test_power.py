@@ -77,3 +77,15 @@ def test_return_reserve():
     assert result["required_j"] == pytest.approx(875)
     assert result["feasible"]
     assert not m.reserve_margin(800, 500, 200, 0.2)["feasible"]
+
+
+def test_battery_full_power_audit():
+    pack = m.Battery()
+    for current in (-5, 0, 10):
+        p = m.battery_power_audit(pack, 0.7, 0.2, current)
+        assert p["chemical_power"] == pytest.approx(
+            sum(
+                p[k]
+                for k in ("terminal_power", "ohmic_loss", "polarization_loss", "polarization_storage_rate")
+            )
+        )
