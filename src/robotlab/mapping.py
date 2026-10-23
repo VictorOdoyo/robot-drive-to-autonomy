@@ -106,3 +106,8 @@ def frontiers(grid, free_threshold=0.35):
     free = grid.observed & (grid.probability() < free_threshold)
     adjacent_unknown = binary_dilation(~grid.observed, structure=np.array([[0, 1, 0], [1, 1, 1], [0, 1, 0]]))
     return np.argwhere(free & adjacent_unknown)
+
+
+def map_entropy(grid):
+    probability = np.clip(grid.probability(), 1e-15, 1 - 1e-15)
+    return float(np.sum(-probability * np.log(probability) - (1 - probability) * np.log1p(-probability)))

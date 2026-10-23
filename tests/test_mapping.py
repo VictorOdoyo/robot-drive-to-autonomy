@@ -54,3 +54,11 @@ def test_frontier_cells_are_observed_free():
     result = m.frontiers(grid)
     assert len(result) == 3
     assert np.all(result[:, 0] == 2)
+
+
+def test_mapping_reduces_entropy():
+    grid = m.OccupancyGrid(10, 10, 0.1)
+    initial = m.map_entropy(grid)
+    m.insert_scan(grid, [0.05, 0.45, 0], [0], [0.7], 1)
+    assert m.map_entropy(grid) < initial
+    assert initial == pytest.approx(100 * np.log(2))
