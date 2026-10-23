@@ -11,3 +11,10 @@ def test_chassis_effective_inertia():
     assert np.ones(2) @ inertia @ np.ones(2) == pytest.approx(
         robot.mass * robot.radius**2 + 2 * robot.wheel_inertia
     )
+
+
+def test_gearbox_motoring_and_backdrive():
+    for torque in (1, -1):
+        output, loss = m.gear_output_torque(torque, 120, 12, 0.8)
+        assert loss >= 0
+        assert torque * 120 == pytest.approx(output * 10 + loss)

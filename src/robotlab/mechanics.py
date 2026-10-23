@@ -22,3 +22,13 @@ class Chassis:
         translation = self.mass * self.radius**2 / 4 * np.ones((2, 2))
         rotation = self.yaw_inertia * self.radius**2 / self.track**2 * np.array([[1, -1], [-1, 1]])
         return translation + rotation + self.wheel_inertia * np.eye(2)
+
+
+def gear_output_torque(motor_torque, motor_speed, ratio=12.0, efficiency=0.9):
+    if ratio <= 0 or not 0 < efficiency <= 1:
+        raise ValueError("invalid gearbox")
+    power = np.asarray(motor_torque) * motor_speed
+    factor = np.where(power >= 0, efficiency, 1 / efficiency)
+    torque = np.asarray(motor_torque) * ratio * factor
+    loss = power - torque * np.asarray(motor_speed) / ratio
+    return torque, loss
