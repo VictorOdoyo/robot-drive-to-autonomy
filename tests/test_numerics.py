@@ -20,3 +20,10 @@ def test_rk4_order():
         return abs(x[0] - np.exp(-1))
 
     assert error(0.1) / error(0.05) > 15
+
+
+def test_zoh_integrator_and_decay():
+    ad, bd = m.discretize(np.array([[-2.0]]), np.array([[3.0]]), 0.4)
+    assert ad[0, 0] == pytest.approx(np.exp(-0.8))
+    assert bd[0, 0] == pytest.approx(1.5 * (1 - np.exp(-0.8)))
+    assert m.discretize(np.zeros((1, 1)), np.ones((1, 1)), 0.3)[1][0, 0] == pytest.approx(0.3)
