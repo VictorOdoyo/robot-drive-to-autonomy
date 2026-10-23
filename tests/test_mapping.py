@@ -71,3 +71,10 @@ def test_registered_map_fusion():
     second.observed[0, 0] = True
     m.merge_maps(first, second)
     assert first.log_odds[0, 0] == 3 and first.observed[0, 0]
+
+
+def test_map_decay():
+    grid = m.OccupancyGrid(2, 2)
+    grid.log_odds[:] = 4
+    m.decay_map(grid, 2, 2)
+    assert np.allclose(grid.log_odds, 4 / np.e)

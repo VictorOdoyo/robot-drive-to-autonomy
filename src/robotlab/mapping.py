@@ -123,3 +123,9 @@ def merge_maps(target, source):
     target.log_odds = np.clip(target.log_odds + source.log_odds, -8, 8)
     target.observed |= source.observed
     return target
+
+
+def decay_map(grid, dt, time_constant):
+    if dt < 0 or time_constant <= 0:
+        raise ValueError("invalid occupancy decay timing")
+    grid.log_odds *= np.exp(-dt / time_constant)
