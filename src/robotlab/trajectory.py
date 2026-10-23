@@ -29,3 +29,29 @@ def polynomial_state(coefficients, time):
             for k in range(3)
         ]
     )
+
+
+def trapezoid(distance, max_speed, max_acceleration, dt=0.01):
+    if distance < 0 or min(max_speed, max_acceleration, dt) <= 0:
+        raise ValueError("invalid profile bounds")
+    if distance == 0:
+        return np.array([0.0]), np.array([0.0]), np.array([0.0])
+    ramp = min(max_speed / max_acceleration, np.sqrt(distance / max_acceleration))
+    peak = max_acceleration * ramp
+    cruise = max(0, (distance - peak * ramp) / peak)
+    duration = 2 * ramp + cruise
+    time = np.linspace(0, duration, max(2, int(np.ceil(duration / dt)) + 1))
+    position = np.empty_like(time)
+    speed = np.empty_like(time)
+    for k, t in enumerate(time):
+        if t < ramp:
+            position[k], speed[k] = 0.5 * max_acceleration * t * t, max_acceleration * t
+        elif t < ramp + cruise:
+            position[k], speed[k] = 0.5 * peak * ramp + peak * (t - ramp), peak
+        else:
+            remaining = duration - t
+            position[k], speed[k] = (
+                distance - 0.5 * max_acceleration * remaining**2,
+                max_acceleration * remaining,
+            )
+    return time, position, speed
