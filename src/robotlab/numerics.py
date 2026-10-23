@@ -32,3 +32,14 @@ def discretize(matrix, input_matrix, dt):
     block[:n, :n], block[:n, n:] = matrix, input_matrix
     transition = expm(block * dt)
     return transition[:n, :n], transition[:n, n:]
+
+
+def process_noise(matrix, spectral_density, dt):
+    matrix, spectral_density = np.asarray(matrix), np.asarray(spectral_density)
+    n = len(matrix)
+    if dt < 0 or spectral_density.shape != (n, n):
+        raise ValueError("invalid process noise discretization")
+    block = np.block([[matrix, spectral_density], [np.zeros_like(matrix), -matrix.T]])
+    value = expm(block * dt)
+    covariance = value[:n, n:] @ value[:n, :n].T
+    return (covariance + covariance.T) / 2

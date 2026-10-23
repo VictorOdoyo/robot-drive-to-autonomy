@@ -27,3 +27,8 @@ def test_zoh_integrator_and_decay():
     assert ad[0, 0] == pytest.approx(np.exp(-0.8))
     assert bd[0, 0] == pytest.approx(1.5 * (1 - np.exp(-0.8)))
     assert m.discretize(np.zeros((1, 1)), np.ones((1, 1)), 0.3)[1][0, 0] == pytest.approx(0.3)
+
+
+def test_integrated_white_acceleration():
+    q = m.process_noise(np.array([[0.0, 1], [0, 0]]), np.diag([0.0, 2.0]), 0.5)
+    assert np.allclose(q, [[2 * 0.5**3 / 3, 0.5**2], [0.5**2, 1.0]])
