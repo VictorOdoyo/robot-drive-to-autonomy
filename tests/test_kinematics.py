@@ -37,3 +37,9 @@ def test_radius_identification():
     fitted = m.calibrate_radii(increments, body, 0.43)
     assert fitted.left_radius == pytest.approx(0.077)
     assert fitted.right_radius == pytest.approx(0.084)
+
+
+def test_track_identification_requires_turns():
+    assert m.calibrate_track([[-1, 1], [-2, 2]], [0.4, 0.8], 0.08, 0.08) == pytest.approx(0.4)
+    with pytest.raises(ValueError):
+        m.calibrate_track([[1, 1]], [0], 0.08, 0.08)

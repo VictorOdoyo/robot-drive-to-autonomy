@@ -71,3 +71,14 @@ def calibrate_radii(wheel_increments, body_increments, track):
         raise ValueError("wheel radii are unobservable")
     radii = np.linalg.lstsq(matrix, body.reshape(-1), rcond=None)[0]
     return DriveGeometry(*radii, track)
+
+
+def calibrate_track(wheel_increments, yaw_increments, left_radius, right_radius):
+    wheels, yaw = np.asarray(wheel_increments), np.asarray(yaw_increments)
+    difference = wheels[:, 1] * right_radius - wheels[:, 0] * left_radius
+    if yaw @ yaw <= 1e-12:
+        raise ValueError("rotation excitation is required")
+    track = float(yaw @ difference / (yaw @ yaw))
+    if track <= 0:
+        raise ValueError("inconsistent rotation or wheel sign")
+    return track
