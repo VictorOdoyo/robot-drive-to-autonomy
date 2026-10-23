@@ -43,3 +43,10 @@ def test_track_identification_requires_turns():
     assert m.calibrate_track([[-1, 1], [-2, 2]], [0.4, 0.8], 0.08, 0.08) == pytest.approx(0.4)
     with pytest.raises(ValueError):
         m.calibrate_track([[1, 1]], [0], 0.08, 0.08)
+
+
+def test_asymmetric_slip_turns_robot():
+    ideal = m.DriveGeometry().forward([10, 10])
+    slip = m.slipping_twist([10, 10], [0.5, 0])
+    assert slip[0] < ideal[0]
+    assert slip[1] > 0

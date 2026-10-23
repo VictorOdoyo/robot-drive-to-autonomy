@@ -82,3 +82,10 @@ def calibrate_track(wheel_increments, yaw_increments, left_radius, right_radius)
     if track <= 0:
         raise ValueError("inconsistent rotation or wheel sign")
     return track
+
+
+def slipping_twist(wheels, slip, geometry=DriveGeometry()):
+    slip = np.asarray(slip)
+    if slip.shape != (2,) or np.any((slip < 0) | (slip > 1)):
+        raise ValueError("traction loss must be in [0,1] for each wheel")
+    return geometry.forward(np.asarray(wheels) * (1 - slip))
