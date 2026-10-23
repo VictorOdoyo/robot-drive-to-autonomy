@@ -64,3 +64,12 @@ class PoseEKF:
         self.covariance = transition @ self.covariance @ transition.T + process
         self.covariance = (self.covariance + self.covariance.T) / 2
         return transition
+
+
+def update_position(filter_, position, noise, gate=9.21):
+    observation = np.array([[1, 0, 0, 0], [0, 1, 0, 0]])
+    result = gaussian_update(
+        filter_.mean, filter_.covariance, np.asarray(position) - filter_.mean[:2], observation, noise, gate
+    )
+    filter_.mean, filter_.covariance, filter_.last_nis, accepted = result
+    return accepted

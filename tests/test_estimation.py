@@ -26,3 +26,11 @@ def test_ekf_prediction_preserves_psd():
         filt.predict(1, 0.2, 0.1)
     assert np.linalg.eigvalsh(filt.covariance).min() > 0
     assert filt.mean[0] > 2
+
+
+def test_position_outlier_is_rejected():
+    filt = m.PoseEKF()
+    assert not m.update_position(filt, [100, 100], np.eye(2) * 0.01)
+    assert np.allclose(filt.mean, 0)
+    assert m.update_position(filt, [0.05, 0.05], np.eye(2) * 0.01)
+    assert filt.covariance[0, 0] < 0.01
