@@ -41,3 +41,11 @@ def test_bias_noise_discretization():
 def test_adc_saturation():
     assert np.allclose(m.adc([-100, 0, 100], 20, 12), [-20, 0, 20])
     assert m.adc(1, 20, 12, 0.1) == pytest.approx(1.1, abs=20 / 2047)
+
+
+def test_delayed_measurements_keep_acquisition_stamp():
+    queue = m.DelayQueue(0.05)
+    queue.push(0.1, 7)
+    assert queue.ready(0.14) == []
+    assert queue.ready(0.15) == [(0.1, 7)]
+    assert queue.ready(1) == []

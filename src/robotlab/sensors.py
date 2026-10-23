@@ -62,3 +62,25 @@ def adc(value, full_scale, bits, offset=0):
     maximum = (1 << (bits - 1)) - 1
     raw = np.clip(np.rint((np.asarray(value) + offset) / full_scale * maximum), -maximum, maximum)
     return raw * full_scale / maximum
+
+
+class DelayQueue:
+    def __init__(self, latency=0.0):
+        if latency < 0:
+            raise ValueError("negative latency")
+        self.latency = latency
+        self.queue = []
+        self.last_stamp = -np.inf
+
+    def push(self, stamp, value):
+        if not np.isfinite(stamp) or stamp < self.last_stamp:
+            raise ValueError("measurement timestamps must be ordered")
+        self.queue.append((stamp, value))
+        self.last_stamp = stamp
+
+    def ready(self, time):
+        count = 0
+        while count < len(self.queue) and self.queue[count][0] + self.latency <= time + 1e-12:
+            count += 1
+        ready, self.queue = self.queue[:count], self.queue[count:]
+        return ready
