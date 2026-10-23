@@ -27,3 +27,11 @@ def test_speed_loop_characteristic():
     kp, ki = m.velocity_gains(0.04, 0.01, 0.7, 8, 0.8)
     roots = np.roots([0.04, 0.01 + 0.7 * kp, 0.7 * ki])
     assert np.allclose(roots, [-6.4 + 4.8j, -6.4 - 4.8j])
+
+
+def test_feedforward_cancels_winding_rhs():
+    from robotlab.electrical import Motor
+
+    motor = Motor()
+    voltage = m.motor_feedforward(3, 100, motor.resistance, motor.constant, 20, motor.inductance)
+    assert motor.derivative(3, 100, voltage)[0] == pytest.approx(20)

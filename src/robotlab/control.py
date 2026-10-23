@@ -43,3 +43,13 @@ def velocity_gains(inertia, damping, torque_constant, bandwidth, damping_ratio=1
     if kp < 0:
         raise ValueError("requested bandwidth below passive damping")
     return kp, ki
+
+
+def motor_feedforward(current_reference, omega, resistance, constant, current_slew=0, inductance=0):
+    if min(resistance, constant) <= 0 or inductance < 0:
+        raise ValueError("invalid feedforward model")
+    return (
+        resistance * np.asarray(current_reference)
+        + constant * np.asarray(omega)
+        + inductance * np.asarray(current_slew)
+    )
