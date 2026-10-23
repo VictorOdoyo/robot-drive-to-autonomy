@@ -182,3 +182,44 @@ def huber_noise(residual, noise, threshold=2.5):
     scale = np.sqrt(max(float(residual @ np.linalg.solve(noise, residual)), 0))
     weight = min(1.0, threshold / max(scale, 1e-15))
     return noise / weight
+
+
+class PositionReplay:
+    """Bounded replay for position fixes; controls and their durations are retained."""
+
+    def __init__(self, filter_, max_steps=200):
+        import copy
+
+        if max_steps <= 0:
+            raise ValueError("positive replay horizon required")
+        self.filter = filter_
+        self.anchor = copy.deepcopy(filter_)
+        self.controls = []
+        self.max_steps = max_steps
+
+    def predict(self, speed, gyro, dt):
+        import copy
+
+        self.controls.append((speed, gyro, dt))
+        self.filter.predict(speed, gyro, dt)
+        if len(self.controls) > self.max_steps:
+            self.anchor.predict(*self.controls.pop(0))
+        return copy.deepcopy(self.filter.mean)
+
+    def correct(self, steps_ago, position, noise):
+        import copy
+
+        if not 0 <= steps_ago <= len(self.controls):
+            raise ValueError("fix outside replay horizon")
+        index = len(self.controls) - steps_ago
+        replay = copy.deepcopy(self.anchor)
+        for control in self.controls[:index]:
+            replay.predict(*control)
+        accepted = update_position(replay, position, noise)
+        # Retain the correction by moving the anchor to the corrected epoch.
+        self.anchor = copy.deepcopy(replay)
+        self.controls = self.controls[index:]
+        for control in self.controls:
+            replay.predict(*control)
+        self.filter.mean, self.filter.covariance = replay.mean, replay.covariance
+        return accepted

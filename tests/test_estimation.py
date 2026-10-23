@@ -98,3 +98,16 @@ def test_rts_uses_future_measurement():
 def test_huber_downweights_outliers():
     assert np.allclose(m.huber_noise([1], [[1]]), [[1]])
     assert m.huber_noise([10], [[1]])[0, 0] == pytest.approx(4)
+
+
+def test_delayed_fix_replay_matches_chronological_filter():
+    direct = m.PoseEKF()
+    delayed = m.PositionReplay(m.PoseEKF())
+    for k in range(10):
+        direct.predict(1, 0.1, 0.1)
+        if k == 4:
+            m.update_position(direct, [0.51, 0.01], np.eye(2) * 0.01)
+        delayed.predict(1, 0.1, 0.1)
+    assert delayed.correct(5, [0.51, 0.01], np.eye(2) * 0.01)
+    assert np.allclose(delayed.filter.mean, direct.mean)
+    assert np.allclose(delayed.filter.covariance, direct.covariance)
