@@ -47,3 +47,9 @@ def test_bms_blocks_full_pack_regeneration():
 def test_thermal_time_constant():
     assert m.thermal_step(25, 10, 25, 2, 100, 200) == pytest.approx(25 + 20 * (1 - np.exp(-1)))
     assert m.thermal_step(100, 0, 25, 2, 100, 200) < 100
+
+
+def test_thermal_derate():
+    assert m.thermal_limit(85, 20) == pytest.approx(10)
+    assert m.thermal_limit(105, 20) == 0
+    assert m.thermal_limit(25, 20) == 20

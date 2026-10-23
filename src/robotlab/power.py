@@ -90,3 +90,9 @@ def thermal_step(temperature, loss, ambient, thermal_resistance, thermal_capacit
     return float(
         equilibrium + (temperature - equilibrium) * np.exp(-dt / (thermal_resistance * thermal_capacity))
     )
+
+
+def thermal_limit(temperature, full_current, derate_start=70, shutdown=100):
+    if shutdown <= derate_start or full_current < 0:
+        raise ValueError("invalid derating thresholds")
+    return float(full_current * np.clip((shutdown - temperature) / (shutdown - derate_start), 0, 1))
