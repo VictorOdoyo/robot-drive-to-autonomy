@@ -64,3 +64,11 @@ def test_backlash_deadzone():
     assert m.backlash_torque(0.001, 0, 0, 0, 1) == 0
     assert m.backlash_torque(0.02, 0, 0, 0, 1) == pytest.approx(0.75)
     assert m.backlash_torque(-0.02, 0, 0, 0, 1) == pytest.approx(-0.75)
+
+
+def test_chassis_dynamic_power_balance():
+    chassis = m.Chassis()
+    rates, torque = np.array([3.0, 5.0]), np.array([1.0, 2.0])
+    acceleration = m.wheel_acceleration(chassis, rates, torque, motor_inertia=0.0001, ratio=12)
+    stored_rate = rates @ m.reflected_inertia(chassis, 0.0001, 12) @ acceleration
+    assert stored_rate == pytest.approx(rates @ (torque - m.friction_torque(rates)))

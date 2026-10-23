@@ -95,3 +95,14 @@ def backlash_torque(
     viscous = damping * (motor_rate / ratio - wheel_rate)
     # A unilateral tooth contact cannot pull the opposite tooth flank.
     return float(np.sign(error) * max(0, np.sign(error) * (elastic + viscous)))
+
+
+def wheel_acceleration(chassis, rates, drive_torque, external_torque=(0, 0), motor_inertia=0, ratio=1):
+    matrix = reflected_inertia(chassis, motor_inertia, ratio)
+    net = np.asarray(drive_torque) - external_torque - friction_torque(rates)
+    return np.linalg.solve(matrix, net)
+
+
+def kinetic_energy(chassis, rates, motor_inertia=0, ratio=1):
+    rates = np.asarray(rates)
+    return float(0.5 * rates @ reflected_inertia(chassis, motor_inertia, ratio) @ rates)
