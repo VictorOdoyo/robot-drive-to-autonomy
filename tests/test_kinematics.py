@@ -8,3 +8,9 @@ def test_wheel_transform():
     drive = m.DriveGeometry(0.08, 0.081, 0.4)
     assert np.allclose(drive.forward(drive.inverse(1, 0.5)), [1, 0.5])
     assert m.DriveGeometry().forward([-1, 1])[0] == pytest.approx(0)
+
+
+def test_encoder_circle():
+    drive = m.DriveGeometry(track=0.4)
+    delta = drive.inverse(0.5, 1.0) * 2 * np.pi
+    assert np.allclose(m.odometry([0, 0, 0], delta, drive), 0, atol=1e-14)

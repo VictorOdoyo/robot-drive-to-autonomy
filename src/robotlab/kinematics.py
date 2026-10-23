@@ -24,3 +24,10 @@ class DriveGeometry:
                 (speed + yaw_rate * self.track / 2) / self.right_radius,
             ]
         )
+
+
+def odometry(pose, delta_angles, geometry=DriveGeometry()):
+    from .geometry import integrate
+
+    distance, angle = geometry.forward(delta_angles)
+    return integrate(pose, distance, angle, 1.0)
