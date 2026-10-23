@@ -45,3 +45,10 @@ def friction_torque(rates, coulomb=0.03, viscous=0.004, smoothing=0.05):
         raise ValueError("invalid friction parameters")
     rates = np.asarray(rates)
     return coulomb * np.tanh(rates / smoothing) + viscous * rates
+
+
+def road_load(speed, mass, radius, grade=0, rolling_coefficient=0.015, gravity=9.80665):
+    if min(mass, radius, gravity) <= 0 or rolling_coefficient < 0:
+        raise ValueError("invalid road load parameters")
+    force = mass * gravity * (np.sin(grade) + rolling_coefficient * np.cos(grade) * np.tanh(speed / 0.02))
+    return np.ones(2) * force * radius / 2

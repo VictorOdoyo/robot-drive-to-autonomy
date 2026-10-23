@@ -32,3 +32,8 @@ def test_friction_is_dissipative():
     rates = np.linspace(-20, 20, 101)
     assert np.all(m.friction_torque(rates) * rates >= 0)
     assert m.friction_torque(0) == 0
+
+
+def test_grade_energy():
+    torque = m.road_load(1, 20, 0.1, grade=np.arcsin(0.1), rolling_coefficient=0)
+    assert np.sum(torque) / 0.1 == pytest.approx(20 * 9.80665 * 0.1)
