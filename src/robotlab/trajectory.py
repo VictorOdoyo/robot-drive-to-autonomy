@@ -180,3 +180,19 @@ def sample_poses(time, poses, query):
     unwrapped = poses.copy()
     unwrapped[:, 2] = np.unwrap(poses[:, 2])
     return np.column_stack([np.interp(query, time, unwrapped[:, k]) for k in range(3)])
+
+
+def braking_distance(speed, deceleration, latency=0):
+    if deceleration <= 0 or latency < 0:
+        raise ValueError("invalid braking model")
+    return abs(speed) * latency + speed**2 / (2 * deceleration)
+
+
+def braking_profile(speed, deceleration, latency=0, dt=0.02):
+    if dt <= 0:
+        raise ValueError("positive timestep required")
+    distance = braking_distance(speed, deceleration, latency)
+    duration = latency + abs(speed) / deceleration
+    time = np.linspace(0, duration, max(2, int(np.ceil(duration / dt)) + 1))
+    rates = np.sign(speed) * np.maximum(abs(speed) - deceleration * np.maximum(time - latency, 0), 0)
+    return time, rates, distance

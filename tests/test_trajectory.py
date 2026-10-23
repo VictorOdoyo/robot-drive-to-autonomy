@@ -82,3 +82,9 @@ def test_time_scaling_enforces_both_limits():
 def test_pose_interpolation_heading_continuity():
     result = m.sample_poses([0, 1], np.array([[0.0, 0, 3.1], [1, 0, -3.1]]), [0.5])
     assert result[0, 2] == pytest.approx(np.pi)
+
+
+def test_latency_braking_distance():
+    time, speed, distance = m.braking_profile(1, 2, 0.2, 0.001)
+    assert distance == pytest.approx(0.45)
+    assert np.trapezoid(speed, time) == pytest.approx(distance, abs=1e-6)
