@@ -22,3 +22,12 @@ def test_ray_all_octants():
         cells = m.ray_cells((0, 0), end)
         assert cells[0] == (0, 0) and cells[-1] == end
         assert max(np.max(np.abs(np.diff(cells, axis=0)), axis=1)) <= 1
+
+
+def test_scan_hit_and_no_return():
+    grid = m.OccupancyGrid(30, 10, 0.1)
+    m.insert_scan(grid, [0.05, 0.45, 0], [0], [1.0], 2)
+    assert grid.log_odds[4, 10] > 0
+    assert grid.log_odds[4, 5] < 0
+    m.insert_scan(grid, [0.05, 0.55, 0], [0], [2.0], 2)
+    assert grid.log_odds[5, 20] < 0

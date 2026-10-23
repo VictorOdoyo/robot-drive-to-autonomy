@@ -60,3 +60,24 @@ def ray_cells(start, end):
         if twice <= dx:
             error += dx
             y0 += sy
+
+
+def insert_scan(grid, pose, angles, ranges, max_range, free_increment=-0.4, occupied_increment=0.85):
+    if len(angles) != len(ranges) or max_range <= 0:
+        raise ValueError("invalid scan")
+    start = grid.cell(pose[:2])
+    for angle, distance in zip(angles, ranges, strict=True):
+        if not np.isfinite(distance) or distance < 0:
+            continue
+        hit = distance < max_range - 1e-9
+        distance = min(distance, max_range)
+        endpoint = np.asarray(pose[:2]) + distance * np.array(
+            [np.cos(pose[2] + angle), np.sin(pose[2] + angle)]
+        )
+        cells = ray_cells(start, grid.cell(endpoint))
+        for index, cell in enumerate(cells):
+            if not grid.contains(cell):
+                continue
+            increment = occupied_increment if hit and index == len(cells) - 1 else free_increment
+            grid.log_odds[cell] = np.clip(grid.log_odds[cell] + increment, -8, 8)
+            grid.observed[cell] = True
