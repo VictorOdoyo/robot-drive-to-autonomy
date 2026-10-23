@@ -130,3 +130,18 @@ def nees(estimate, truth, covariance, angle_index=2):
     if angle_index is not None:
         error[angle_index] = wrap(error[angle_index])
     return float(error @ np.linalg.solve(covariance, error))
+
+
+def confidence_ellipse(covariance, probability=0.95):
+    from scipy.stats import chi2
+
+    from .numerics import covariance as validate
+
+    matrix = validate(covariance, 2)
+    if not 0 < probability < 1:
+        raise ValueError("probability outside (0,1)")
+    values, vectors = np.linalg.eigh(matrix)
+    order = np.argsort(values)[::-1]
+    axes = np.sqrt(np.maximum(values[order], 0) * chi2.ppf(probability, 2))
+    direction = vectors[:, order[0]]
+    return axes, float(np.arctan2(direction[1], direction[0]))

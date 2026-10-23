@@ -71,3 +71,9 @@ def test_nees_wraps_angles():
     value = m.nees([0, 0, 3.13], [0, 0, -3.13], np.eye(3))
     assert value < 0.001
     assert m.nees([2], [0], [[4]], None) == pytest.approx(1)
+
+
+def test_uncertainty_ellipse():
+    axes, _ = m.confidence_ellipse(np.diag([4.0, 1.0]))
+    assert axes[0] / axes[1] == pytest.approx(2)
+    assert axes[1] == pytest.approx(np.sqrt(5.991464547), rel=1e-8)
