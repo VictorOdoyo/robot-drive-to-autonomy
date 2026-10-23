@@ -150,3 +150,15 @@ class WaypointMission:
             self.arrived_at = None
             self.done = self.index == len(self.waypoints)
         return None if self.done else self.waypoints[self.index].copy()
+
+
+def stalled(times, positions, commands, window=2, min_command=0.1, min_progress=0.03):
+    times, positions, commands = map(np.asarray, (times, positions, commands))
+    if window <= 0 or min(min_command, min_progress) < 0:
+        raise ValueError("invalid stall detector")
+    if len(times) < 2 or times[-1] - times[0] < window:
+        return False
+    keep = times >= times[-1] - window
+    motion = np.linalg.norm(positions[keep][-1] - positions[keep][0])
+    effort = np.mean(np.abs(commands[keep, 0]))
+    return bool(effort >= min_command and motion < min_progress)

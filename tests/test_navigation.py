@@ -56,3 +56,10 @@ def test_waypoint_dwell_resets_on_departure():
     mission.update([0, 0], 0.4)
     assert mission.update([1, 0], 0.6) is not None
     assert mission.update([1, 0], 1.2) is None and mission.done
+
+
+def test_stall_requires_commanded_motion():
+    time = np.linspace(0, 3, 31)
+    position = np.zeros((31, 2))
+    assert m.stalled(time, position, np.tile([0.5, 0], (31, 1)))
+    assert not m.stalled(time, position, np.zeros((31, 2)))
