@@ -32,3 +32,10 @@ def test_zoh_integrator_and_decay():
 def test_integrated_white_acceleration():
     q = m.process_noise(np.array([[0.0, 1], [0, 0]]), np.diag([0.0, 2.0]), 0.5)
     assert np.allclose(q, [[2 * 0.5**3 / 3, 0.5**2], [0.5**2, 1.0]])
+
+
+def test_invalid_covariances():
+    assert np.allclose(m.covariance([[1, 1], [1, 1]]), np.ones((2, 2)))
+    for bad in ([[1, 2], [0, 1]], [[1, 2], [2, 1]], [[float("nan")]]):
+        with pytest.raises(ValueError):
+            m.covariance(bad)

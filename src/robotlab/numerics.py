@@ -43,3 +43,16 @@ def process_noise(matrix, spectral_density, dt):
     value = expm(block * dt)
     covariance = value[:n, n:] @ value[:n, :n].T
     return (covariance + covariance.T) / 2
+
+
+def covariance(matrix, size=None):
+    matrix = np.asarray(matrix, dtype=float)
+    if matrix.ndim != 2 or matrix.shape[0] != matrix.shape[1]:
+        raise ValueError("covariance must be square")
+    if size is not None and matrix.shape != (size, size):
+        raise ValueError("unexpected covariance size")
+    if not np.all(np.isfinite(matrix)) or not np.allclose(matrix, matrix.T, atol=1e-12):
+        raise ValueError("covariance must be finite and symmetric")
+    if np.linalg.eigvalsh(matrix).min() < -1e-12:
+        raise ValueError("covariance must be positive semidefinite")
+    return (matrix + matrix.T) / 2
