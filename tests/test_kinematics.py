@@ -50,3 +50,12 @@ def test_asymmetric_slip_turns_robot():
     slip = m.slipping_twist([10, 10], [0.5, 0])
     assert slip[0] < ideal[0]
     assert slip[1] > 0
+
+
+def test_force_velocity_power_duality():
+    drive = m.DriveGeometry()
+    wheels = np.array([3.0, 7.0])
+    wrench = np.array([10.0, 2.0])
+    forces = m.wheel_forces(*wrench, drive)
+    contact_speeds = wheels * [drive.left_radius, drive.right_radius]
+    assert forces @ contact_speeds == pytest.approx(wrench @ drive.forward(wheels))

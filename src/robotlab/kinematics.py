@@ -89,3 +89,12 @@ def slipping_twist(wheels, slip, geometry=DriveGeometry()):
     if slip.shape != (2,) or np.any((slip < 0) | (slip > 1)):
         raise ValueError("traction loss must be in [0,1] for each wheel")
     return geometry.forward(np.asarray(wheels) * (1 - slip))
+
+
+def wheel_forces(force, moment, geometry=DriveGeometry()):
+    return np.array([force / 2 - moment / geometry.track, force / 2 + moment / geometry.track])
+
+
+def body_wrench(forces, geometry=DriveGeometry()):
+    left, right = forces
+    return np.array([left + right, (right - left) * geometry.track / 2])
