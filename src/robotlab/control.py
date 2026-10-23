@@ -90,3 +90,13 @@ def friction_feedforward(target_rate, coulomb=0.03, viscous=0.004, smoothing=0.1
     if min(coulomb, viscous) < 0 or smoothing <= 0:
         raise ValueError("invalid friction compensation")
     return coulomb * np.tanh(np.asarray(target_rate) / smoothing) + viscous * np.asarray(target_rate)
+
+
+def current_loop_matrix(resistance, inductance, kp, ki, dt, delayed=False):
+    if min(resistance, inductance, dt) <= 0 or min(kp, ki) < 0:
+        raise ValueError("invalid current loop")
+    a = np.exp(-resistance * dt / inductance)
+    b = (1 - a) / resistance
+    if delayed:
+        return np.array([[a, 0, b], [-ki * dt, 1, 0], [-kp, 1, 0]])
+    return np.array([[a - b * kp, b], [-ki * dt, 1]])

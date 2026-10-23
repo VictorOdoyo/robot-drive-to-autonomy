@@ -59,3 +59,10 @@ def test_derivative_filter_decay():
 def test_friction_feedforward_symmetry():
     assert np.allclose(m.friction_feedforward([-2, 0, 2]), -m.friction_feedforward([2, 0, -2]))
     assert m.friction_feedforward(10) > 0.03
+
+
+def test_delay_shrinks_current_stability_margin():
+    direct = m.current_loop_matrix(0.35, 0.0015, 2.0, 466.6666667, 0.001)
+    delayed = m.current_loop_matrix(0.35, 0.0015, 2.0, 466.6666667, 0.001, True)
+    assert np.max(abs(np.linalg.eigvals(direct))) < 1
+    assert np.max(abs(np.linalg.eigvals(delayed))) > 1
