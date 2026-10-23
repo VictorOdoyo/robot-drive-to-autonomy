@@ -62,3 +62,10 @@ def test_nonlinear_root_and_bracket():
     assert m.bisect(lambda x: x * x - 2, 0, 2) == pytest.approx(np.sqrt(2), abs=1e-9)
     with pytest.raises(ValueError):
         m.bisect(lambda x: x * x + 1, -2, 2)
+
+
+def test_discrete_stability():
+    stable = m.pole_metrics(np.diag([0.8, 0.9]), 0.1)
+    assert stable["stable"]
+    assert stable["settling_s"] == pytest.approx(-0.4 / np.log(0.9))
+    assert not m.pole_metrics([[1.01]], 0.1)["stable"]

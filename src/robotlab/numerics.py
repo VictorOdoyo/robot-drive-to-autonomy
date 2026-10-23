@@ -107,3 +107,12 @@ def bisect(function, low, high, tolerance=1e-10, iterations=100):
         else:
             a, fa = middle, fm
     raise RuntimeError("root iteration limit")
+
+
+def pole_metrics(transition, dt):
+    if dt <= 0:
+        raise ValueError("dt must be positive")
+    poles = np.linalg.eigvals(transition)
+    radius = float(np.max(np.abs(poles)))
+    settling = 0.0 if radius == 0 else (-4 * dt / np.log(radius) if radius < 1 else np.inf)
+    return {"poles": poles, "spectral_radius": radius, "stable": radius < 1, "settling_s": settling}
