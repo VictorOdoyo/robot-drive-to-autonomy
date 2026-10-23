@@ -36,3 +36,13 @@ def pure_pursuit(pose, target, speed=0.6, max_yaw=2):
     if relative[0] <= 0:
         yaw = np.clip(2 * heading, -max_yaw, max_yaw)
     return np.array([forward, np.clip(yaw, -max_yaw, max_yaw)])
+
+
+def trajectory_control(pose, reference, reference_twist, kx=1.5, ky=3, kheading=2):
+    from .geometry import pose_error
+
+    if min(kx, ky, kheading) <= 0:
+        raise ValueError("positive trajectory feedback gains required")
+    ex, ey, heading = pose_error(pose, reference)
+    speed, yaw = reference_twist
+    return np.array([speed * np.cos(heading) + kx * ex, yaw + speed * ky * ey + kheading * np.sin(heading)])

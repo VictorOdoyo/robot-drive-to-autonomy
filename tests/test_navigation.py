@@ -15,3 +15,9 @@ def test_pursuit_steering_direction():
     assert m.pure_pursuit([0, 0, 0], [1, 1])[1] > 0
     assert np.allclose(m.pure_pursuit([0, 0, 0], [1, 0]), [0.6, 0])
     assert m.pure_pursuit([0, 0, 0], [-1, 0])[0] == 0
+
+
+def test_trajectory_feedback_zero_error():
+    pose = np.array([1.0, 2.0, 0.5])
+    assert np.allclose(m.trajectory_control(pose, pose, [0.4, 0.2]), [0.4, 0.2])
+    assert m.trajectory_control([0, 1, 0], [0, 0, 0], [0.4, 0])[1] < 0
