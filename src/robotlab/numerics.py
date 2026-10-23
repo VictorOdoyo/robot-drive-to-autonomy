@@ -67,3 +67,12 @@ def timeline(duration, dt, events=()):
     regular = np.arange(int(np.floor(duration / dt)) + 1) * dt
     values = np.unique(np.r_[regular[regular < duration], events, duration])
     return values
+
+
+def cumulative_integral(time, values):
+    time, values = np.asarray(time), np.asarray(values)
+    if time.ndim != 1 or values.shape[0] != len(time) or np.any(np.diff(time) <= 0):
+        raise ValueError("strictly increasing sample times required")
+    scale = np.diff(time).reshape((-1,) + (1,) * (values.ndim - 1))
+    intervals = scale * (values[1:] + values[:-1]) / 2
+    return np.concatenate([np.zeros_like(values[:1]), np.cumsum(intervals, axis=0)])

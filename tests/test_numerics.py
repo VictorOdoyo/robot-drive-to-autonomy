@@ -46,3 +46,9 @@ def test_timeline_hits_disturbances():
     assert np.all(np.diff(times) > 0)
     assert times[-1] == 1
     assert 0.17 in times and 0.81 in times
+
+
+def test_vector_energy_integral():
+    time = np.array([0, 0.2, 0.7, 1])
+    power = np.column_stack([2 * time, np.ones(4) * 3])
+    assert np.allclose(m.cumulative_integral(time, power)[-1], [1, 3])
