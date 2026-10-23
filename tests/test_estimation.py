@@ -58,3 +58,10 @@ def test_landmark_reduces_uncertainty():
     before = np.trace(filt.covariance)
     assert m.update_landmark(filt, [3, 0], [3, 0], np.diag([0.01, 0.001]))
     assert np.trace(filt.covariance) < before
+
+
+def test_bias_observability_from_wheels():
+    filt = m.PoseEKF()
+    for _ in range(50):
+        assert m.update_gyro_bias(filt, 0.14, 0.1, 0.0001)
+    assert filt.mean[3] == pytest.approx(0.04, abs=0.0001)

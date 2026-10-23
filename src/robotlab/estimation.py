@@ -114,3 +114,10 @@ def update_landmark(filter_, landmark, measurement, noise, gate=9.21):
     filter_.mean, filter_.covariance, filter_.last_nis, accepted = result
     filter_.mean[2] = wrap(filter_.mean[2])
     return accepted
+
+
+def update_gyro_bias(filter_, gyro, encoder_yaw, variance, gate=6.63):
+    residual = gyro - encoder_yaw - filter_.mean[3]
+    result = gaussian_update(filter_.mean, filter_.covariance, [residual], [[0, 0, 0, 1]], [[variance]], gate)
+    filter_.mean, filter_.covariance, filter_.last_nis, accepted = result
+    return accepted
