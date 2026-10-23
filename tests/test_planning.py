@@ -74,3 +74,11 @@ def test_frontier_utility_balances_gain_and_distance():
     distance = np.array([[0.0, 1, 10]])
     order, scores = m.rank_frontiers([[0, 1], [0, 2]], distance, [3, 5])
     assert order[0] == 0 and scores[0] > scores[1]
+
+
+def test_coverage_connects_disjoint_row_intervals():
+    blocked = np.zeros((5, 7), bool)
+    blocked[1:4, 3] = True
+    path = m.coverage_path(blocked, (0, 0), 1)
+    assert len(set(path)) == np.sum(~blocked)
+    assert all(not blocked[p] for p in path)

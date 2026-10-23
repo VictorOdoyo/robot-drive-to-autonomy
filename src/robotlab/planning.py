@@ -184,3 +184,23 @@ def rank_frontiers(frontiers, distances, information_gain, travel_penalty=1):
         ]
     )
     return np.argsort(-scores), scores
+
+
+def coverage_path(blocked, start, row_stride=2):
+    if row_stride < 1:
+        raise ValueError("positive coverage stride required")
+    current = tuple(start)
+    result = [current]
+    reachable = np.isfinite(distance_map(blocked, current))
+    for row in range(0, blocked.shape[0], row_stride):
+        columns = list(np.flatnonzero(reachable[row]))
+        if (row // row_stride) % 2:
+            columns.reverse()
+        for col in columns:
+            target = (row, int(col))
+            if target == current:
+                continue
+            connection, _ = astar(blocked, current, target)
+            result.extend(connection[1:])
+            current = target
+    return result
