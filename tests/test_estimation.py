@@ -65,3 +65,9 @@ def test_bias_observability_from_wheels():
     for _ in range(50):
         assert m.update_gyro_bias(filt, 0.14, 0.1, 0.0001)
     assert filt.mean[3] == pytest.approx(0.04, abs=0.0001)
+
+
+def test_nees_wraps_angles():
+    value = m.nees([0, 0, 3.13], [0, 0, -3.13], np.eye(3))
+    assert value < 0.001
+    assert m.nees([2], [0], [[4]], None) == pytest.approx(1)

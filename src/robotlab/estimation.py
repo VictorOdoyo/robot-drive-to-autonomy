@@ -121,3 +121,12 @@ def update_gyro_bias(filter_, gyro, encoder_yaw, variance, gate=6.63):
     result = gaussian_update(filter_.mean, filter_.covariance, [residual], [[0, 0, 0, 1]], [[variance]], gate)
     filter_.mean, filter_.covariance, filter_.last_nis, accepted = result
     return accepted
+
+
+def nees(estimate, truth, covariance, angle_index=2):
+    from .geometry import wrap
+
+    error = np.asarray(estimate) - truth
+    if angle_index is not None:
+        error[angle_index] = wrap(error[angle_index])
+    return float(error @ np.linalg.solve(covariance, error))
