@@ -81,3 +81,12 @@ def battery_current_bounds(
     if lower > upper:
         raise ValueError("no feasible battery current")
     return lower, upper
+
+
+def thermal_step(temperature, loss, ambient, thermal_resistance, thermal_capacity, dt):
+    if min(thermal_resistance, thermal_capacity) <= 0 or dt < 0 or loss < 0:
+        raise ValueError("invalid thermal parameters")
+    equilibrium = ambient + loss * thermal_resistance
+    return float(
+        equilibrium + (temperature - equilibrium) * np.exp(-dt / (thermal_resistance * thermal_capacity))
+    )

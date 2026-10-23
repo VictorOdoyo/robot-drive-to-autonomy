@@ -42,3 +42,8 @@ def test_bms_blocks_full_pack_regeneration():
     assert low == 0
     assert high > 0
     assert m.battery_current_bounds(pack, 0, 0, 0.1)[1] == 0
+
+
+def test_thermal_time_constant():
+    assert m.thermal_step(25, 10, 25, 2, 100, 200) == pytest.approx(25 + 20 * (1 - np.exp(-1)))
+    assert m.thermal_step(100, 0, 25, 2, 100, 200) < 100
