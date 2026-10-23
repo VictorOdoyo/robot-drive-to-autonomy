@@ -85,3 +85,11 @@ def test_heading_and_bias_observability():
     rank, _ = m.observability_rank(transition, [[1, 0]])
     assert rank == 2
     assert m.observability_rank(np.eye(2), [[1, 0]])[0] == 1
+
+
+def test_rts_uses_future_measurement():
+    states, covs = m.rts_smooth(
+        [[0.0], [1.0]], [[[1.0]], [[0.2]]], [[0.0], [0.0]], [[[1.0]], [[2.0]]], [[[1.0]]]
+    )
+    assert states[0, 0] == pytest.approx(0.5)
+    assert covs[0, 0, 0] < 1

@@ -155,3 +155,21 @@ def observability_rank(transition, observation, horizon=None, tolerance=1e-9):
     blocks = [observation @ np.linalg.matrix_power(transition, k) for k in range(horizon)]
     singular = np.linalg.svd(np.vstack(blocks), compute_uv=False)
     return int(np.sum(singular > tolerance)), singular
+
+
+def rts_smooth(filtered, covariances, predicted, predicted_covariances, transitions):
+    from .geometry import wrap
+
+    states = np.array(filtered, dtype=float, copy=True)
+    covariances = np.array(covariances, dtype=float, copy=True)
+    if len(states) < 1 or len(transitions) != len(states) - 1:
+        raise ValueError("one transition between adjacent states required")
+    for k in range(len(states) - 2, -1, -1):
+        gain = np.linalg.solve(predicted_covariances[k + 1], transitions[k] @ covariances[k]).T
+        residual = states[k + 1] - predicted[k + 1]
+        if len(residual) >= 3:
+            residual[2] = wrap(residual[2])
+        states[k] += gain @ residual
+        covariances[k] += gain @ (covariances[k + 1] - predicted_covariances[k + 1]) @ gain.T
+        covariances[k] = (covariances[k] + covariances[k].T) / 2
+    return states, covariances
