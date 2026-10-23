@@ -34,3 +34,10 @@ def test_position_outlier_is_rejected():
     assert np.allclose(filt.mean, 0)
     assert m.update_position(filt, [0.05, 0.05], np.eye(2) * 0.01)
     assert filt.covariance[0, 0] < 0.01
+
+
+def test_heading_branch_cut():
+    filt = m.PoseEKF([0, 0, 3.13, 0], np.eye(4) * 0.1)
+    assert m.update_heading(filt, -3.13, 0.001)
+    assert abs(filt.mean[2]) > 3.12
+    assert filt.last_nis < 0.01

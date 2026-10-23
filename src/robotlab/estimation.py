@@ -73,3 +73,19 @@ def update_position(filter_, position, noise, gate=9.21):
     )
     filter_.mean, filter_.covariance, filter_.last_nis, accepted = result
     return accepted
+
+
+def update_heading(filter_, heading, variance, gate=6.63):
+    from .geometry import wrap
+
+    result = gaussian_update(
+        filter_.mean,
+        filter_.covariance,
+        [wrap(heading - filter_.mean[2])],
+        [[0, 0, 1, 0]],
+        [[variance]],
+        gate,
+    )
+    filter_.mean, filter_.covariance, filter_.last_nis, accepted = result
+    filter_.mean[2] = wrap(filter_.mean[2])
+    return accepted
