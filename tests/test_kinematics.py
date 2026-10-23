@@ -59,3 +59,11 @@ def test_force_velocity_power_duality():
     forces = m.wheel_forces(*wrench, drive)
     contact_speeds = wheels * [drive.left_radius, drive.right_radius]
     assert forces @ contact_speeds == pytest.approx(wrench @ drive.forward(wheels))
+
+
+def test_lateral_consistency():
+    from robotlab.geometry import integrate
+
+    before = [2, 3, 0.7]
+    assert m.nonholonomic_residual(before, integrate(before, 1, 0.8, 0.5), 0.5) == pytest.approx(0, abs=1e-14)
+    assert m.nonholonomic_residual([0, 0, 0], [0, 1, 0], 1) == 1

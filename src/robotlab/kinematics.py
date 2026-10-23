@@ -98,3 +98,13 @@ def wheel_forces(force, moment, geometry=DriveGeometry()):
 def body_wrench(forces, geometry=DriveGeometry()):
     left, right = forces
     return np.array([left + right, (right - left) * geometry.track / 2])
+
+
+def nonholonomic_residual(pose_before, pose_after, dt):
+    from .geometry import pose_error
+
+    if dt <= 0:
+        raise ValueError("dt must be positive")
+    delta = pose_error(pose_before, pose_after)
+    half = delta[2] / 2
+    return float((-np.sin(half) * delta[0] + np.cos(half) * delta[1]) / dt)
