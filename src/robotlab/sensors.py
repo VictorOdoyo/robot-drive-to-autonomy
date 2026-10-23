@@ -111,3 +111,17 @@ def ray_range(origin, angle, rectangles, max_range=10.0):
         if high >= low:
             nearest = min(nearest, low)
     return float(nearest)
+
+
+def lidar_scan(pose, angles, rectangles, max_range=10, noise_std=0, rng=None, extrinsic=(0, 0, 0)):
+    from .geometry import compose
+
+    sensor = compose(pose, extrinsic)
+    ranges = np.array([ray_range(sensor[:2], sensor[2] + a, rectangles, max_range) for a in angles])
+    if noise_std < 0:
+        raise ValueError("negative range noise")
+    if noise_std:
+        if rng is None:
+            raise ValueError("explicit random generator required")
+        ranges = np.clip(ranges + rng.normal(0, noise_std, len(ranges)), 0, max_range)
+    return ranges

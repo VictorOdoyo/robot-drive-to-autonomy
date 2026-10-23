@@ -63,3 +63,8 @@ def test_lidar_rays():
     assert m.ray_range([0, 0], 0, rectangles) == pytest.approx(2)
     assert m.ray_range([0, 0], np.pi / 2, rectangles) == 10
     assert m.ray_range([2.5, 0], 0, rectangles) == 0
+
+
+def test_lidar_extrinsic():
+    scan = m.lidar_scan([0, 0, 0], [0, np.pi], [[2, -1, 3, 1]], extrinsic=(0.2, 0, 0))
+    assert np.allclose(scan, [1.8, 10])
