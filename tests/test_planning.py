@@ -56,3 +56,15 @@ def test_time_expanded_path_waits_for_obstacle():
     path = m.space_time_path(blocked, (0, 0), (0, 2), {1: {(0, 1)}})
     assert path[1] == ((0, 0), 1)
     assert path[-1] == ((0, 2), 3)
+
+
+def test_multi_stop_optimum_against_enumeration():
+    import itertools
+
+    distances = np.array([[0, 3, 8, 2], [3, 0, 4, 5], [8, 4, 0, 1], [2, 5, 1, 0]])
+    cost, path = m.visit_order(distances)
+    brute = min(
+        sum(distances[a, b] for a, b in zip((0, *p), (*p, 0), strict=True))
+        for p in itertools.permutations([1, 2, 3])
+    )
+    assert cost == brute and path[0] == path[-1] == 0

@@ -136,3 +136,37 @@ def space_time_path(blocked, start, goal, reservations, horizon=100):
             parent[key] = (cell, tick)
             queue.append(key)
     raise ValueError("no path within reservation horizon")
+
+
+def visit_order(distance_matrix, start=0, return_to_start=True):
+    distance_matrix = np.asarray(distance_matrix)
+    n = len(distance_matrix)
+    if distance_matrix.shape != (n, n) or n > 16 or np.any(distance_matrix < 0):
+        raise ValueError("nonnegative square distances for <=16 stops required")
+    if not 0 <= start < n:
+        raise ValueError("invalid start index")
+    states = {(1 << start, start): (0.0, (start,))}
+    for mask in range(1 << n):
+        for end in range(n):
+            if (mask, end) not in states:
+                continue
+            cost, path = states[mask, end]
+            for nxt in range(n):
+                if mask & (1 << nxt):
+                    continue
+                key = (mask | (1 << nxt), nxt)
+                candidate = cost + distance_matrix[end, nxt]
+                if candidate < states.get(key, (np.inf, ()))[0]:
+                    states[key] = (candidate, (*path, nxt))
+    candidates = []
+    for (mask, end), (cost, path) in states.items():
+        if mask == (1 << n) - 1:
+            candidates.append(
+                (
+                    cost + (distance_matrix[end, start] if return_to_start else 0),
+                    (*path, start) if return_to_start else path,
+                )
+            )
+    if not candidates:
+        raise ValueError("no finite tour")
+    return min(candidates)
