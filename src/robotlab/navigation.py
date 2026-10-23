@@ -95,3 +95,19 @@ def dwa(pose, current, target, rectangles, radius=0.22, dt=0.1, horizon=1.0, sam
             if best is None or score < best[0]:
                 best = (score, np.array([speed, yaw]))
     return np.zeros(2) if best is None else best[1]
+
+
+def collision_time(relative_position, relative_velocity, combined_radius, horizon=np.inf):
+    position, velocity = np.asarray(relative_position), np.asarray(relative_velocity)
+    if combined_radius < 0 or horizon < 0:
+        raise ValueError("invalid collision horizon")
+    c = position @ position - combined_radius**2
+    if c <= 0:
+        return 0.0
+    a = velocity @ velocity
+    b = 2 * position @ velocity
+    discriminant = b * b - 4 * a * c
+    if a == 0 or discriminant < 0 or b >= 0:
+        return np.inf
+    collision = (-b - np.sqrt(discriminant)) / (2 * a)
+    return float(collision) if collision <= horizon else np.inf

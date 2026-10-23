@@ -36,3 +36,9 @@ def test_dynamic_window_respects_reachability():
 def test_dwa_stops_when_forward_commands_collide():
     assert np.allclose(m.dwa([0, 0, 0], [0.5, 0], [2, 0], [[0.25, -1, 0.4, 1]]), 0)
     assert m.dwa([0, 0, 0], [0, 0], [2, 0], [])[0] > 0
+
+
+def test_moving_circle_collision():
+    assert m.collision_time([3, 0], [-1, 0], 1) == pytest.approx(2)
+    assert np.isinf(m.collision_time([3, 0], [1, 0], 1))
+    assert np.isinf(m.collision_time([3, 2], [-1, 0], 1))
