@@ -21,3 +21,8 @@ def test_point_cloud_roundtrip():
     assert np.allclose(m.transform_points(m.inverse(pose), m.transform_points(pose, points)), points)
     with pytest.raises(ValueError):
         m.transform_points(pose, [1, 2])
+
+
+def test_exact_arc():
+    assert np.allclose(m.integrate([0, 0, 0], 2, 1, np.pi), [0, 4, -np.pi], atol=1e-14)
+    assert np.allclose(m.integrate([0, 0, 0], 2, 1e-14, 1), [2, 0, 0], atol=1e-12)

@@ -25,3 +25,12 @@ def transform_points(pose, points):
     if points.ndim != 2 or points.shape[1] != 2:
         raise ValueError("points must have shape (N,2)")
     return points @ rotation(pose[2]).T + pose[:2]
+
+
+def integrate(pose, speed, yaw_rate, dt):
+    if dt < 0 or not np.isfinite(dt):
+        raise ValueError("dt must be finite and nonnegative")
+    angle = yaw_rate * dt
+    distance = speed * dt * np.sinc(angle / (2 * np.pi))
+    displacement = [distance * np.cos(angle / 2), distance * np.sin(angle / 2), angle]
+    return compose(pose, displacement)
