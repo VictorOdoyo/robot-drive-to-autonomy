@@ -77,3 +77,8 @@ def test_time_scaling_enforces_both_limits():
     assert factor >= 2
     assert np.max(abs(rates)) <= 10
     assert np.max(abs(np.gradient(rates, scaled, axis=0))) <= 5 + 1e-12
+
+
+def test_pose_interpolation_heading_continuity():
+    result = m.sample_poses([0, 1], np.array([[0.0, 0, 3.1], [1, 0, -3.1]]), [0.5])
+    assert result[0, 2] == pytest.approx(np.pi)

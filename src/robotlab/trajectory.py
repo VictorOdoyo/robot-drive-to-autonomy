@@ -169,3 +169,14 @@ def time_scale(time, wheels, max_rate, max_acceleration):
         np.sqrt(float(np.max(np.abs(acceleration))) / max_acceleration),
     )
     return time[0] + (time - time[0]) * factor, wheels / factor, factor
+
+
+def sample_poses(time, poses, query):
+    time, poses, query = map(np.asarray, (time, poses, query))
+    if poses.shape != (len(time), 3) or np.any(np.diff(time) <= 0):
+        raise ValueError("ordered timed poses required")
+    if np.any(query < time[0]) or np.any(query > time[-1]):
+        raise ValueError("query outside trajectory")
+    unwrapped = poses.copy()
+    unwrapped[:, 2] = np.unwrap(poses[:, 2])
+    return np.column_stack([np.interp(query, time, unwrapped[:, k]) for k in range(3)])
