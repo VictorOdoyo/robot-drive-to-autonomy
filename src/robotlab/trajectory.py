@@ -55,3 +55,22 @@ def trapezoid(distance, max_speed, max_acceleration, dt=0.01):
                 max_acceleration * remaining,
             )
     return time, position, speed
+
+
+def arc_length(points):
+    points = np.asarray(points, dtype=float)
+    if points.ndim != 2 or points.shape[1] != 2 or len(points) < 2:
+        raise ValueError("at least two planar waypoints required")
+    return np.r_[0, np.cumsum(np.linalg.norm(np.diff(points, axis=0), axis=1))]
+
+
+def resample_path(points, spacing=0.05):
+    if spacing <= 0:
+        raise ValueError("positive path spacing required")
+    points = np.asarray(points)
+    distance = arc_length(points)
+    keep = np.r_[True, np.diff(distance) > 1e-12]
+    if np.sum(keep) < 2:
+        raise ValueError("path has zero length")
+    samples = np.linspace(0, distance[-1], max(2, int(np.ceil(distance[-1] / spacing)) + 1))
+    return np.column_stack([np.interp(samples, distance[keep], points[keep, k]) for k in range(2)])
