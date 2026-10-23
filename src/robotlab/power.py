@@ -105,3 +105,16 @@ def dc_link_step(voltage, source_power, load_power, capacitance, dt):
     if energy <= 0:
         raise ValueError("DC link energy depleted")
     return float(np.sqrt(2 * energy / capacitance))
+
+
+def regenerative_dispatch(requested_power, charge_power_limit, chopper_limit):
+    if min(charge_power_limit, chopper_limit) < 0:
+        raise ValueError("negative absorption capacity")
+    regenerative = max(0, -requested_power)
+    battery = min(regenerative, charge_power_limit)
+    brake = min(regenerative - battery, chopper_limit)
+    return {
+        "battery_power": max(requested_power, 0) - battery,
+        "brake_power": brake,
+        "unabsorbed_power": regenerative - battery - brake,
+    }

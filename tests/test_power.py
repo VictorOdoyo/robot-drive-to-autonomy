@@ -58,3 +58,9 @@ def test_thermal_derate():
 def test_dc_link_energy_balance():
     voltage = m.dc_link_step(24, 100, 80, 0.02, 0.01)
     assert 0.5 * 0.02 * (voltage**2 - 24**2) == pytest.approx(0.2)
+
+
+def test_regen_dispatch_full_battery():
+    result = m.regenerative_dispatch(-100, 0, 70)
+    assert result == {"battery_power": 0, "brake_power": 70, "unabsorbed_power": 30}
+    assert sum([30, 70]) == 100
