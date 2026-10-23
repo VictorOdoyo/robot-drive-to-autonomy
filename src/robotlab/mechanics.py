@@ -32,3 +32,9 @@ def gear_output_torque(motor_torque, motor_speed, ratio=12.0, efficiency=0.9):
     torque = np.asarray(motor_torque) * ratio * factor
     loss = power - torque * np.asarray(motor_speed) / ratio
     return torque, loss
+
+
+def reflected_inertia(chassis, motor_inertia, ratio):
+    if motor_inertia < 0 or ratio <= 0:
+        raise ValueError("invalid reflected inertia")
+    return chassis.wheel_mass_matrix() + motor_inertia * ratio**2 * np.eye(2)

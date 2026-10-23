@@ -18,3 +18,11 @@ def test_gearbox_motoring_and_backdrive():
         output, loss = m.gear_output_torque(torque, 120, 12, 0.8)
         assert loss >= 0
         assert torque * 120 == pytest.approx(output * 10 + loss)
+
+
+def test_reflected_rotational_energy():
+    chassis = m.Chassis()
+    rates = np.array([2.0, -3.0])
+    matrix = m.reflected_inertia(chassis, 0.00012, 12)
+    difference = 0.5 * rates @ (matrix - chassis.wheel_mass_matrix()) @ rates
+    assert difference == pytest.approx(0.5 * 0.00012 * np.sum((12 * rates) ** 2))
