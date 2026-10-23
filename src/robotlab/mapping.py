@@ -81,3 +81,14 @@ def insert_scan(grid, pose, angles, ranges, max_range, free_increment=-0.4, occu
             increment = occupied_increment if hit and index == len(cells) - 1 else free_increment
             grid.log_odds[cell] = np.clip(grid.log_odds[cell] + increment, -8, 8)
             grid.observed[cell] = True
+
+
+def distance_field(grid, threshold=0.65, unknown_occupied=True):
+    from scipy.ndimage import distance_transform_edt
+
+    occupied = grid.probability() >= threshold
+    if unknown_occupied:
+        occupied |= ~grid.observed
+    free = np.pad(~occupied, 1, constant_values=False)
+    distance = distance_transform_edt(free)[1:-1, 1:-1] * grid.resolution
+    return np.maximum(distance - grid.resolution * np.sqrt(2) / 2, 0)

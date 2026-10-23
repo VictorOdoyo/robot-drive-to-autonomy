@@ -31,3 +31,11 @@ def test_scan_hit_and_no_return():
     assert grid.log_odds[4, 5] < 0
     m.insert_scan(grid, [0.05, 0.55, 0], [0], [2.0], 2)
     assert grid.log_odds[5, 20] < 0
+
+
+def test_distance_field_wall_and_boundary():
+    grid = m.rasterize(m.OccupancyGrid(20, 20, 0.1), [[0.9, 0, 1.1, 2]])
+    distance = m.distance_field(grid)
+    assert distance[10, 10] == 0
+    assert distance[10, 5] > 0.2
+    assert distance[0, 5] < 0.1
