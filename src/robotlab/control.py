@@ -27,3 +27,9 @@ def reset_pi(controller, output, error=0, feedforward=0):
     if not np.isfinite(output + error + feedforward):
         raise ValueError("nonfinite reset")
     controller.integral = output - controller.kp * error - feedforward
+
+
+def current_gains(resistance, inductance, bandwidth):
+    if min(resistance, inductance, bandwidth) <= 0:
+        raise ValueError("positive winding parameters required")
+    return inductance * bandwidth, resistance * bandwidth
