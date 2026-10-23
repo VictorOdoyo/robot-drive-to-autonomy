@@ -50,3 +50,11 @@ def twist_covariance(wheel_covariance, geometry=DriveGeometry()):
         raise ValueError("wheel covariance must be positive semidefinite")
     jacobian = wheel_jacobian(geometry)
     return jacobian @ covariance @ jacobian.T
+
+
+def limit_twist(speed, yaw_rate, max_wheel_rate, geometry=DriveGeometry()):
+    if max_wheel_rate <= 0:
+        raise ValueError("wheel limit must be positive")
+    wheels = geometry.inverse(speed, yaw_rate)
+    scale = min(1.0, max_wheel_rate / max(np.max(np.abs(wheels)), 1e-15))
+    return wheels * scale, scale

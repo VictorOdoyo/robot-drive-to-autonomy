@@ -21,3 +21,10 @@ def test_correlated_encoders():
     covariance = m.twist_covariance(common)
     assert covariance[1, 1] == pytest.approx(0, abs=1e-14)
     assert covariance[0, 0] > 0
+
+
+def test_curvature_preserving_limit():
+    drive = m.DriveGeometry()
+    wheels, scale = m.limit_twist(2, 3, 10, drive)
+    assert max(abs(wheels)) == pytest.approx(10)
+    assert np.allclose(drive.forward(wheels), np.array([2, 3]) * scale)
