@@ -125,3 +125,19 @@ def lidar_scan(pose, angles, rectangles, max_range=10, noise_std=0, rng=None, ex
             raise ValueError("explicit random generator required")
         ranges = np.clip(ranges + rng.normal(0, noise_std, len(ranges)), 0, max_range)
     return ranges
+
+
+def dropout_mask(times, bursts=(), probability=0, rng=None):
+    times = np.asarray(times)
+    if not 0 <= probability <= 1:
+        raise ValueError("invalid dropout probability")
+    keep = np.ones(times.shape, dtype=bool)
+    for start, end in bursts:
+        if end < start:
+            raise ValueError("reversed dropout interval")
+        keep &= ~((times >= start) & (times < end))
+    if probability:
+        if rng is None:
+            raise ValueError("explicit random generator required")
+        keep &= rng.random(times.shape) >= probability
+    return keep

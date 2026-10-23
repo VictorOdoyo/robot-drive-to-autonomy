@@ -68,3 +68,7 @@ def test_lidar_rays():
 def test_lidar_extrinsic():
     scan = m.lidar_scan([0, 0, 0], [0, np.pi], [[2, -1, 3, 1]], extrinsic=(0.2, 0, 0))
     assert np.allclose(scan, [1.8, 10])
+
+
+def test_burst_dropout_boundaries():
+    assert np.array_equal(m.dropout_mask([0, 0.1, 0.2, 0.3], [(0.1, 0.3)]), [True, False, False, True])
