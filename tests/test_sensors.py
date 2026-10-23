@@ -72,3 +72,9 @@ def test_lidar_extrinsic():
 
 def test_burst_dropout_boundaries():
     assert np.array_equal(m.dropout_mask([0, 0.1, 0.2, 0.3], [(0.1, 0.3)]), [True, False, False, True])
+
+
+def test_stationary_bias_calibration():
+    bias, variance = m.calibrate_bias([0.01, 0.02, 0.03])
+    assert bias == pytest.approx(0.02)
+    assert variance == pytest.approx(0.0001 / 3)

@@ -141,3 +141,10 @@ def dropout_mask(times, bursts=(), probability=0, rng=None):
             raise ValueError("explicit random generator required")
         keep &= rng.random(times.shape) >= probability
     return keep
+
+
+def calibrate_bias(samples):
+    samples = np.asarray(samples, dtype=float)
+    if samples.ndim != 1 or len(samples) < 2 or not np.all(np.isfinite(samples)):
+        raise ValueError("at least two finite samples required")
+    return float(samples.mean()), float(samples.var(ddof=1) / len(samples))
