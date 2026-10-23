@@ -173,3 +173,12 @@ def rts_smooth(filtered, covariances, predicted, predicted_covariances, transiti
         covariances[k] += gain @ (covariances[k + 1] - predicted_covariances[k + 1]) @ gain.T
         covariances[k] = (covariances[k] + covariances[k].T) / 2
     return states, covariances
+
+
+def huber_noise(residual, noise, threshold=2.5):
+    if threshold <= 0:
+        raise ValueError("positive robust threshold required")
+    residual, noise = np.asarray(residual), np.asarray(noise)
+    scale = np.sqrt(max(float(residual @ np.linalg.solve(noise, residual)), 0))
+    weight = min(1.0, threshold / max(scale, 1e-15))
+    return noise / weight

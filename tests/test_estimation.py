@@ -93,3 +93,8 @@ def test_rts_uses_future_measurement():
     )
     assert states[0, 0] == pytest.approx(0.5)
     assert covs[0, 0, 0] < 1
+
+
+def test_huber_downweights_outliers():
+    assert np.allclose(m.huber_noise([1], [[1]]), [[1]])
+    assert m.huber_noise([10], [[1]])[0, 0] == pytest.approx(4)
