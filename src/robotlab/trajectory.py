@@ -144,3 +144,15 @@ def figure_eight(time, scale=1, frequency=0.15):
     yaw = np.unwrap(np.arctan2(dy, dx))
     yaw_rate = (dx * ddy - dy * ddx) / np.maximum(speed**2, 1e-12)
     return np.column_stack([x, y, yaw]), np.column_stack([speed, yaw_rate])
+
+
+def wheel_reference(time, twists, geometry=None):
+    from .kinematics import DriveGeometry
+
+    geometry = DriveGeometry() if geometry is None else geometry
+    time, twists = np.asarray(time), np.asarray(twists)
+    if len(time) < 3 or twists.shape != (len(time), 2) or np.any(np.diff(time) <= 0):
+        raise ValueError("at least three timed twists required")
+    wheels = np.array([geometry.inverse(*twist) for twist in twists])
+    accelerations = np.gradient(wheels, time, axis=0, edge_order=2)
+    return wheels, accelerations

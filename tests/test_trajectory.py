@@ -59,3 +59,12 @@ def test_figure_eight_closed_reference():
     assert np.allclose(pose[0, :2], pose[-1, :2], atol=1e-12)
     assert np.all(np.isfinite(twist))
     assert np.max(twist[:, 1]) > 0 and np.min(twist[:, 1]) < 0
+
+
+def test_wheel_reference_linear_acceleration():
+    from robotlab.kinematics import DriveGeometry
+
+    time = np.linspace(0, 1, 20)
+    wheels, acc = m.wheel_reference(time, np.column_stack([time, np.zeros(20)]))
+    assert np.allclose(acc, 1 / DriveGeometry().left_radius)
+    assert np.allclose(wheels[-1], [12.5, 12.5])
