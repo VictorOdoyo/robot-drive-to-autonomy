@@ -19,3 +19,20 @@ def path_target(position, path, lookahead=0.4, minimum_progress=0):
     target_distance = min(distance[-1], progress + lookahead)
     target = np.array([np.interp(target_distance, distance, path[:, axis]) for axis in range(2)])
     return target, progress, float(best[0])
+
+
+def pure_pursuit(pose, target, speed=0.6, max_yaw=2):
+    from .geometry import rotation
+
+    if speed < 0 or max_yaw <= 0:
+        raise ValueError("invalid pursuit limits")
+    relative = rotation(pose[2]).T @ (np.asarray(target) - pose[:2])
+    distance2 = float(relative @ relative)
+    if distance2 < 1e-12:
+        return np.zeros(2)
+    heading = np.arctan2(relative[1], relative[0])
+    forward = speed * max(0, np.cos(heading))
+    yaw = 2 * forward * relative[1] / distance2
+    if relative[0] <= 0:
+        yaw = np.clip(2 * heading, -max_yaw, max_yaw)
+    return np.array([forward, np.clip(yaw, -max_yaw, max_yaw)])
