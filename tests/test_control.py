@@ -35,3 +35,8 @@ def test_feedforward_cancels_winding_rhs():
     motor = Motor()
     voltage = m.motor_feedforward(3, 100, motor.resistance, motor.constant, 20, motor.inductance)
     assert motor.derivative(3, 100, voltage)[0] == pytest.approx(20)
+
+
+def test_asymmetric_slew():
+    assert m.slew(0, 1, 2, 0.1) == pytest.approx(0.2)
+    assert m.slew(1, 0, 2, 0.1, 4) == pytest.approx(0.6)

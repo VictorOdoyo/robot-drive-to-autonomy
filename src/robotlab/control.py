@@ -53,3 +53,10 @@ def motor_feedforward(current_reference, omega, resistance, constant, current_sl
         + constant * np.asarray(omega)
         + inductance * np.asarray(current_slew)
     )
+
+
+def slew(previous, target, rate, dt, deceleration=None):
+    if rate <= 0 or dt <= 0 or (deceleration is not None and deceleration <= 0):
+        raise ValueError("positive slew bounds required")
+    bound = rate if deceleration is None or abs(target) > abs(previous) else deceleration
+    return float(previous + np.clip(target - previous, -bound * dt, bound * dt))
