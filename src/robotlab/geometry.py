@@ -34,3 +34,8 @@ def integrate(pose, speed, yaw_rate, dt):
     distance = speed * dt * np.sinc(angle / (2 * np.pi))
     displacement = [distance * np.cos(angle / 2), distance * np.sin(angle / 2), angle]
     return compose(pose, displacement)
+
+
+def pose_error(actual, reference):
+    """Reference relative to actual, in actual body axes."""
+    return compose(inverse(actual), reference)

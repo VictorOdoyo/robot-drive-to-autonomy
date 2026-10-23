@@ -26,3 +26,7 @@ def test_point_cloud_roundtrip():
 def test_exact_arc():
     assert np.allclose(m.integrate([0, 0, 0], 2, 1, np.pi), [0, 4, -np.pi], atol=1e-14)
     assert np.allclose(m.integrate([0, 0, 0], 2, 1e-14, 1), [2, 0, 0], atol=1e-12)
+
+
+def test_body_error():
+    assert np.allclose(m.pose_error([0, 0, np.pi / 2], [0, 2, np.pi / 2]), [2, 0, 0], atol=1e-14)
