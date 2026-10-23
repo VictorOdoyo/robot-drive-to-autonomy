@@ -53,3 +53,8 @@ def test_thermal_derate():
     assert m.thermal_limit(85, 20) == pytest.approx(10)
     assert m.thermal_limit(105, 20) == 0
     assert m.thermal_limit(25, 20) == 20
+
+
+def test_dc_link_energy_balance():
+    voltage = m.dc_link_step(24, 100, 80, 0.02, 0.01)
+    assert 0.5 * 0.02 * (voltage**2 - 24**2) == pytest.approx(0.2)

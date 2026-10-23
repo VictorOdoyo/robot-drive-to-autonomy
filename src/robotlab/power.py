@@ -96,3 +96,12 @@ def thermal_limit(temperature, full_current, derate_start=70, shutdown=100):
     if shutdown <= derate_start or full_current < 0:
         raise ValueError("invalid derating thresholds")
     return float(full_current * np.clip((shutdown - temperature) / (shutdown - derate_start), 0, 1))
+
+
+def dc_link_step(voltage, source_power, load_power, capacitance, dt):
+    if min(voltage, capacitance) <= 0 or dt < 0:
+        raise ValueError("invalid DC link parameters")
+    energy = 0.5 * capacitance * voltage**2 + (source_power - load_power) * dt
+    if energy <= 0:
+        raise ValueError("DC link energy depleted")
+    return float(np.sqrt(2 * energy / capacitance))
