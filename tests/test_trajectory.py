@@ -37,3 +37,10 @@ def test_retiming_satisfies_squared_speed_constraints():
     ds = np.diff(m.arc_length(points))
     assert np.all(np.abs(np.diff(speed**2)) <= 2 * 0.6 * ds + 1e-12)
     assert np.all(speed**2 * np.abs(m.path_curvature(points)) <= 0.8 + 1e-12)
+
+
+def test_profile_duration_constant_speed():
+    points = [[0, 0], [1, 0], [2, 0]]
+    assert np.allclose(m.profile_time(points, [0.5, 0.5, 0.5]), [0, 2, 4])
+    with pytest.raises(ValueError):
+        m.profile_time(points, [0, 0, 0])

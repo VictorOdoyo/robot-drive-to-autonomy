@@ -106,3 +106,17 @@ def speed_profile(points, max_speed=1, max_acceleration=0.6, max_lateral=0.8, st
             speed[k], np.sqrt(speed[k + 1] ** 2 + 2 * max_acceleration * (distance[k + 1] - distance[k]))
         )
     return speed
+
+
+def profile_time(points, speed):
+    distance = arc_length(points)
+    speed = np.asarray(speed)
+    if speed.shape != distance.shape or np.any(speed < 0):
+        raise ValueError("one nonnegative speed per waypoint required")
+    denominator = speed[:-1] + speed[1:]
+    if np.any((denominator <= 0) & (np.diff(distance) > 0)):
+        raise ValueError("positive traversal speed required on each segment")
+    intervals = np.divide(
+        2 * np.diff(distance), denominator, out=np.zeros_like(denominator), where=denominator > 0
+    )
+    return np.r_[0, np.cumsum(intervals)]
