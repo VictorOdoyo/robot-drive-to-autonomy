@@ -68,3 +68,16 @@ def current_for_power(pack, soc, polarization, power):
         raise ValueError("requested power exceeds battery maximum")
     # Rationalized expression avoids cancellation near zero power.
     return float(2 * power / (source + np.sqrt(discriminant)))
+
+
+def battery_current_bounds(
+    pack, soc, polarization, dt, min_voltage=20, max_voltage=30, discharge=30, charge=10
+):
+    if dt <= 0 or min(discharge, charge) < 0 or max_voltage <= min_voltage:
+        raise ValueError("invalid BMS constraints")
+    source = pack.ocv(soc) - polarization
+    lower = max(-charge, (source - max_voltage) / pack.resistance, -(1 - soc) * 3600 * pack.capacity_ah / dt)
+    upper = min(discharge, (source - min_voltage) / pack.resistance, soc * 3600 * pack.capacity_ah / dt)
+    if lower > upper:
+        raise ValueError("no feasible battery current")
+    return lower, upper

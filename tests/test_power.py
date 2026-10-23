@@ -34,3 +34,11 @@ def test_battery_power_solution():
         assert current * m.terminal_voltage(pack, 0.6, 0.2, current) == pytest.approx(power)
     with pytest.raises(ValueError):
         m.current_for_power(pack, 0.6, 0, 1e6)
+
+
+def test_bms_blocks_full_pack_regeneration():
+    pack = m.Battery()
+    low, high = m.battery_current_bounds(pack, 1, 0, 0.1)
+    assert low == 0
+    assert high > 0
+    assert m.battery_current_bounds(pack, 0, 0, 0.1)[1] == 0
