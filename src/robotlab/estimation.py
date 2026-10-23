@@ -102,3 +102,15 @@ def landmark_observation(mean, landmark):
     expected = np.array([distance, wrap(np.arctan2(dy, dx) - mean[2])])
     jacobian = np.array([[-dx / distance, -dy / distance, 0, 0], [dy / distance2, -dx / distance2, -1, 0]])
     return expected, jacobian
+
+
+def update_landmark(filter_, landmark, measurement, noise, gate=9.21):
+    from .geometry import wrap
+
+    expected, observation = landmark_observation(filter_.mean, landmark)
+    residual = np.asarray(measurement) - expected
+    residual[1] = wrap(residual[1])
+    result = gaussian_update(filter_.mean, filter_.covariance, residual, observation, noise, gate)
+    filter_.mean, filter_.covariance, filter_.last_nis, accepted = result
+    filter_.mean[2] = wrap(filter_.mean[2])
+    return accepted

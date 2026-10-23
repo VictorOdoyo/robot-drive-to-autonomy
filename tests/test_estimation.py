@@ -51,3 +51,10 @@ def test_landmark_jacobian_independent_differences():
     numeric = jacobian(lambda x: m.landmark_observation(x, [4, 6])[0], mean)
     assert expected[0] == pytest.approx(5)
     assert np.allclose(analytic, numeric, atol=1e-8)
+
+
+def test_landmark_reduces_uncertainty():
+    filt = m.PoseEKF([0.1, 0.1, 0.05, 0], np.eye(4) * 0.1)
+    before = np.trace(filt.covariance)
+    assert m.update_landmark(filt, [3, 0], [3, 0], np.diag([0.01, 0.001]))
+    assert np.trace(filt.covariance) < before
