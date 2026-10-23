@@ -18,3 +18,35 @@ def neighbors(cell, blocked, diagonal=True):
 def octile(a, b):
     dy, dx = np.abs(np.asarray(a) - b)
     return float(max(dx, dy) + (np.sqrt(2) - 1) * min(dx, dy))
+
+
+def astar(blocked, start, goal, cost=None):
+    import heapq
+
+    blocked = np.asarray(blocked, dtype=bool)
+    start, goal = tuple(start), tuple(goal)
+    height, width = blocked.shape
+    for cell in (start, goal):
+        if not (0 <= cell[0] < height and 0 <= cell[1] < width) or blocked[cell]:
+            raise ValueError("start and goal must be free map cells")
+    cost = np.ones(blocked.shape) if cost is None else np.asarray(cost)
+    if cost.shape != blocked.shape or np.any(~np.isfinite(cost)) or np.any(cost < 1):
+        raise ValueError("finite traversal costs >=1 required")
+    queue = [(octile(start, goal), 0.0, start)]
+    best, parent = {start: 0.0}, {}
+    while queue:
+        _, distance, cell = heapq.heappop(queue)
+        if distance > best[cell] + 1e-12:
+            continue
+        if cell == goal:
+            path = [cell]
+            while cell != start:
+                cell = parent[cell]
+                path.append(cell)
+            return path[::-1], distance
+        for nxt, length in neighbors(cell, blocked):
+            candidate = distance + length * (cost[cell] + cost[nxt]) / 2
+            if candidate < best.get(nxt, np.inf) - 1e-12:
+                best[nxt], parent[nxt] = candidate, cell
+                heapq.heappush(queue, (candidate + octile(nxt, goal), candidate, nxt))
+    raise ValueError("goal is unreachable")
