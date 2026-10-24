@@ -60,3 +60,19 @@ def operating_point(speed=0.5, yaw_rate=0, parameters=None, **environment):
         raise ValueError("requested chassis operating point is infeasible")
     state[:4] = solution.x[:4]
     return state, solution.x[4:]
+
+
+def linearize_drive(parameters, state, duty, **environment):
+    from .numerics import jacobian
+    from .plant import mechanical_electrical_rhs
+
+    state = np.asarray(state).copy()
+
+    def dynamics(value, command):
+        full = state.copy()
+        full[:6] = value
+        return mechanical_electrical_rhs(parameters, full, command, **environment)[0][:6]
+
+    matrix = jacobian(lambda value: dynamics(value, duty), state[:6])
+    inputs = jacobian(lambda command: dynamics(state[:6], command), duty)
+    return matrix, inputs

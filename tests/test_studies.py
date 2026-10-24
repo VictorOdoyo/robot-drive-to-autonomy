@@ -33,3 +33,17 @@ def test_loaded_operating_point():
     assert np.allclose(derivative[:6], 0, atol=1e-5)
     assert state[4] == pytest.approx(0.5)
     assert np.all(state[:2] > 0)
+
+
+def test_drive_linearization_predicts_small_perturbations():
+    from robotlab.plant import PlantParameters, mechanical_electrical_rhs
+
+    parameters = PlantParameters()
+    state, duty = m.operating_point(0.4, 0, parameters)
+    matrix, inputs = m.linearize_drive(parameters, state, duty)
+    delta = np.array([1, -1, 2, -2, 0.1, -0.2]) * 1e-6
+    perturbed = state.copy()
+    perturbed[:6] += delta
+    exact = mechanical_electrical_rhs(parameters, perturbed, duty)[0][:6]
+    assert np.allclose(exact, matrix @ delta, atol=1e-7)
+    assert inputs.shape == (6, 2)
