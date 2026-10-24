@@ -64,3 +64,11 @@ def main(argv=None):
     except (ValueError, OSError, RuntimeError) as error:
         arguments_parser.error(str(error))
     return 0
+
+
+def replay_command(archive, output):
+    from .reporting import load_archive
+
+    result = load_archive(archive)
+    report = write_report(result, output)
+    return {"report": str(report.resolve()), **mission_metrics(result)}
