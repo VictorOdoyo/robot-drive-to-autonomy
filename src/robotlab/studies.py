@@ -93,3 +93,29 @@ def drive_lqr(parameters, speed=0.5, yaw_rate=0, dt=0.002):
         "cost": solution,
         "poles": np.linalg.eigvals(ad - bd @ gain),
     }
+
+
+def nonlinear_lqr_response(duration=1, speed=0.5, dt=0.002, parameters=None):
+    from .numerics import timeline
+    from .plant import PlantParameters, bus_operating_point, initial_state, step
+
+    parameters = PlantParameters() if parameters is None else parameters
+    design = drive_lqr(parameters, speed, dt=dt)
+    state = initial_state(parameters)
+    time = timeline(duration, dt)
+    states = [state.copy()]
+    for k in range(len(time) - 1):
+        duty = np.clip(design["duty"] - design["gain"] @ (state[:6] - design["state"][:6]), -1, 1)
+        interval = time[k + 1] - time[k]
+        motor = parameters.motor
+        decay = np.exp(-motor.resistance * interval / motor.inductance)
+        emf = motor.constant * parameters.ratio * state[2:4]
+        low = emf + motor.resistance * (-8 - decay * state[:2]) / (1 - decay)
+        high = emf + motor.resistance * (8 - decay * state[:2]) / (1 - decay)
+        bus, _ = bus_operating_point(parameters, state, np.zeros(2))
+        terminal = duty * bus - parameters.bridge_resistance * state[:2]
+        terminal = np.clip(terminal, low, high)
+        duty = np.clip((terminal + parameters.bridge_resistance * state[:2]) / bus, -1, 1)
+        state = step(parameters, state, duty, interval)
+        states.append(state.copy())
+    return time, np.array(states)

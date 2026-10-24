@@ -55,3 +55,10 @@ def test_coupled_lqr_is_schur_stable():
     design = m.drive_lqr(PlantParameters())
     assert np.max(abs(design["poles"])) < 1
     assert np.linalg.eigvalsh(design["cost"]).min() > 0
+
+
+def test_nonlinear_lqr_reaches_loaded_speed():
+    time, states = m.nonlinear_lqr_response(1.5, 0.4)
+    assert time[-1] == pytest.approx(1.5)
+    assert states[-1, 4] == pytest.approx(0.4, abs=0.015)
+    assert np.max(abs(states[:, :2])) < 8.5
