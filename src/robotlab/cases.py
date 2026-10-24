@@ -130,3 +130,40 @@ def plan_route(case):
     ):
         raise ValueError("exact endpoints make the route unsafe")
     return points, grid, blocked, float(cost)
+
+
+def experiment_catalog():
+    from dataclasses import replace
+
+    warehouse = Scenario()
+    commissioning = Scenario(
+        name="commissioning", duration=7, width=3, height=3, start=(0.6, 0.6, 0), goal=(2.3, 0.6), shelves=()
+    )
+    return {
+        "warehouse": warehouse,
+        "commissioning": commissioning,
+        "grade-load": replace(commissioning, name="grade-load", events=(Disturbance(1, 4, "grade", 0.12),)),
+        "traction-loss": replace(
+            commissioning, name="traction-loss", events=(Disturbance(1, 2.5, "left_traction", 0.015),)
+        ),
+        "gyro-bias": replace(commissioning, name="gyro-bias", events=(Disturbance(1, 3, "gyro_bias", 0.15),)),
+        "encoder-outage": replace(
+            commissioning, name="encoder-outage", events=(Disturbance(1, 2, "encoder_dropout", 1),)
+        ),
+        "position-outage": replace(
+            commissioning, name="position-outage", events=(Disturbance(1, 4, "position_dropout", 1),)
+        ),
+        "emergency-stop": replace(
+            commissioning, name="emergency-stop", events=(Disturbance(2, 3, "emergency", 1),)
+        ),
+        "hot-windings": replace(commissioning, name="hot-windings", initial_temperature=98),
+        "sensor-latency": replace(commissioning, name="sensor-latency", sensor_latency=0.05),
+        "low-charge": replace(commissioning, name="low-charge", soc=0.08),
+    }
+
+
+def get_case(name):
+    catalog = experiment_catalog()
+    if name not in catalog:
+        raise ValueError("unknown experiment: " + name)
+    return catalog[name]

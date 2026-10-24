@@ -35,3 +35,13 @@ def test_warehouse_route_has_clearance():
     assert cost > 0
     for a, b in pairwise(points):
         assert all(circle_clearance(p, case.radius, case.obstacles()) > 0.15 for p in np.linspace(a, b, 30))
+
+
+def test_all_experiments_have_portable_valid_disturbances():
+    import json
+
+    cases = m.experiment_catalog()
+    assert "warehouse" in cases and "emergency-stop" in cases
+    for name, case in cases.items():
+        assert case.name == name
+        assert m.from_dict(json.loads(json.dumps(case.to_dict()))) == case
