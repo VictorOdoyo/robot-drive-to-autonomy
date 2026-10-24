@@ -73,3 +73,10 @@ def test_nonfinite_commands_disable_actuation():
     command, valid = m.bounded_command([np.nan, 1], [1, 2])
     assert not valid and np.allclose(command, 0)
     assert np.allclose(m.bounded_command([2, -4], [1, 2])[0], [1, -2])
+
+
+def test_disturbance_boundaries():
+    event = m.Disturbance(0.2, 0.4, "grade", 0.1)
+    assert not event.active(0.199)
+    assert event.active(0.2) and not event.active(0.4)
+    assert m.disturbance_value([event], "grade", 0.4) == 0

@@ -166,3 +166,36 @@ def bounded_command(command, limits):
     if np.any(~np.isfinite(command)):
         return np.zeros_like(command, dtype=float), False
     return np.clip(command, -limits, limits), True
+
+
+@dataclass(frozen=True)
+class Disturbance:
+    start: float
+    end: float
+    kind: str
+    value: float
+
+    def __post_init__(self):
+        if not np.isfinite(self.start + self.end + self.value) or self.start < 0 or self.end <= self.start:
+            raise ValueError("invalid disturbance interval")
+        if self.kind not in {
+            "grade",
+            "left_traction",
+            "right_traction",
+            "gyro_bias",
+            "encoder_dropout",
+            "position_dropout",
+            "emergency",
+            "load",
+        }:
+            raise ValueError("unknown disturbance kind")
+
+    def active(self, time):
+        return self.start <= time < self.end
+
+
+def disturbance_value(events, kind, time, default=0):
+    active = [event.value for event in events if event.kind == kind and event.active(time)]
+    if len(active) > 1:
+        raise ValueError("overlapping disturbances of the same kind")
+    return active[0] if active else default
