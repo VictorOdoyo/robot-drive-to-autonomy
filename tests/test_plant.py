@@ -48,3 +48,12 @@ def test_component_thermal_and_charge_directions():
     assert derivative[0] < 0 and derivative[1] > 0
     assert derivative[2] > derivative[3] > 0
     assert loss == pytest.approx(9)
+
+
+def test_stored_energy_includes_wheel_rotor_inertia():
+    parameters = m.PlantParameters()
+    state = m.initial_state(parameters)
+    initial = m.stored_energy(parameters, state)
+    state[2] = 10
+    expected = 0.5 * (parameters.chassis.wheel_inertia + parameters.motor.inertia * 12**2) * 100
+    assert m.stored_energy(parameters, state) - initial == pytest.approx(expected, abs=1e-9)

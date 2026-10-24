@@ -126,3 +126,19 @@ def battery_thermal_rhs(parameters, state, battery_current, copper_losses):
     battery_loss = battery.resistance * battery_current**2 + state[10] ** 2 / battery.polarization_resistance
     derivative[4] = (battery_loss - (state[13] - parameters.ambient) / 3) / 1500
     return derivative, battery_loss
+
+
+def stored_energy(parameters, state):
+    from .power import chemical_energy
+
+    chassis, motor, battery = parameters.chassis, parameters.motor, parameters.battery
+    inertia = chassis.wheel_inertia + motor.inertia * parameters.ratio**2
+    polarization_capacitance = battery.polarization_time / battery.polarization_resistance
+    return float(
+        chemical_energy(battery, state[9])
+        + 0.5 * polarization_capacitance * state[10] ** 2
+        + 0.5 * motor.inductance * (state[:2] @ state[:2])
+        + 0.5 * inertia * (state[2:4] @ state[2:4])
+        + 0.5 * chassis.mass * state[4] ** 2
+        + 0.5 * chassis.yaw_inertia * state[5] ** 2
+    )
