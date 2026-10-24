@@ -172,3 +172,10 @@ def recovery_turn(pose, rectangles, radius=0.22, yaw_rate=0.5):
     if circle_clearance(pose[:2], radius, rectangles) <= 0:
         return np.zeros(2)
     return np.array([0.0, yaw_rate])
+
+
+def economical_speed(auxiliary_power, quadratic_drag, max_speed=1, min_speed=0.1):
+    if min(auxiliary_power, quadratic_drag) <= 0 or not 0 < min_speed <= max_speed:
+        raise ValueError("positive drag and power required")
+    unconstrained = (auxiliary_power / (2 * quadratic_drag)) ** (1 / 3)
+    return float(np.clip(unconstrained, min_speed, max_speed))

@@ -68,3 +68,9 @@ def test_stall_requires_commanded_motion():
 def test_recovery_refuses_existing_collision():
     assert np.allclose(m.recovery_turn([0, 0, 0], [[-0.1, -0.1, 0.1, 0.1]]), 0)
     assert m.recovery_turn([0, 0, 0], [])[1] > 0
+
+
+def test_energy_optimal_speed_stationarity():
+    speed = m.economical_speed(2, 2, max_speed=2)
+    assert -2 / speed**2 + 4 * speed == pytest.approx(0)
+    assert m.economical_speed(20, 1, max_speed=0.8) == 0.8
