@@ -172,3 +172,12 @@ def step(parameters, state, duty, dt, **environment):
     if dt > 0.002 + 1e-12:
         raise ValueError("plant integration step must not exceed 2 ms")
     return rk4(lambda _t, x: rhs(parameters, x, duty, **environment), 0, state, dt)
+
+
+def energy_residual(parameters, initial, final):
+    return (
+        stored_energy(parameters, initial)
+        - stored_energy(parameters, final)
+        - (final[16] - initial[16])
+        - (final[17] - initial[17])
+    )

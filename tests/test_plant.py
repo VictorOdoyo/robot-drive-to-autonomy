@@ -67,3 +67,13 @@ def test_stationary_auxiliary_energy_ledger():
         state = m.step(parameters, state, [0, 0], 0.002)
     assert initial - m.stored_energy(parameters, state) == pytest.approx(state[16] + state[17], abs=1e-7)
     assert np.allclose(state[:9], 0)
+
+
+def test_driven_energy_audit_under_grade_and_slip():
+    parameters = m.PlantParameters()
+    initial = m.initial_state(parameters)
+    state = initial.copy()
+    for _ in range(250):
+        state = m.step(parameters, state, [0.3, 0.35], 0.001, grade=0.03, traction=(0.08, 0.6))
+    assert state[4] > 0 and state[5] > 0
+    assert abs(m.energy_residual(parameters, initial, state)) < 0.002
