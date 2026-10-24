@@ -89,3 +89,11 @@ class VoltageInterlock:
         elif voltage >= self.recover:
             self.enabled = True
         return self.enabled
+
+
+def slip_detected(gyro_yaw, encoder_yaw, gyro_variance, encoder_variance, threshold=9):
+    variance = gyro_variance + encoder_variance
+    if variance <= 0 or min(gyro_variance, encoder_variance) < 0 or threshold <= 0:
+        raise ValueError("invalid slip detector uncertainty")
+    nis = (gyro_yaw - encoder_yaw) ** 2 / variance
+    return bool(nis > threshold), float(nis)

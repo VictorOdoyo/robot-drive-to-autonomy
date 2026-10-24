@@ -44,3 +44,8 @@ def test_voltage_hysteresis():
     assert not interlock.update(21)
     assert interlock.update(23)
     assert interlock.update(21)
+
+
+def test_slip_detection_accounts_for_sensor_noise():
+    assert m.slip_detected(0.5, 0.1, 0.001, 0.001)[0]
+    assert not m.slip_detected(0.5, 0.1, 0.1, 0.1)[0]
