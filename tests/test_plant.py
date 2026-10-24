@@ -86,3 +86,13 @@ def test_physical_telemetry():
     assert np.allclose(data["slip_speed"], 0)
     assert data["battery_current"] > 0
     assert data["stored_j"] > 0
+
+
+def test_physical_refinement():
+    parameters = m.PlantParameters()
+    initial = m.initial_state(parameters)
+    finals = [m.open_loop(parameters, initial, [0.15, 0.2], 0.1, dt)[1][-1] for dt in (0.002, 0.001, 0.0005)]
+    first = np.linalg.norm(finals[0][:9] - finals[1][:9])
+    second = np.linalg.norm(finals[1][:9] - finals[2][:9])
+    assert first / second > 8
+    assert abs(m.energy_residual(parameters, initial, finals[-1])) < 0.001

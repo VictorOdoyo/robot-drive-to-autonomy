@@ -194,3 +194,16 @@ def telemetry(parameters, state, duty, **environment):
         "loss_w": sum(losses.values()),
         "stored_j": stored_energy(parameters, state),
     }
+
+
+def open_loop(parameters, initial, duty, duration=0.2, dt=0.001, **environment):
+    from .numerics import timeline
+
+    times = timeline(duration, dt)
+    states = np.empty((len(times), len(initial)))
+    states[0] = initial
+    for index in range(len(times) - 1):
+        states[index + 1] = step(
+            parameters, states[index], duty, times[index + 1] - times[index], **environment
+        )
+    return times, states
