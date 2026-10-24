@@ -46,3 +46,14 @@ def test_archive_roundtrip(tmp_path):
     restored = m.load_archive(m.save_archive(result, tmp_path / "mission.npz"))
     assert np.array_equal(restored["state"], result["state"])
     assert restored["energy_residual_j"] == pytest.approx(result["energy_residual_j"])
+
+
+def test_csv_columns_and_units(tmp_path):
+    from robotlab.cases import Scenario
+    from robotlab.simulation import run
+
+    result = run(Scenario(duration=0.1, width=3, height=3, goal=(2.3, 0.6), shelves=()))
+    path = m.export_csv(result, tmp_path / "trace.csv")
+    data = np.genfromtxt(path, delimiter=",", names=True)
+    assert data["x_m"][-1] == pytest.approx(result["state"][-1, 6])
+    assert data["bus_v"][0] == pytest.approx(result["bus_voltage"][0])

@@ -103,3 +103,57 @@ def load_archive(path):
         raise ValueError("archive metadata shadows numeric arrays")
     result.update(metadata)
     return validate_result(result)
+
+
+def export_csv(result, path):
+    from pathlib import Path
+
+    validate_result(result)
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    state = result["state"]
+    matrix = np.column_stack(
+        [
+            result["time"],
+            state[:, :14],
+            result["estimate"],
+            result["command"],
+            result["duty"],
+            result["bus_voltage"],
+            result["battery_current"],
+            result["clearance"],
+            state[:, 16:18],
+        ]
+    )
+    names = [
+        "time_s",
+        "left_current_a",
+        "right_current_a",
+        "left_wheel_rad_s",
+        "right_wheel_rad_s",
+        "forward_m_s",
+        "yaw_rad_s",
+        "x_m",
+        "y_m",
+        "heading_rad",
+        "soc",
+        "polarization_v",
+        "left_motor_c",
+        "right_motor_c",
+        "battery_c",
+        "estimated_x_m",
+        "estimated_y_m",
+        "estimated_heading_rad",
+        "estimated_gyro_bias_rad_s",
+        "command_m_s",
+        "command_rad_s",
+        "left_duty",
+        "right_duty",
+        "bus_v",
+        "battery_current_a",
+        "clearance_m",
+        "dissipated_j",
+        "external_work_j",
+    ]
+    np.savetxt(path, matrix, delimiter=",", header=",".join(names), comments="")
+    return path
