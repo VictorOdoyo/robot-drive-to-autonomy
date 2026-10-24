@@ -11,3 +11,11 @@ def test_batch_summaries_match_report_metrics(tmp_path):
     measured = json.loads((tmp_path / "01" / "metrics.json").read_text())
     assert summary["short"]["energy_residual_j"] == measured["energy_residual_j"]
     assert messages == ["[1/1] short"]
+
+
+def test_batch_rejects_duplicate_names_before_running(tmp_path):
+    import pytest
+
+    case = Scenario(duration=0.1)
+    with pytest.raises(ValueError, match="unique"):
+        run_batch([case, case], tmp_path)

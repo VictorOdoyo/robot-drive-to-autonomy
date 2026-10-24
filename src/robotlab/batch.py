@@ -20,7 +20,7 @@ def run_batch(cases, directory, progress=None):
         # Stable numeric folder names keep display names out of filesystem paths.
         result = run(case)
         report = write_report(result, directory / f"{index + 1:02d}")
-        summary[case.name] = {**mission_metrics(result), "report": str(report.relative_to(directory))}
+        summary[case.name] = {**mission_metrics(result), "report": report.relative_to(directory).as_posix()}
     (directory / "summary.json").write_text(
         json.dumps(summary, indent=2, sort_keys=True, allow_nan=False) + "\n", encoding="utf-8"
     )
