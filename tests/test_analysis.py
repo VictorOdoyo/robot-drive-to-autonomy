@@ -14,3 +14,14 @@ def test_metrics_use_true_pose_and_energy_ledger():
     assert values["minimum_clearance_m"] > 0
     assert values["energy_residual_j"] == pytest.approx(result["energy_residual_j"])
     assert np.isfinite(values["position_rmse_m"])
+
+
+def test_consistency_detects_underestimated_covariance():
+    result = {
+        "estimate": np.array([[1.0, 0, 0, 0]]),
+        "state": np.zeros((1, 18)),
+        "covariance": np.array([np.eye(4) * 0.001]),
+    }
+    summary = m.consistency(result)
+    assert summary["mean_nees"] == pytest.approx(1000)
+    assert summary["coverage"] == 0

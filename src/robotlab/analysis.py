@@ -24,3 +24,27 @@ def mission_metrics(result):
         "heading_rmse_rad": float(np.sqrt(np.mean(heading_error**2))),
         "fault_transitions": len(result["journal"]),
     }
+
+
+def consistency(result, probability=0.95):
+    from scipy.stats import chi2
+
+    from .estimation import nees
+
+    if not 0 < probability < 1:
+        raise ValueError("invalid confidence probability")
+    errors = np.array(
+        [
+            nees(estimate[:3], truth[6:9], covariance[:3, :3])
+            for estimate, truth, covariance in zip(
+                result["estimate"], result["state"], result["covariance"], strict=True
+            )
+        ]
+    )
+    bound = float(chi2.ppf(probability, 3))
+    return {
+        "nees": errors,
+        "bound": bound,
+        "coverage": float(np.mean(errors <= bound)),
+        "mean_nees": float(errors.mean()),
+    }
