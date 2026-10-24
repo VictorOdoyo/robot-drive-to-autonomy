@@ -157,3 +157,99 @@ def export_csv(result, path):
     ]
     np.savetxt(path, matrix, delimiter=",", header=",".join(names), comments="")
     return path
+
+
+def plot_mission(result, path):
+    import matplotlib
+
+    matplotlib.use("Agg")
+    from pathlib import Path
+
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import Circle, Rectangle
+
+    from .analysis import mission_metrics
+    from .electrical import Motor
+    from .mechanics import Chassis
+    from .plant import PlantParameters, stored_energy
+    from .power import Battery
+
+    validate_result(result)
+    parameters = dict(result["parameters"])
+    parameters["motor"] = Motor(**parameters["motor"])
+    parameters["chassis"] = Chassis(**parameters["chassis"])
+    parameters["battery"] = Battery(**parameters["battery"])
+    plant = PlantParameters(**parameters)
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    time, state = result["time"], result["state"]
+    metrics = mission_metrics(result)
+    fig, axes = plt.subplots(4, 2, figsize=(14, 16), layout="constrained")
+    ax = axes[0, 0]
+    for rectangle in result["case"]["shelves"]:
+        ax.add_patch(
+            Rectangle(
+                rectangle[:2],
+                rectangle[2] - rectangle[0],
+                rectangle[3] - rectangle[1],
+                facecolor="#334155",
+                alpha=0.8,
+            )
+        )
+    ax.plot(*result["route"].T, "--", color="#94a3b8", label="planned route")
+    ax.plot(state[:, 6], state[:, 7], color="#2563eb", label="true path")
+    ax.plot(result["estimate"][:, 0], result["estimate"][:, 1], color="#d97706", alpha=0.6, label="EKF")
+    for index in np.linspace(0, len(time) - 1, 12, dtype=int):
+        ax.add_patch(
+            Circle(state[index, 6:8], result["case"]["radius"], fill=False, color="#2563eb", alpha=0.25)
+        )
+    ax.scatter(*result["case"]["goal"], marker="*", s=100, color="#16a34a", label="goal")
+    ax.set(
+        xlim=(0, result["case"]["width"]),
+        ylim=(0, result["case"]["height"]),
+        xlabel="x (m)",
+        ylabel="y (m)",
+        title="Circular footprint and warehouse route",
+        aspect="equal",
+    )
+    ax.legend(fontsize=8)
+    axes[0, 1].plot(time, state[:, 4], label="true speed")
+    axes[0, 1].plot(time, result["command"][:, 0], "--", label="command")
+    axes[0, 1].set(title="Forward motion", ylabel="Speed (m/s)")
+    for k, label in enumerate(("left", "right")):
+        axes[1, 0].plot(time, state[:, k], label=label)
+        axes[1, 0].plot(time, result["current_reference"][:, k], "--", alpha=0.45)
+        axes[2, 0].plot(time, state[:, 11 + k], label=label)
+    axes[1, 0].set(title="Winding current; dashed = reference", ylabel="Current (A)")
+    axes[1, 1].plot(time, result["bus_voltage"], color="#7c3aed")
+    axes[1, 1].set(title="Loaded battery terminal voltage", ylabel="Voltage (V)")
+    axes[2, 0].set(title="Motor winding temperatures", ylabel="Temperature (°C)")
+    stored = np.array([stored_energy(plant, row) for row in state])
+    axes[2, 1].plot(time, stored[0] - stored, label="stored energy used")
+    axes[2, 1].plot(
+        time, state[:, 16] - state[0, 16] + state[:, 17] - state[0, 17], "--", label="loss + external work"
+    )
+    axes[2, 1].set(title="Electrochemical / mechanical energy ledger", ylabel="Energy (J)")
+    error = np.linalg.norm(state[:, 6:8] - result["estimate"][:, :2], axis=1)
+    sigma = np.sqrt(np.linalg.eigvalsh(result["covariance"][:, :2, :2])[:, -1])
+    axes[3, 0].plot(time, error, label="position error")
+    axes[3, 0].plot(time, 3 * sigma, "--", label="3 x largest position sigma")
+    axes[3, 0].set(title="Localization error and covariance scale", ylabel="Position (m)")
+    axes[3, 1].plot(time, result["clearance"], color="#059669")
+    axes[3, 1].axhline(0, color="#dc2626", linestyle="--")
+    axes[3, 1].set(title="True footprint clearance", ylabel="Clearance (m)")
+    for ax in axes.flat:
+        ax.grid(alpha=0.2)
+        if ax is not axes[0, 0]:
+            ax.set_xlabel("Time (s)")
+        if ax.get_legend_handles_labels()[0] and ax is not axes[0, 0]:
+            ax.legend(fontsize=8)
+    fig.suptitle(
+        f"{result['case']['name']} | simulated robot mission\n"
+        f"Goal error {metrics['goal_error_m']:.3f} m · minimum clearance {metrics['minimum_clearance_m']:.3f} m · "
+        f"energy residual {metrics['energy_residual_j']:.2e} J",
+        fontsize=14,
+    )
+    fig.savefig(path, dpi=130)
+    plt.close(fig)
+    return path

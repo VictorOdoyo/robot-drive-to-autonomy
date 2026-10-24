@@ -57,3 +57,12 @@ def test_csv_columns_and_units(tmp_path):
     data = np.genfromtxt(path, delimiter=",", names=True)
     assert data["x_m"][-1] == pytest.approx(result["state"][-1, 6])
     assert data["bus_v"][0] == pytest.approx(result["bus_voltage"][0])
+
+
+def test_mission_plot_renders_from_trace(tmp_path):
+    from robotlab.cases import Scenario
+    from robotlab.simulation import run
+
+    result = run(Scenario(duration=0.1, width=3, height=3, goal=(2.3, 0.6), shelves=()))
+    path = m.plot_mission(result, tmp_path / "mission.png")
+    assert path.read_bytes().startswith(b"\x89PNG")
