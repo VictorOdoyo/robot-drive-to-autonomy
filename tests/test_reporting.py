@@ -25,3 +25,14 @@ def test_archive_validation_rejects_nonfinite_trace():
     result["state"][0, 0] = np.nan
     with pytest.raises(ValueError, match="nonfinite"):
         m.validate_result(result)
+
+
+def test_archive_contains_no_python_object_arrays(tmp_path):
+    from robotlab.cases import Scenario
+    from robotlab.simulation import run
+
+    result = run(Scenario(duration=0.1, width=3, height=3, goal=(2.3, 0.6), shelves=()))
+    path = m.save_archive(result, tmp_path / "mission.npz")
+    with np.load(path, allow_pickle=False) as archive:
+        assert all(archive[key].dtype.kind != "O" for key in archive.files)
+        assert archive["state"].shape[1] == 18

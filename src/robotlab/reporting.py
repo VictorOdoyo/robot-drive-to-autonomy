@@ -63,3 +63,29 @@ def validate_result(result):
     if np.any(np.abs(result["duty"]) > 1 + 1e-10):
         raise ValueError("bridge duty outside physical bounds")
     return result
+
+
+def save_archive(result, path):
+    import json
+    import os
+    import tempfile
+    from pathlib import Path
+
+    validate_result(result)
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    arrays = {key: value for key, value in result.items() if isinstance(value, np.ndarray)}
+    metadata = {key: value for key, value in result.items() if key not in arrays}
+    metadata["schema_version"] = 1
+    metadata["provenance"] = provenance(result["case"], result["parameters"])
+    arrays["metadata_json"] = np.array(json.dumps(metadata, sort_keys=True, allow_nan=False))
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=path.parent, suffix=".npz", delete=False) as stream:
+            temporary = stream.name
+            np.savez_compressed(stream, **arrays)
+        os.replace(temporary, path)
+    finally:
+        if temporary is not None and Path(temporary).exists():
+            Path(temporary).unlink()
+    return path
