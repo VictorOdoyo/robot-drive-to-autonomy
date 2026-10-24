@@ -5,6 +5,9 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "robot-drive-to-autonomy"
 version = "0.1.0"
+readme = "README.md"
+authors = [{name = "Victor Odoyo"}]
+keywords = ["robotics", "motor-control", "electrical-engineering", "localization", "simulation"]
 description = "Electrical drive, estimation and autonomy experiments for a differential-drive robot"
 requires-python = ">=3.11"
 license = "MIT"
