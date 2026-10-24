@@ -22,3 +22,19 @@ class FaultLatch:
                 self.fault = None
                 self.healthy_since = None
         return self.fault is None
+
+
+@dataclass
+class Overload:
+    continuous: float = 8.0
+    budget: float = 400.0
+    cooling_time: float = 20.0
+    integral: float = 0.0
+
+    def step(self, current, dt):
+        if min(self.continuous, self.budget, self.cooling_time, dt) <= 0:
+            raise ValueError("invalid overload settings")
+        excess = max(0, current**2 - self.continuous**2)
+        decay = np.exp(-dt / self.cooling_time)
+        self.integral = self.integral * decay + excess * self.cooling_time * (1 - decay)
+        return self.integral >= self.budget
