@@ -311,3 +311,21 @@ These results describe the specified mathematical models; no hardware validation
         json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
     return directory / "index.html"
+
+
+def verify_report(directory):
+    import hashlib
+    import json
+    from pathlib import Path
+
+    directory = Path(directory)
+    manifest = json.loads((directory / "manifest.json").read_text(encoding="utf-8"))
+    if not isinstance(manifest, dict) or not manifest:
+        raise ValueError("empty or invalid report manifest")
+    for name, expected in manifest.items():
+        if Path(name).name != name:
+            raise ValueError("manifest entries must be local filenames")
+        actual = hashlib.sha256((directory / name).read_bytes()).hexdigest()
+        if actual != expected:
+            raise ValueError("report integrity mismatch: " + name)
+    return True

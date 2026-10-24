@@ -81,3 +81,16 @@ def test_html_escapes_user_supplied_title_and_exports_ledger(tmp_path):
     assert "&lt;script&gt;" in path.read_text(encoding="utf-8")
     assert "<script>" not in path.read_text(encoding="utf-8")
     assert (tmp_path / "manifest.json").is_file()
+
+
+def test_report_integrity_detects_modified_artifacts(tmp_path):
+    import hashlib
+    import json
+
+    (tmp_path / "file.csv").write_text("original")
+    digest = hashlib.sha256(b"original").hexdigest()
+    (tmp_path / "manifest.json").write_text(json.dumps({"file.csv": digest}))
+    assert m.verify_report(tmp_path)
+    (tmp_path / "file.csv").write_text("changed")
+    with pytest.raises(ValueError, match="mismatch"):
+        m.verify_report(tmp_path)
