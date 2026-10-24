@@ -77,3 +77,12 @@ def test_driven_energy_audit_under_grade_and_slip():
         state = m.step(parameters, state, [0.3, 0.35], 0.001, grade=0.03, traction=(0.08, 0.6))
     assert state[4] > 0 and state[5] > 0
     assert abs(m.energy_residual(parameters, initial, state)) < 0.002
+
+
+def test_physical_telemetry():
+    parameters = m.PlantParameters()
+    state = m.initial_state(parameters)
+    data = m.telemetry(parameters, state, [0, 0])
+    assert np.allclose(data["slip_speed"], 0)
+    assert data["battery_current"] > 0
+    assert data["stored_j"] > 0

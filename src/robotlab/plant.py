@@ -181,3 +181,16 @@ def energy_residual(parameters, initial, final):
         - (final[16] - initial[16])
         - (final[17] - initial[17])
     )
+
+
+def telemetry(parameters, state, duty, **environment):
+    _, losses, observation = mechanical_electrical_rhs(parameters, state, duty, **environment)
+    forces, slip, lift = contact_forces(parameters, state, environment.get("traction", (0.6, 0.6)))
+    return {
+        **observation,
+        "forces": forces,
+        "slip_speed": slip,
+        "wheel_lift": lift,
+        "loss_w": sum(losses.values()),
+        "stored_j": stored_energy(parameters, state),
+    }
