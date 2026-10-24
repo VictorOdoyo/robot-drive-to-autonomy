@@ -155,7 +155,7 @@ def experiment_catalog():
         "commissioning": commissioning,
         "grade-load": replace(commissioning, name="grade-load", events=(Disturbance(1, 4, "grade", 0.12),)),
         "traction-loss": replace(
-            commissioning, name="traction-loss", events=(Disturbance(1, 2.5, "left_traction", 0.015),)
+            commissioning, name="traction-loss", events=(Disturbance(1, 2.5, "left_traction", 0.004),)
         ),
         "gyro-bias": replace(commissioning, name="gyro-bias", events=(Disturbance(1, 3, "gyro_bias", 0.15),)),
         "encoder-outage": replace(
