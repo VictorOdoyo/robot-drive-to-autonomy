@@ -75,7 +75,7 @@ def run(case=None, parameters=None):
     from dataclasses import asdict
 
     from .cases import Scenario, plan_route
-    from .drive import DriveController, current_tick, set_twist, velocity_tick
+    from .drive import DriveController, back_emf_wheel_speed, current_tick, set_twist, velocity_tick
     from .estimation import PoseEKF, update_gyro_bias, update_position
     from .geometry import circle_clearance, swept_clearance
     from .kinematics import DriveGeometry
@@ -127,6 +127,10 @@ def run(case=None, parameters=None):
     )
     logs = {name: [] for name in names}
     times = simulation_times(case)
+    previous_current = state[:2].copy()
+    previous_voltage = np.zeros(2)
+    previous_interval = case.dt
+    electrical_rates = np.zeros(2)
 
     def disturbance(kind, time, default=0):
         return disturbance_value(case.events, kind, time, default)
@@ -137,11 +141,21 @@ def run(case=None, parameters=None):
             "traction": (disturbance("left_traction", time, 0.6), disturbance("right_traction", time, 0.6)),
             "external_force": disturbance("load", time),
         }
+        if index > 0:
+            raw_rates = back_emf_wheel_speed(
+                previous_voltage,
+                state[:2],
+                (state[:2] - previous_current) / previous_interval,
+                parameters.motor,
+                parameters.ratio,
+            )
+            electrical_rates += (1 - np.exp(-previous_interval / 0.02)) * (raw_rates - electrical_rates)
         wheel_due = clocks["wheel"].due(time)
         if wheel_due:
             sensors.sample_wheels(state, time, bool(disturbance("encoder_dropout", time)))
+        feedback_rates = electrical_rates if time - sensors.age_stamp > 0.05 else sensors.rates
         if clocks["estimate"].due(time) and time > 0:
-            speed, encoder_yaw = geometry.forward(sensors.rates)
+            speed, encoder_yaw = geometry.forward(feedback_rates)
             gyro = sensors.gyro(state, 0.015 + disturbance("gyro_bias", time))
             estimate.predict(speed, gyro, time - last_estimate)
             # Reject large disagreement; biased wheel yaw under slip is not a bias reference.
@@ -189,11 +203,14 @@ def run(case=None, parameters=None):
                     command[0] = 0.0
         if wheel_due:
             set_twist(controller, command, 0.01)
-            velocity_tick(controller, sensors.rates, state[11:13], 0.01)
+            velocity_tick(controller, feedback_rates, state[11:13], 0.01)
         bus, _ = bus_operating_point(parameters, state, controller.duty)
         if index < len(times) - 1:
             interval = times[index + 1] - time
-            current_tick(controller, state[:2], sensors.rates, bus, interval)
+            current_tick(controller, state[:2], feedback_rates, bus, interval)
+            previous_current = state[:2].copy()
+            previous_voltage = controller.duty * bus - parameters.bridge_resistance * state[:2]
+            previous_interval = interval
         if clocks["log"].due(time) or index == len(times) - 1:
             data = telemetry(parameters, state, controller.duty, **environment)
             values = (

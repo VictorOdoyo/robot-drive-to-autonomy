@@ -89,3 +89,14 @@ def regulated_drive(duration=1, speed=0.5, dt=0.002, parameters=None):
         state = step(parameters, state, duty, times[k + 1] - time)
         states.append(state.copy())
     return times, np.array(states)
+
+
+def back_emf_wheel_speed(voltage, current, current_derivative, motor, ratio=12):
+    """Electrical speed estimate; requires measured terminal voltage/current."""
+    if ratio <= 0:
+        raise ValueError("positive gear ratio required")
+    return (
+        np.asarray(voltage)
+        - motor.resistance * np.asarray(current)
+        - motor.inductance * np.asarray(current_derivative)
+    ) / (motor.constant * ratio)

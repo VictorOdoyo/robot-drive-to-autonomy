@@ -40,3 +40,14 @@ def test_cascade_tracks_speed_without_excess_current():
     assert states[-1, 4] == pytest.approx(0.5, abs=0.04)
     assert np.max(abs(states[:, :2])) < 8.5
     assert abs(states[-1, 5]) < 1e-10
+
+
+def test_back_emf_observer_recovers_wheel_speed():
+    from robotlab.electrical import Motor
+
+    motor = Motor()
+    rates = np.array([5.0, -3.0])
+    current = np.array([2.0, -1.0])
+    derivative = np.array([30.0, -40.0])
+    voltage = motor.resistance * current + motor.inductance * derivative + motor.constant * 12 * rates
+    assert np.allclose(m.back_emf_wheel_speed(voltage, current, derivative, motor), rates)
