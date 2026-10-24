@@ -97,3 +97,19 @@ def slip_detected(gyro_yaw, encoder_yaw, gyro_variance, encoder_variance, thresh
         raise ValueError("invalid slip detector uncertainty")
     nis = (gyro_yaw - encoder_yaw) ** 2 / variance
     return bool(nis > threshold), float(nis)
+
+
+def localization_healthy(covariance, fix_age, max_position_sigma=0.4, max_heading_sigma=0.5, max_age=2):
+    covariance = np.asarray(covariance)
+    if covariance.shape[0] < 3 or covariance.shape[0] != covariance.shape[1]:
+        raise ValueError("pose covariance required")
+    finite = np.all(np.isfinite(covariance))
+    if not finite:
+        return False
+    position = np.linalg.eigvalsh(covariance[:2, :2]).max()
+    return bool(
+        position <= max_position_sigma**2
+        and covariance[2, 2] <= max_heading_sigma**2
+        and 0 <= fix_age <= max_age
+        and np.linalg.eigvalsh(covariance).min() >= -1e-12
+    )

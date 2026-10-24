@@ -49,3 +49,9 @@ def test_voltage_hysteresis():
 def test_slip_detection_accounts_for_sensor_noise():
     assert m.slip_detected(0.5, 0.1, 0.001, 0.001)[0]
     assert not m.slip_detected(0.5, 0.1, 0.1, 0.1)[0]
+
+
+def test_localization_timeout_and_uncertainty():
+    assert m.localization_healthy(np.eye(4) * 0.01, 0.5)
+    assert not m.localization_healthy(np.eye(4), 0.5)
+    assert not m.localization_healthy(np.eye(4) * 0.01, 3)
