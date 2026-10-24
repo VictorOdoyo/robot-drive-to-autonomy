@@ -253,3 +253,61 @@ def plot_mission(result, path):
     fig.savefig(path, dpi=130)
     plt.close(fig)
     return path
+
+
+def write_report(result, directory):
+    import hashlib
+    import html
+    import json
+    from pathlib import Path
+
+    from .analysis import consistency, mission_metrics
+
+    directory = Path(directory)
+    directory.mkdir(parents=True, exist_ok=True)
+    save_archive(result, directory / "mission.npz")
+    export_csv(result, directory / "telemetry.csv")
+    plot_mission(result, directory / "mission.png")
+    metrics = mission_metrics(result)
+    summary = consistency(result)
+    metrics["nees_mean"] = summary["mean_nees"]
+    metrics["nees_95_coverage"] = summary["coverage"]
+    (directory / "metrics.json").write_text(
+        json.dumps(metrics, indent=2, sort_keys=True, allow_nan=False) + "\n", encoding="utf-8"
+    )
+    source = result.get("provenance") or provenance(result["case"], result["parameters"])
+    (directory / "provenance.json").write_text(
+        json.dumps(source, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    rows = "".join(
+        "<tr><th>" + html.escape(key.replace("_", " ")) + "</th><td>" + html.escape(str(value)) + "</td></tr>"
+        for key, value in metrics.items()
+    )
+    title = html.escape(result["case"]["name"])
+    document = f"""<!doctype html><html lang="en"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>{title} | Robotlab</title>
+<style>body{{font:16px system-ui;max-width:1100px;margin:3rem auto;padding:0 1rem;color:#172033}}
+img{{width:100%;height:auto}}table{{border-collapse:collapse;width:100%}}
+th,td{{text-align:left;padding:.5rem;border-bottom:1px solid #dce1ea}}
+th{{font-weight:500}}a{{color:#164ac4}}</style>
+<h1>{title}</h1><p>Simulated differential-drive robot. SI-unit electrical, mechanical and estimation traces.
+These results describe the specified mathematical models; no hardware validation is claimed.</p>
+<p><a href="mission.npz">Replay archive</a> | <a href="telemetry.csv">SI telemetry</a> |
+<a href="metrics.json">Metrics</a> | <a href="provenance.json">Source and configuration</a></p>
+<img src="mission.png" alt="Route, winding current, voltage, temperature, energy and localization traces">
+<h2>Measured results</h2><table>{rows}</table>
+<p>Configuration SHA-256: <code>{html.escape(source["configuration_sha256"])}</code></p></html>"""
+    (directory / "index.html").write_text(document, encoding="utf-8")
+    filenames = [
+        "mission.npz",
+        "telemetry.csv",
+        "mission.png",
+        "metrics.json",
+        "provenance.json",
+        "index.html",
+    ]
+    manifest = {name: hashlib.sha256((directory / name).read_bytes()).hexdigest() for name in filenames}
+    (directory / "manifest.json").write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    return directory / "index.html"

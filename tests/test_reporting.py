@@ -66,3 +66,18 @@ def test_mission_plot_renders_from_trace(tmp_path):
     result = run(Scenario(duration=0.1, width=3, height=3, goal=(2.3, 0.6), shelves=()))
     path = m.plot_mission(result, tmp_path / "mission.png")
     assert path.read_bytes().startswith(b"\x89PNG")
+
+
+def test_html_escapes_user_supplied_title_and_exports_ledger(tmp_path):
+    from robotlab.cases import Scenario
+    from robotlab.simulation import run
+
+    result = run(
+        Scenario(
+            name="<script>example</script>", duration=0.1, width=3, height=3, goal=(2.3, 0.6), shelves=()
+        )
+    )
+    path = m.write_report(result, tmp_path)
+    assert "&lt;script&gt;" in path.read_text(encoding="utf-8")
+    assert "<script>" not in path.read_text(encoding="utf-8")
+    assert (tmp_path / "manifest.json").is_file()
