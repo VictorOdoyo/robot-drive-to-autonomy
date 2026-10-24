@@ -55,3 +55,9 @@ def test_localization_timeout_and_uncertainty():
     assert m.localization_healthy(np.eye(4) * 0.01, 0.5)
     assert not m.localization_healthy(np.eye(4), 0.5)
     assert not m.localization_healthy(np.eye(4) * 0.01, 3)
+
+
+def test_fault_priority():
+    assert m.inhibit_reason(overcurrent=True, stale_command=True) == "overcurrent"
+    assert m.inhibit_reason(emergency=True, overcurrent=True) == "emergency"
+    assert m.inhibit_reason() is None

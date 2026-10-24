@@ -113,3 +113,24 @@ def localization_healthy(covariance, fix_age, max_position_sigma=0.4, max_headin
         and 0 <= fix_age <= max_age
         and np.linalg.eigvalsh(covariance).min() >= -1e-12
     )
+
+
+def inhibit_reason(
+    emergency=False,
+    overcurrent=False,
+    overtemperature=False,
+    undervoltage=False,
+    collision=False,
+    stale_command=False,
+    localization_lost=False,
+):
+    conditions = [
+        (emergency, "emergency"),
+        (overcurrent, "overcurrent"),
+        (overtemperature, "overtemperature"),
+        (undervoltage, "undervoltage"),
+        (collision, "collision"),
+        (stale_command, "watchdog"),
+        (localization_lost, "localization"),
+    ]
+    return next((name for active, name in conditions if active), None)
