@@ -32,3 +32,15 @@ def set_twist(controller, twist, dt, max_wheel_acceleration=12):
         ]
     )
     return controller.reference.copy()
+
+
+def velocity_tick(controller, measured_rates, temperatures, dt):
+    from .power import thermal_limit
+
+    measured_rates, temperatures = np.asarray(measured_rates), np.asarray(temperatures)
+    for k, loop in enumerate(controller.velocity_loops):
+        limit = thermal_limit(temperatures[k], controller.current_limit)
+        controller.current_reference[k] = loop.step(
+            controller.reference[k] - measured_rates[k], dt, -limit, limit
+        )
+    return controller.current_reference.copy()
