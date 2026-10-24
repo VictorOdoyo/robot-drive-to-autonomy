@@ -1,0 +1,70 @@
+from dataclasses import asdict, dataclass, field
+
+import numpy as np
+
+from .safety import Disturbance
+
+
+@dataclass(frozen=True)
+class Scenario:
+    name: str = "warehouse"
+    duration: float = 40.0
+    dt: float = 0.002
+    seed: int = 42
+    start: tuple = (0.6, 0.6, 0.0)
+    goal: tuple = (7.1, 5.2)
+    width: float = 8.0
+    height: float = 6.0
+    resolution: float = 0.1
+    radius: float = 0.22
+    margin: float = 0.18
+    cruise_speed: float = 0.6
+    soc: float = 0.8
+    sensor_latency: float = 0.0
+    initial_temperature: float = 25.0
+    shelves: tuple = ((2.0, 1.0, 2.8, 4.5), (4.2, 1.5, 5.0, 5.0))
+    events: tuple = field(default_factory=tuple)
+
+    def __post_init__(self):
+        values = (
+            self.duration,
+            self.dt,
+            self.width,
+            self.height,
+            self.resolution,
+            self.radius,
+            self.cruise_speed,
+        )
+        if not all(np.isfinite(v) and v > 0 for v in values) or self.dt > 0.002 or self.margin < 0:
+            raise ValueError("positive finite scenario geometry and timing required")
+        if self.sensor_latency < 0 or not 0 < self.soc < 1 or self.seed < 0:
+            raise ValueError("invalid scenario initial conditions")
+        if (
+            len(self.start) != 3
+            or len(self.goal) != 2
+            or not np.all(np.isfinite([*self.start, *self.goal, self.initial_temperature]))
+        ):
+            raise ValueError("finite planar start and goal required")
+        for rectangle in self.shelves:
+            if len(rectangle) != 4 or rectangle[0] >= rectangle[2] or rectangle[1] >= rectangle[3]:
+                raise ValueError("invalid shelf rectangle")
+        for event in self.events:
+            if not isinstance(event, Disturbance) or event.end > self.duration:
+                raise ValueError("event outside scenario")
+        for kind in {e.kind for e in self.events}:
+            intervals = sorted((e.start, e.end) for e in self.events if e.kind == kind)
+            if any(intervals[k + 1][0] < intervals[k][1] for k in range(len(intervals) - 1)):
+                raise ValueError("overlapping disturbance intervals")
+
+    def to_dict(self):
+        return asdict(self)
+
+    def obstacles(self):
+        w, h = self.width, self.height
+        return [
+            *self.shelves,
+            (-0.2, -0.2, w + 0.2, 0),
+            (-0.2, h, w + 0.2, h + 0.2),
+            (-0.2, 0, 0, h),
+            (w, 0, w + 0.2, h),
+        ]
