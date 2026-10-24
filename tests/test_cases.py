@@ -1,3 +1,5 @@
+from itertools import pairwise
+
 import numpy as np
 import pytest
 
@@ -21,3 +23,15 @@ def test_portable_scenario_roundtrip():
     assert restored == case
     with pytest.raises(ValueError):
         m.from_dict({"surprise": 1})
+
+
+def test_warehouse_route_has_clearance():
+    from robotlab.geometry import circle_clearance
+
+    case = m.Scenario()
+    points, _, _, cost = m.plan_route(case)
+    assert np.allclose(points[0], case.start[:2])
+    assert np.allclose(points[-1], case.goal)
+    assert cost > 0
+    for a, b in pairwise(points):
+        assert all(circle_clearance(p, case.radius, case.obstacles()) > 0.15 for p in np.linspace(a, b, 30))

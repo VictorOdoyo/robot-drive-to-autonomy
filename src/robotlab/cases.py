@@ -94,3 +94,39 @@ def load_case(path):
     from pathlib import Path
 
     return from_dict(json.loads(Path(path).read_text(encoding="utf-8")))
+
+
+def plan_route(case):
+    from .mapping import OccupancyGrid, distance_field, inflated_mask, rasterize
+    from .planning import astar, clearance_cost, shortcut
+
+    grid = rasterize(
+        OccupancyGrid(
+            int(np.ceil(case.width / case.resolution)),
+            int(np.ceil(case.height / case.resolution)),
+            case.resolution,
+        ),
+        case.obstacles(),
+    )
+    blocked = inflated_mask(grid, case.radius, case.margin)
+    path, cost = astar(
+        blocked,
+        grid.cell(case.start[:2]),
+        grid.cell(case.goal),
+        clearance_cost(distance_field(grid), weight=2, scale=0.4),
+    )
+    route = shortcut(path, blocked)
+    points = np.array([grid.center(cell) for cell in route])
+    # Exact endpoints are checked against the inflated map before substitution.
+    from .planning import line_free
+
+    def coordinate(point):
+        cell = (np.asarray(point) - grid.origin) / grid.resolution - 0.5
+        return cell[::-1]
+
+    points[0], points[-1] = case.start[:2], case.goal
+    if not all(
+        line_free(blocked, coordinate(points[k]), coordinate(points[k + 1])) for k in range(len(points) - 1)
+    ):
+        raise ValueError("exact endpoints make the route unsafe")
+    return points, grid, blocked, float(cost)
