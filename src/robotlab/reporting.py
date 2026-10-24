@@ -77,7 +77,7 @@ def save_archive(result, path):
     arrays = {key: value for key, value in result.items() if isinstance(value, np.ndarray)}
     metadata = {key: value for key, value in result.items() if key not in arrays}
     metadata["schema_version"] = 1
-    metadata["provenance"] = provenance(result["case"], result["parameters"])
+    metadata["provenance"] = result.get("provenance") or provenance(result["case"], result["parameters"])
     arrays["metadata_json"] = np.array(json.dumps(metadata, sort_keys=True, allow_nan=False))
     temporary = None
     try:

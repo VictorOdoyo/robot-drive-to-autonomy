@@ -94,3 +94,16 @@ def test_report_integrity_detects_modified_artifacts(tmp_path):
     (tmp_path / "file.csv").write_text("changed")
     with pytest.raises(ValueError, match="mismatch"):
         m.verify_report(tmp_path)
+
+
+def test_replay_keeps_original_source_revision(tmp_path):
+    from robotlab.cases import Scenario
+    from robotlab.simulation import run
+
+    result = run(Scenario(duration=0.1, width=3, height=3, goal=(2.3, 0.6), shelves=()))
+    result["provenance"] = {
+        **m.provenance(result["case"], result["parameters"]),
+        "git_revision": "original-revision",
+    }
+    restored = m.load_archive(m.save_archive(result, tmp_path / "replayed.npz"))
+    assert restored["provenance"]["git_revision"] == "original-revision"
