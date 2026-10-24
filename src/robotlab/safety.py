@@ -73,3 +73,19 @@ class Debounce:
         if self.since is None:
             self.since = time
         return time - self.since >= self.dwell
+
+
+@dataclass
+class VoltageInterlock:
+    trip: float = 20.0
+    recover: float = 22.0
+    enabled: bool = True
+
+    def update(self, voltage):
+        if self.recover <= self.trip or not np.isfinite(voltage):
+            raise ValueError("invalid voltage thresholds")
+        if voltage <= self.trip:
+            self.enabled = False
+        elif voltage >= self.recover:
+            self.enabled = True
+        return self.enabled

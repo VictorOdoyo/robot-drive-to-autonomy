@@ -36,3 +36,11 @@ def test_debounce_resets_after_healthy_sample():
     assert not debounce.update(0.09, False)
     assert not debounce.update(0.1, True)
     assert debounce.update(0.21, True)
+
+
+def test_voltage_hysteresis():
+    interlock = m.VoltageInterlock()
+    assert not interlock.update(19)
+    assert not interlock.update(21)
+    assert interlock.update(23)
+    assert interlock.update(21)
