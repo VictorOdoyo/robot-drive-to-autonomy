@@ -1,0 +1,26 @@
+import numpy as np
+
+
+def mission_metrics(result):
+    from .geometry import wrap
+
+    state, estimate, time = result["state"], result["estimate"], result["time"]
+    position_error = np.linalg.norm(state[:, 6:8] - estimate[:, :2], axis=1)
+    heading_error = wrap(state[:, 8] - estimate[:, 2])
+    distance = float(np.sum(np.linalg.norm(np.diff(state[:, 6:8], axis=0), axis=1)))
+    return {
+        "completed": bool(result["completed"]),
+        "duration_s": float(time[-1] - time[0]),
+        "goal_error_m": float(np.linalg.norm(state[-1, 6:8] - result["case"]["goal"])),
+        "distance_m": distance,
+        "minimum_clearance_m": float(np.min(result["clearance"])),
+        "peak_current_a": float(np.max(np.abs(state[:, :2]))),
+        "peak_motor_temperature_c": float(np.max(state[:, 11:13])),
+        "soc_consumed": float(state[0, 9] - state[-1, 9]),
+        "dissipated_j": float(state[-1, 16] - state[0, 16]),
+        "external_work_j": float(state[-1, 17] - state[0, 17]),
+        "energy_residual_j": float(result["energy_residual_j"]),
+        "position_rmse_m": float(np.sqrt(np.mean(position_error**2))),
+        "heading_rmse_rad": float(np.sqrt(np.mean(heading_error**2))),
+        "fault_transitions": len(result["journal"]),
+    }
