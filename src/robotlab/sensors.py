@@ -123,7 +123,11 @@ def lidar_scan(pose, angles, rectangles, max_range=10, noise_std=0, rng=None, ex
     if noise_std:
         if rng is None:
             raise ValueError("explicit random generator required")
-        ranges = np.clip(ranges + rng.normal(0, noise_std, len(ranges)), 0, max_range)
+        returned = ranges < max_range
+        noisy = np.clip(
+            ranges + rng.normal(0, noise_std, len(ranges)), 0, np.nextafter(float(max_range), 0.0)
+        )
+        ranges = np.where(returned, noisy, max_range)
     return ranges
 
 

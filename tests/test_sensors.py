@@ -78,3 +78,20 @@ def test_stationary_bias_calibration():
     bias, variance = m.calibrate_bias([0.01, 0.02, 0.03])
     assert bias == pytest.approx(0.02)
     assert variance == pytest.approx(0.0001 / 3)
+
+
+def test_lidar_noise_cannot_invent_maximum_range_obstacles():
+    empty = m.lidar_scan(
+        [0, 0, 0],
+        np.linspace(-np.pi, np.pi, 100),
+        [],
+        max_range=10,
+        noise_std=0.1,
+        rng=np.random.default_rng(8),
+    )
+    assert np.all(empty == 10)
+    grid_angles = [0]
+    wall = m.lidar_scan(
+        [0, 0, 0], grid_angles, [[2, -1, 3, 1]], max_range=10, noise_std=0.1, rng=np.random.default_rng(8)
+    )
+    assert wall[0] < 10
