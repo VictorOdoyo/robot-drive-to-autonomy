@@ -63,3 +63,8 @@ def test_stall_requires_commanded_motion():
     position = np.zeros((31, 2))
     assert m.stalled(time, position, np.tile([0.5, 0], (31, 1)))
     assert not m.stalled(time, position, np.zeros((31, 2)))
+
+
+def test_recovery_refuses_existing_collision():
+    assert np.allclose(m.recovery_turn([0, 0, 0], [[-0.1, -0.1, 0.1, 0.1]]), 0)
+    assert m.recovery_turn([0, 0, 0], [])[1] > 0

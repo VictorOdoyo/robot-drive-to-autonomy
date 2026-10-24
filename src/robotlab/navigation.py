@@ -162,3 +162,13 @@ def stalled(times, positions, commands, window=2, min_command=0.1, min_progress=
     motion = np.linalg.norm(positions[keep][-1] - positions[keep][0])
     effort = np.mean(np.abs(commands[keep, 0]))
     return bool(effort >= min_command and motion < min_progress)
+
+
+def recovery_turn(pose, rectangles, radius=0.22, yaw_rate=0.5):
+    from .geometry import circle_clearance
+
+    if yaw_rate <= 0:
+        raise ValueError("positive recovery yaw rate required")
+    if circle_clearance(pose[:2], radius, rectangles) <= 0:
+        return np.zeros(2)
+    return np.array([0.0, yaw_rate])
