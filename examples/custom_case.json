@@ -1,0 +1,14 @@
+{
+  "name": "custom-grade",
+  "duration": 8.0,
+  "dt": 0.002,
+  "seed": 12,
+  "width": 4.0,
+  "height": 3.0,
+  "start": [0.6, 0.6, 0.0],
+  "goal": [3.2, 2.2],
+  "shelves": [],
+  "events": [
+    {"start": 1.0, "end": 3.0, "kind": "grade", "value": 0.08}
+  ]
+}
