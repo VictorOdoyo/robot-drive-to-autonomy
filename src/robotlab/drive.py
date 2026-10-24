@@ -44,3 +44,27 @@ def velocity_tick(controller, measured_rates, temperatures, dt):
             controller.reference[k] - measured_rates[k], dt, -limit, limit
         )
     return controller.current_reference.copy()
+
+
+def current_tick(controller, measured_current, wheel_rates, bus_voltage, dt):
+    from .control import motor_feedforward
+
+    if bus_voltage <= 0:
+        raise ValueError("positive DC bus voltage required")
+    motor = controller.parameters.motor
+    feedforward = motor_feedforward(
+        controller.current_reference,
+        controller.parameters.ratio * np.asarray(wheel_rates),
+        motor.resistance,
+        motor.constant,
+    )
+    for k, loop in enumerate(controller.current_loops):
+        voltage = loop.step(
+            controller.current_reference[k] - measured_current[k],
+            dt,
+            -bus_voltage,
+            bus_voltage,
+            feedforward[k],
+        )
+        controller.duty[k] = voltage / bus_voltage
+    return controller.duty.copy()

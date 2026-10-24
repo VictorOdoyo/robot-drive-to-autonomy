@@ -25,3 +25,11 @@ def test_hot_motor_current_is_reduced():
     controller.reference[:] = 10
     reference = m.velocity_tick(controller, [0, 0], [25, 100], 0.01)
     assert reference[0] > 0 and reference[1] == 0
+
+
+def test_current_duty_is_voltage_limited():
+    controller = m.DriveController()
+    controller.current_reference[:] = 8
+    duty = m.current_tick(controller, [0, 0], [100, -100], 24, 0.002)
+    assert np.allclose(duty, [1, -1])
+    assert np.all(np.abs(duty) <= 1)
