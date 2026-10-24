@@ -24,6 +24,11 @@ def parser():
     execute.add_argument("--dt", type=float)
     execute.add_argument("--seed", type=int)
     execute.add_argument("--output", default="outputs/run")
+    replay = commands.add_parser("replay", help="regenerate a report from its recorded trace")
+    replay.add_argument("archive")
+    replay.add_argument("--output", default="outputs/replay")
+    verify = commands.add_parser("verify", help="check report file hashes")
+    verify.add_argument("directory")
     return root
 
 
@@ -56,6 +61,12 @@ def main(argv=None):
                     indent=2,
                 )
             )
+        elif arguments.command == "replay":
+            print(json.dumps(replay_command(arguments.archive, arguments.output), indent=2))
+        elif arguments.command == "verify":
+            from .reporting import verify_report
+
+            print(json.dumps({"verified": verify_report(arguments.directory)}))
         elif arguments.command == "run":
             case = configured_case(arguments)
             result = run(case)
