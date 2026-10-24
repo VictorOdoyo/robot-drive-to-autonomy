@@ -142,3 +142,33 @@ def stored_energy(parameters, state):
         + 0.5 * chassis.mass * state[4] ** 2
         + 0.5 * chassis.yaw_inertia * state[5] ** 2
     )
+
+
+def rhs(parameters, state, duty, grade=0, traction=(0.6, 0.6), external_force=0):
+    from .electrical import copper_resistance
+
+    drive, losses, observation = mechanical_electrical_rhs(
+        parameters, state, duty, grade, traction, external_force
+    )
+    copper = np.array(
+        [
+            copper_resistance(parameters.motor.resistance, t) * i * i
+            for t, i in zip(state[11:13], state[:2], strict=True)
+        ]
+    )
+    battery, pack_loss = battery_thermal_rhs(parameters, state, observation["battery_current"], copper)
+    derivative = np.zeros(18)
+    derivative[:9] = drive
+    derivative[9:14] = battery
+    derivative[14:16] = state[2:4]
+    derivative[16] = sum(losses.values()) + pack_loss + parameters.auxiliary_power
+    derivative[17] = observation["external_power"]
+    return derivative
+
+
+def step(parameters, state, duty, dt, **environment):
+    from .numerics import rk4
+
+    if dt > 0.002 + 1e-12:
+        raise ValueError("plant integration step must not exceed 2 ms")
+    return rk4(lambda _t, x: rhs(parameters, x, duty, **environment), 0, state, dt)

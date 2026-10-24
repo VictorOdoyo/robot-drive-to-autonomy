@@ -57,3 +57,13 @@ def test_stored_energy_includes_wheel_rotor_inertia():
     state[2] = 10
     expected = 0.5 * (parameters.chassis.wheel_inertia + parameters.motor.inertia * 12**2) * 100
     assert m.stored_energy(parameters, state) - initial == pytest.approx(expected, abs=1e-9)
+
+
+def test_stationary_auxiliary_energy_ledger():
+    parameters = m.PlantParameters()
+    state = m.initial_state(parameters)
+    initial = m.stored_energy(parameters, state)
+    for _ in range(50):
+        state = m.step(parameters, state, [0, 0], 0.002)
+    assert initial - m.stored_energy(parameters, state) == pytest.approx(state[16] + state[17], abs=1e-7)
+    assert np.allclose(state[:9], 0)
