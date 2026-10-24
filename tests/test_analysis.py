@@ -33,3 +33,11 @@ def test_analytic_first_order_settling():
     summary = m.step_metrics(time, response, 1)
     assert summary["settling_s"] == pytest.approx(-np.log(0.02), abs=0.002)
     assert summary["overshoot_fraction"] == 0
+
+
+def test_compare_runs_interpolates_different_log_rates():
+    a = {"time": np.array([0.0, 0.5, 1]), "state": np.zeros((3, 18))}
+    b = {"time": np.array([0.0, 1]), "state": np.zeros((2, 18))}
+    a["state"][:, 6] = a["time"]
+    b["state"][:, 6] = b["time"]
+    assert m.compare_runs(a, b)["max_position_difference_m"] == pytest.approx(0)

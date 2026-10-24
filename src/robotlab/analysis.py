@@ -68,3 +68,24 @@ def step_metrics(time, response, target, band=0.02):
         "overshoot_fraction": overshoot,
         "steady_error": float(target - np.mean(response[-max(1, len(response) // 10) :])),
     }
+
+
+def compare_runs(reference, candidate):
+    from .geometry import wrap
+
+    start = max(reference["time"][0], candidate["time"][0])
+    end = min(reference["time"][-1], candidate["time"][-1])
+    query = reference["time"][(reference["time"] >= start) & (reference["time"] <= end)]
+    if len(query) < 2:
+        raise ValueError("runs need overlapping time support")
+    interpolated = np.column_stack(
+        [np.interp(query, candidate["time"], candidate["state"][:, k]) for k in range(18)]
+    )
+    actual = reference["state"][(reference["time"] >= start) & (reference["time"] <= end)]
+    position = np.linalg.norm(actual[:, 6:8] - interpolated[:, 6:8], axis=1)
+    heading = wrap(actual[:, 8] - interpolated[:, 8])
+    return {
+        "max_position_difference_m": float(position.max()),
+        "position_rmse_m": float(np.sqrt(np.mean(position**2))),
+        "max_heading_difference_rad": float(np.max(abs(heading))),
+    }
