@@ -62,3 +62,12 @@ def test_nonlinear_lqr_reaches_loaded_speed():
     assert time[-1] == pytest.approx(1.5)
     assert states[-1, 4] == pytest.approx(0.4, abs=0.015)
     assert np.max(abs(states[:, :2])) < 8.5
+
+
+def test_copper_thermal_runaway_boundary():
+    safe = m.copper_thermal_analysis(5)
+    critical = safe["critical_current_a"]
+    assert safe["stable"] and safe["equilibrium_c"] > 25
+    assert not m.copper_thermal_analysis(critical * 1.01)["stable"]
+    theta = safe["equilibrium_c"] - 25
+    assert 5**2 * 0.35 * (1 + 0.00393 * theta) == pytest.approx(theta / 2)

@@ -119,3 +119,16 @@ def nonlinear_lqr_response(duration=1, speed=0.5, dt=0.002, parameters=None):
         state = step(parameters, state, duty, interval)
         states.append(state.copy())
     return time, np.array(states)
+
+
+def copper_thermal_analysis(current, resistance=0.35, thermal_resistance=2, ambient=25, coefficient=0.00393):
+    if min(resistance, thermal_resistance, coefficient) <= 0:
+        raise ValueError("positive thermal parameters required")
+    critical = np.sqrt(1 / (resistance * thermal_resistance * coefficient))
+    conductance = 1 / thermal_resistance - current**2 * resistance * coefficient
+    equilibrium = None if conductance <= 0 else ambient + current**2 * resistance / conductance
+    return {
+        "critical_current_a": float(critical),
+        "stable": conductance > 0,
+        "equilibrium_c": None if equilibrium is None else float(equilibrium),
+    }
