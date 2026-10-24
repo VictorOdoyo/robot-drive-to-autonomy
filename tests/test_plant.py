@@ -29,3 +29,14 @@ def test_traction_saturates_on_low_friction_floor():
     assert forces[0] == pytest.approx(0.05 * parameters.chassis.mass * 9.80665 / 2)
     assert forces[1] > forces[0]
     assert np.all(forces * slip >= 0) and not lift
+
+
+def test_coupled_acceleration_symmetry():
+    parameters = m.PlantParameters()
+    state = m.initial_state(parameters)
+    state[:2] = 2
+    derivative, losses, observation = m.mechanical_electrical_rhs(parameters, state, [0.3, 0.3])
+    assert derivative[2] == pytest.approx(derivative[3])
+    assert derivative[5] == 0
+    assert all(v >= 0 for v in losses.values())
+    assert observation["bus_voltage"] > 20

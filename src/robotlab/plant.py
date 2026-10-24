@@ -68,3 +68,48 @@ def contact_forces(parameters, state, traction=(0.6, 0.6)):
     )
     slip = chassis.radius * state[2:4] - ground
     return forces, slip, lift
+
+
+def mechanical_electrical_rhs(parameters, state, duty, grade=0, traction=(0.6, 0.6), external_force=0):
+    from .electrical import copper_resistance
+    from .mechanics import friction_torque
+
+    chassis, motor = parameters.chassis, parameters.motor
+    duty = np.clip(np.asarray(duty, dtype=float), -1, 1)
+    bus, battery_current = bus_operating_point(parameters, state, duty)
+    current, wheels = state[:2], state[2:4]
+    resistance = np.array([copper_resistance(motor.resistance, t) for t in state[11:13]])
+    voltage = duty * bus - parameters.bridge_resistance * current
+    forces, slip, lift = contact_forces(parameters, state, traction)
+    derivative = np.zeros(9)
+    derivative[:2] = (
+        voltage - resistance * current - motor.constant * parameters.ratio * wheels
+    ) / motor.inductance
+    bearing = friction_torque(wheels) + motor.viscous * parameters.ratio**2 * wheels
+    equivalent_inertia = chassis.wheel_inertia + motor.inertia * parameters.ratio**2
+    derivative[2:4] = (
+        motor.constant * parameters.ratio * current - bearing - chassis.radius * forces
+    ) / equivalent_inertia
+    rolling = chassis.mass * 9.80665 * parameters.rolling_coefficient * np.tanh(state[4] / 0.03)
+    aerodynamic = 0.1 * state[4] * abs(state[4])
+    grade_force = chassis.mass * 9.80665 * np.sin(grade)
+    derivative[4] = (np.sum(forces) - rolling - aerodynamic - grade_force - external_force) / chassis.mass
+    derivative[5] = ((forces[1] - forces[0]) * chassis.track / 2 - 0.03 * state[5]) / chassis.yaw_inertia
+    derivative[6:9] = [state[4] * np.cos(state[8]), state[4] * np.sin(state[8]), state[5]]
+    losses = {
+        "copper": float(resistance @ current**2),
+        "bridge": float(parameters.bridge_resistance * (current @ current)),
+        "bearing": float(bearing @ wheels),
+        "slip": float(forces @ slip),
+        "road": float((rolling + aerodynamic) * state[4] + 0.03 * state[5] ** 2),
+    }
+    return (
+        derivative,
+        losses,
+        {
+            "bus_voltage": bus,
+            "battery_current": battery_current,
+            "external_power": (grade_force + external_force) * state[4],
+            "wheel_lift": lift,
+        },
+    )
