@@ -19,3 +19,13 @@ def test_bus_kirchhoff_and_power_balance():
     voltage, current = m.bus_operating_point(parameters, state, duty)
     assert voltage == pytest.approx(parameters.battery.ocv(0.8) - parameters.battery.resistance * current)
     assert voltage * current == pytest.approx(voltage * (duty @ state[:2]) + 12)
+
+
+def test_traction_saturates_on_low_friction_floor():
+    parameters = m.PlantParameters()
+    state = m.initial_state(parameters)
+    state[2:4] = 100
+    forces, slip, lift = m.contact_forces(parameters, state, (0.05, 0.6))
+    assert forces[0] == pytest.approx(0.05 * parameters.chassis.mass * 9.80665 / 2)
+    assert forces[1] > forces[0]
+    assert np.all(forces * slip >= 0) and not lift

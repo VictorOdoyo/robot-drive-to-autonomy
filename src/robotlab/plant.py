@@ -47,3 +47,24 @@ def bus_operating_point(parameters, state, duty):
     voltage = (effective + np.sqrt(discriminant)) / 2
     current = drive_current + parameters.auxiliary_power / voltage
     return float(voltage), float(current)
+
+
+def contact_forces(parameters, state, traction=(0.6, 0.6)):
+    from .mechanics import normal_loads, tire_force
+
+    chassis = parameters.chassis
+    traction = np.asarray(traction, dtype=float)
+    if traction.shape != (2,) or np.any(traction < 0):
+        raise ValueError("two nonnegative tire friction coefficients required")
+    ground = state[4] + np.array([-1, 1]) * state[5] * chassis.track / 2
+    loads, lift = normal_loads(chassis.mass, chassis.track, 0.18, state[4] * state[5])
+    forces = np.array(
+        [
+            tire_force(
+                chassis.radius * state[2 + k], ground[k], loads[k], traction[k], parameters.tire_stiffness
+            )
+            for k in range(2)
+        ]
+    )
+    slip = chassis.radius * state[2:4] - ground
+    return forces, slip, lift
