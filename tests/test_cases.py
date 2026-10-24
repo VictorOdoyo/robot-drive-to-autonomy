@@ -11,3 +11,13 @@ def test_scenario_validation_and_boundary_geometry():
     assert np.isfinite(case.duration)
     with pytest.raises(ValueError):
         m.Scenario(dt=0.01)
+
+
+def test_portable_scenario_roundtrip():
+    import json
+
+    case = m.Scenario()
+    restored = m.from_dict(json.loads(json.dumps(case.to_dict())))
+    assert restored == case
+    with pytest.raises(ValueError):
+        m.from_dict({"surprise": 1})

@@ -68,3 +68,29 @@ class Scenario:
             (-0.2, 0, 0, h),
             (w, 0, w + 0.2, h),
         ]
+
+
+def from_dict(data):
+    from dataclasses import fields
+
+    if not isinstance(data, dict):
+        raise ValueError("scenario must be a JSON object")
+    allowed = {field.name for field in fields(Scenario)}
+    unknown = set(data) - allowed
+    if unknown:
+        raise ValueError("unknown scenario fields: " + ", ".join(sorted(unknown)))
+    values = dict(data)
+    values["events"] = tuple(Disturbance(**event) for event in values.get("events", []))
+    for key in ("start", "goal"):
+        if key in values:
+            values[key] = tuple(values[key])
+    if "shelves" in values:
+        values["shelves"] = tuple(tuple(r) for r in values["shelves"])
+    return Scenario(**values)
+
+
+def load_case(path):
+    import json
+    from pathlib import Path
+
+    return from_dict(json.loads(Path(path).read_text(encoding="utf-8")))
