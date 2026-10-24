@@ -34,3 +34,16 @@ def initial_state(parameters=PlantParameters(), pose=(0, 0, 0), soc=0.8):
     state[9] = soc
     state[11:14] = parameters.ambient
     return state
+
+
+def bus_operating_point(parameters, state, duty):
+    battery = parameters.battery
+    source = battery.ocv(state[9]) - state[10]
+    drive_current = float(np.asarray(duty) @ state[:2])
+    effective = source - battery.resistance * drive_current
+    discriminant = effective**2 - 4 * battery.resistance * parameters.auxiliary_power
+    if effective <= 0 or discriminant <= 0:
+        raise ValueError("DC bus voltage collapse")
+    voltage = (effective + np.sqrt(discriminant)) / 2
+    current = drive_current + parameters.auxiliary_power / voltage
+    return float(voltage), float(current)
