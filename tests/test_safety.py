@@ -61,3 +61,9 @@ def test_fault_priority():
     assert m.inhibit_reason(overcurrent=True, stale_command=True) == "overcurrent"
     assert m.inhibit_reason(emergency=True, overcurrent=True) == "emergency"
     assert m.inhibit_reason() is None
+
+
+def test_rearm_motion_interlock():
+    assert m.rearm_allowed(0, 0, 0.5, True, 1)
+    assert not m.rearm_allowed(0.1, 0, 0.5, True, 1)
+    assert not m.rearm_allowed(0, 0, 0.5, False, 1)

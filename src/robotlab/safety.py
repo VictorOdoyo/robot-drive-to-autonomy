@@ -134,3 +134,26 @@ def inhibit_reason(
         (localization_lost, "localization"),
     ]
     return next((name for active, name in conditions if active), None)
+
+
+def rearm_allowed(
+    speed,
+    current,
+    clearance,
+    emergency_released,
+    healthy_dwell,
+    speed_threshold=0.02,
+    current_threshold=0.2,
+    required_clearance=0.1,
+    required_dwell=0.5,
+):
+    values = (speed, current, clearance, healthy_dwell)
+    if not all(np.isfinite(v) for v in values):
+        return False
+    return bool(
+        emergency_released
+        and abs(speed) <= speed_threshold
+        and abs(current) <= current_threshold
+        and clearance >= required_clearance
+        and healthy_dwell >= required_dwell
+    )
