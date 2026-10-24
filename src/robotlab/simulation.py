@@ -30,3 +30,42 @@ def simulation_times(case):
         index = int(np.argmin(abs(np.asarray(merged) - event)))
         merged[index] = event
     return np.asarray(merged)
+
+
+class SensorSuite:
+    def __init__(self, case):
+        from .sensors import DelayQueue, Encoder
+
+        self.rng = np.random.default_rng(case.seed)
+        self.encoder = Encoder()
+        self.queue = DelayQueue(case.sensor_latency)
+        self.counts = None
+        self.last_time = None
+        self.rates = np.zeros(2)
+        self.age_stamp = -np.inf
+        self.position_noise = 0.025
+        self.gyro_noise = 0.008
+
+    def sample_wheels(self, state, time, dropout=False):
+        counts = [self.encoder.count(angle) for angle in state[14:16]]
+        if self.counts is not None:
+            dt = time - self.last_time
+            increments = np.array(
+                [self.encoder.increment(a, b) for a, b in zip(self.counts, counts, strict=True)]
+            )
+            if not dropout:
+                self.queue.push(time, (increments / dt, dt))
+        self.counts, self.last_time = counts, time
+        for stamp, (rates, dt) in self.queue.ready(time):
+            alpha = 1 - np.exp(-dt / 0.03)
+            self.rates += alpha * (rates - self.rates)
+            self.age_stamp = stamp
+        return self.rates.copy()
+
+    def gyro(self, state, bias=0.015):
+        from .sensors import gyro_measurement
+
+        return gyro_measurement(state[5], bias, self.gyro_noise, self.rng)
+
+    def position(self, state):
+        return state[6:8] + self.rng.normal(0, self.position_noise, 2)
