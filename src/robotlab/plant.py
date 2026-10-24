@@ -113,3 +113,16 @@ def mechanical_electrical_rhs(parameters, state, duty, grade=0, traction=(0.6, 0
             "wheel_lift": lift,
         },
     )
+
+
+def battery_thermal_rhs(parameters, state, battery_current, copper_losses):
+    battery = parameters.battery
+    derivative = np.zeros(5)
+    derivative[0] = -battery_current / (3600 * battery.capacity_ah)
+    derivative[1] = (
+        battery.polarization_resistance * battery_current - state[10]
+    ) / battery.polarization_time
+    derivative[2:4] = (np.asarray(copper_losses) - (state[11:13] - parameters.ambient) / 2) / 120
+    battery_loss = battery.resistance * battery_current**2 + state[10] ** 2 / battery.polarization_resistance
+    derivative[4] = (battery_loss - (state[13] - parameters.ambient) / 3) / 1500
+    return derivative, battery_loss

@@ -40,3 +40,11 @@ def test_coupled_acceleration_symmetry():
     assert derivative[5] == 0
     assert all(v >= 0 for v in losses.values())
     assert observation["bus_voltage"] > 20
+
+
+def test_component_thermal_and_charge_directions():
+    parameters = m.PlantParameters()
+    derivative, loss = m.battery_thermal_rhs(parameters, m.initial_state(parameters), 10, [20, 10])
+    assert derivative[0] < 0 and derivative[1] > 0
+    assert derivative[2] > derivative[3] > 0
+    assert loss == pytest.approx(9)
