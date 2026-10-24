@@ -74,3 +74,11 @@ def test_energy_optimal_speed_stationarity():
     speed = m.economical_speed(2, 2, max_speed=2)
     assert -2 / speed**2 + 4 * speed == pytest.approx(0)
     assert m.economical_speed(20, 1, max_speed=0.8) == 0.8
+
+
+def test_progress_floor_retains_nearby_segment_under_measurement_noise():
+    path = [[0, 0], [0, 4], [4, 4], [4, 0]]
+    target, progress, error = m.path_target([0.01, 0.99], path, 0.4, 1.0)
+    assert progress == pytest.approx(1)
+    assert np.allclose(target, [0, 1.4])
+    assert error < 0.02

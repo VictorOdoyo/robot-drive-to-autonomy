@@ -11,9 +11,15 @@ def path_target(position, path, lookahead=0.4, minimum_progress=0):
         raise ValueError("invalid lookahead")
     best = (np.inf, minimum_progress)
     for k in range(len(path) - 1):
-        _projected, fraction, error = segment_projection(position, path[k], path[k + 1])
-        progress = distance[k] + fraction * (distance[k + 1] - distance[k])
-        if progress + 1e-9 >= minimum_progress and error < best[0]:
+        if distance[k + 1] < minimum_progress:
+            continue
+        _projected, fraction, _error = segment_projection(position, path[k], path[k + 1])
+        segment_length = distance[k + 1] - distance[k]
+        progress = max(minimum_progress, distance[k] + fraction * segment_length)
+        fraction = 0.0 if segment_length == 0 else (progress - distance[k]) / segment_length
+        projected = path[k] + fraction * (path[k + 1] - path[k])
+        error = np.linalg.norm(np.asarray(position) - projected)
+        if error < best[0]:
             best = (error, progress)
     progress = max(minimum_progress, best[1])
     target_distance = min(distance[-1], progress + lookahead)
