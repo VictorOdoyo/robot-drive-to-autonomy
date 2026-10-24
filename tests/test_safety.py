@@ -20,3 +20,11 @@ def test_overload_trip_and_cooling():
     before = overload.integral
     overload.step(0, 0.2)
     assert overload.integral < before
+
+
+def test_watchdog_stops_stale_command():
+    watchdog = m.CommandWatchdog(0.2)
+    watchdog.receive(1, [0.5, 0.1])
+    assert np.allclose(watchdog.output(1.1)[0], [0.5, 0.1])
+    command, expired = watchdog.output(1.21)
+    assert expired and np.allclose(command, 0)

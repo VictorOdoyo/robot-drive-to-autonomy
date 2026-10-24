@@ -38,3 +38,22 @@ class Overload:
         decay = np.exp(-dt / self.cooling_time)
         self.integral = self.integral * decay + excess * self.cooling_time * (1 - decay)
         return self.integral >= self.budget
+
+
+class CommandWatchdog:
+    def __init__(self, timeout=0.25):
+        if timeout <= 0:
+            raise ValueError("positive watchdog timeout required")
+        self.timeout = timeout
+        self.stamp = -np.inf
+        self.command = np.zeros(2)
+
+    def receive(self, stamp, command):
+        command = np.asarray(command, dtype=float)
+        if command.shape != (2,) or not np.all(np.isfinite(command)) or stamp < self.stamp:
+            raise ValueError("finite ordered chassis command required")
+        self.stamp, self.command = stamp, command.copy()
+
+    def output(self, time):
+        expired = time - self.stamp > self.timeout or time < self.stamp
+        return (np.zeros(2) if expired else self.command.copy()), expired
