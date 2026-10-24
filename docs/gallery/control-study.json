@@ -1,0 +1,36 @@
+{
+  "direct_stable_fraction": 0.8958333333333334,
+  "delayed_stable_fraction": 0.7754166666666666,
+  "lqr_poles": [
+    {
+      "real": 0.9517362500358506,
+      "imaginary": 0.0
+    },
+    {
+      "real": 0.8729398940520612,
+      "imaginary": 0.0
+    },
+    {
+      "real": 0.7907440909209887,
+      "imaginary": 0.0
+    },
+    {
+      "real": 0.8185683506167446,
+      "imaginary": 0.0
+    },
+    {
+      "real": 0.2213991419755024,
+      "imaginary": 0.0
+    },
+    {
+      "real": 0.2210024021664393,
+      "imaginary": 0.0
+    }
+  ],
+  "copper_thermal_5a": {
+    "critical_current_a": 19.065785593519966,
+    "stable": true,
+    "equilibrium_c": 43.79245080404843
+  },
+  "notes": "Stability fractions describe this sampling grid, not probabilities."
+}

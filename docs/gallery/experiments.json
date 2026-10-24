@@ -1,0 +1,596 @@
+{
+  "commissioning": {
+    "case": {
+      "cruise_speed": 0.6,
+      "dt": 0.002,
+      "duration": 7,
+      "events": [],
+      "goal": [
+        2.3,
+        0.6
+      ],
+      "height": 3,
+      "initial_temperature": 25.0,
+      "margin": 0.18,
+      "name": "commissioning",
+      "radius": 0.22,
+      "resolution": 0.1,
+      "seed": 42,
+      "sensor_latency": 0.0,
+      "shelves": [],
+      "soc": 0.8,
+      "start": [
+        0.6,
+        0.6,
+        0
+      ],
+      "width": 3
+    },
+    "metrics": {
+      "completed": true,
+      "dissipated_j": 97.37826557929817,
+      "distance_m": 1.6611423958797555,
+      "duration_s": 7.0,
+      "energy_residual_j": -3.598893250966739e-05,
+      "external_work_j": 0.0,
+      "fault_transitions": 0,
+      "goal_error_m": 0.043524994591363705,
+      "heading_rmse_rad": 0.008947383225835607,
+      "minimum_clearance_m": 0.37589221644745274,
+      "peak_current_a": 1.6845638533731269,
+      "peak_motor_temperature_c": 25.0054484646067,
+      "position_rmse_m": 0.017704865708034735,
+      "soc_consumed": 8.132309627995049e-05
+    },
+    "provenance": {
+      "configuration_sha256": "719d26e2bbc139c466bd7e5a41a3a766ac12517916461b34fd43506c09b0f56c",
+      "git_revision": "5d5b3e8e09b93302d3df3b86958c85c5ce2fecc0",
+      "package_version": "0.1.0"
+    }
+  },
+  "emergency-stop": {
+    "case": {
+      "cruise_speed": 0.6,
+      "dt": 0.002,
+      "duration": 7,
+      "events": [
+        {
+          "end": 3,
+          "kind": "emergency",
+          "start": 2,
+          "value": 1
+        }
+      ],
+      "goal": [
+        2.3,
+        0.6
+      ],
+      "height": 3,
+      "initial_temperature": 25.0,
+      "margin": 0.18,
+      "name": "emergency-stop",
+      "radius": 0.22,
+      "resolution": 0.1,
+      "seed": 42,
+      "sensor_latency": 0.0,
+      "shelves": [],
+      "soc": 0.8,
+      "start": [
+        0.6,
+        0.6,
+        0
+      ],
+      "width": 3
+    },
+    "metrics": {
+      "completed": false,
+      "dissipated_j": 94.36493714186875,
+      "distance_m": 1.0925131030681126,
+      "duration_s": 7.0,
+      "energy_residual_j": -3.717174334383344e-05,
+      "external_work_j": 0.0,
+      "fault_transitions": 1,
+      "goal_error_m": 0.6300817656854065,
+      "heading_rmse_rad": 0.010533528068481079,
+      "minimum_clearance_m": 0.38,
+      "peak_current_a": 1.6845638533731269,
+      "peak_motor_temperature_c": 25.006499485683847,
+      "position_rmse_m": 0.017578140327691127,
+      "soc_consumed": 7.880644377222801e-05
+    },
+    "provenance": {
+      "configuration_sha256": "c887287c551c19cd3dac563293c60fa125364962bd9eaf1a35152e62765f6a95",
+      "git_revision": "5d5b3e8e09b93302d3df3b86958c85c5ce2fecc0",
+      "package_version": "0.1.0"
+    }
+  },
+  "encoder-outage": {
+    "case": {
+      "cruise_speed": 0.6,
+      "dt": 0.002,
+      "duration": 7,
+      "events": [
+        {
+          "end": 2,
+          "kind": "encoder_dropout",
+          "start": 1,
+          "value": 1
+        }
+      ],
+      "goal": [
+        2.3,
+        0.6
+      ],
+      "height": 3,
+      "initial_temperature": 25.0,
+      "margin": 0.18,
+      "name": "encoder-outage",
+      "radius": 0.22,
+      "resolution": 0.1,
+      "seed": 42,
+      "sensor_latency": 0.0,
+      "shelves": [],
+      "soc": 0.8,
+      "start": [
+        0.6,
+        0.6,
+        0
+      ],
+      "width": 3
+    },
+    "metrics": {
+      "completed": true,
+      "dissipated_j": 101.44010235085918,
+      "distance_m": 1.684322077580803,
+      "duration_s": 7.0,
+      "energy_residual_j": -0.00017018484251707378,
+      "external_work_j": 0.0,
+      "fault_transitions": 2,
+      "goal_error_m": 0.049170711463118875,
+      "heading_rmse_rad": 0.01043778895226993,
+      "minimum_clearance_m": 0.36691615794533083,
+      "peak_current_a": 3.401019203467031,
+      "peak_motor_temperature_c": 25.01330984013052,
+      "position_rmse_m": 0.019711363348624486,
+      "soc_consumed": 8.471537844390031e-05
+    },
+    "provenance": {
+      "configuration_sha256": "4e6c43cdf3f51561cd28d9aaa188e4a3961511033875aa39c2baad0df4c32236",
+      "git_revision": "5d5b3e8e09b93302d3df3b86958c85c5ce2fecc0",
+      "package_version": "0.1.0"
+    }
+  },
+  "grade-load": {
+    "case": {
+      "cruise_speed": 0.6,
+      "dt": 0.002,
+      "duration": 7,
+      "events": [
+        {
+          "end": 4,
+          "kind": "grade",
+          "start": 1,
+          "value": 0.12
+        }
+      ],
+      "goal": [
+        2.3,
+        0.6
+      ],
+      "height": 3,
+      "initial_temperature": 25.0,
+      "margin": 0.18,
+      "name": "grade-load",
+      "radius": 0.22,
+      "resolution": 0.1,
+      "seed": 42,
+      "sensor_latency": 0.0,
+      "shelves": [],
+      "soc": 0.8,
+      "start": [
+        0.6,
+        0.6,
+        0
+      ],
+      "width": 3
+    },
+    "metrics": {
+      "completed": true,
+      "dissipated_j": 107.7339241382013,
+      "distance_m": 1.6618200365289608,
+      "duration_s": 7.0,
+      "energy_residual_j": -4.270536051009799e-05,
+      "external_work_j": 24.496299203207524,
+      "fault_transitions": 0,
+      "goal_error_m": 0.04160851397720278,
+      "heading_rmse_rad": 0.011173616164946411,
+      "minimum_clearance_m": 0.37284252567962217,
+      "peak_current_a": 1.8949707863506666,
+      "peak_motor_temperature_c": 25.019097690608028,
+      "position_rmse_m": 0.02010199771213371,
+      "soc_consumed": 0.00011043134101307306
+    },
+    "provenance": {
+      "configuration_sha256": "b957d65185d79f629cd01e63b915832758515bbef845507136b8c38ca434c6c0",
+      "git_revision": "5d5b3e8e09b93302d3df3b86958c85c5ce2fecc0",
+      "package_version": "0.1.0"
+    }
+  },
+  "gyro-bias": {
+    "case": {
+      "cruise_speed": 0.6,
+      "dt": 0.002,
+      "duration": 7,
+      "events": [
+        {
+          "end": 3,
+          "kind": "gyro_bias",
+          "start": 1,
+          "value": 0.15
+        }
+      ],
+      "goal": [
+        2.3,
+        0.6
+      ],
+      "height": 3,
+      "initial_temperature": 25.0,
+      "margin": 0.18,
+      "name": "gyro-bias",
+      "radius": 0.22,
+      "resolution": 0.1,
+      "seed": 42,
+      "sensor_latency": 0.0,
+      "shelves": [],
+      "soc": 0.8,
+      "start": [
+        0.6,
+        0.6,
+        0
+      ],
+      "width": 3
+    },
+    "metrics": {
+      "completed": true,
+      "dissipated_j": 97.70749295399882,
+      "distance_m": 1.6913546684666352,
+      "duration_s": 7.0,
+      "energy_residual_j": -4.0146889020320486e-05,
+      "external_work_j": 0.0,
+      "fault_transitions": 0,
+      "goal_error_m": 0.07805475756365673,
+      "heading_rmse_rad": 0.12357436152811939,
+      "minimum_clearance_m": 0.2908338392163664,
+      "peak_current_a": 1.6845638533731269,
+      "peak_motor_temperature_c": 25.005763634946486,
+      "position_rmse_m": 0.035252083974429124,
+      "soc_consumed": 8.159805906138295e-05
+    },
+    "provenance": {
+      "configuration_sha256": "45c2b3461f5887067eff256838ecc775ac3311387563222df64aa49f51460afc",
+      "git_revision": "5d5b3e8e09b93302d3df3b86958c85c5ce2fecc0",
+      "package_version": "0.1.0"
+    }
+  },
+  "hot-windings": {
+    "case": {
+      "cruise_speed": 0.6,
+      "dt": 0.002,
+      "duration": 7,
+      "events": [],
+      "goal": [
+        2.3,
+        0.6
+      ],
+      "height": 3,
+      "initial_temperature": 98,
+      "margin": 0.18,
+      "name": "hot-windings",
+      "radius": 0.22,
+      "resolution": 0.1,
+      "seed": 42,
+      "sensor_latency": 0.0,
+      "shelves": [],
+      "soc": 0.8,
+      "start": [
+        0.6,
+        0.6,
+        0
+      ],
+      "width": 3
+    },
+    "metrics": {
+      "completed": true,
+      "dissipated_j": 96.28214205725051,
+      "distance_m": 1.6641452209936975,
+      "duration_s": 7.0,
+      "energy_residual_j": -4.923732883810317e-05,
+      "external_work_j": 0.0,
+      "fault_transitions": 0,
+      "goal_error_m": 0.039788765545519716,
+      "heading_rmse_rad": 0.010078324365987143,
+      "minimum_clearance_m": 0.3689343871071986,
+      "peak_current_a": 0.902090825417397,
+      "peak_motor_temperature_c": 98.0,
+      "position_rmse_m": 0.01773927023954128,
+      "soc_consumed": 8.040768148331878e-05
+    },
+    "provenance": {
+      "configuration_sha256": "ce657d078202701b057387da9afa4e18b8afe7436cb732760a28c1c5c59f6604",
+      "git_revision": "5d5b3e8e09b93302d3df3b86958c85c5ce2fecc0",
+      "package_version": "0.1.0"
+    }
+  },
+  "low-charge": {
+    "case": {
+      "cruise_speed": 0.6,
+      "dt": 0.002,
+      "duration": 7,
+      "events": [],
+      "goal": [
+        2.3,
+        0.6
+      ],
+      "height": 3,
+      "initial_temperature": 25.0,
+      "margin": 0.18,
+      "name": "low-charge",
+      "radius": 0.22,
+      "resolution": 0.1,
+      "seed": 42,
+      "sensor_latency": 0.0,
+      "shelves": [],
+      "soc": 0.08,
+      "start": [
+        0.6,
+        0.6,
+        0
+      ],
+      "width": 3
+    },
+    "metrics": {
+      "completed": true,
+      "dissipated_j": 97.49454459241562,
+      "distance_m": 1.6612755127320251,
+      "duration_s": 7.0,
+      "energy_residual_j": -3.686876763708824e-05,
+      "external_work_j": 0.0,
+      "fault_transitions": 0,
+      "goal_error_m": 0.04344995772519906,
+      "heading_rmse_rad": 0.00941918079824117,
+      "minimum_clearance_m": 0.37562202351910523,
+      "peak_current_a": 1.6847372977785853,
+      "peak_motor_temperature_c": 25.005456962531394,
+      "position_rmse_m": 0.017726011911430996,
+      "soc_consumed": 0.00010414655907201031
+    },
+    "provenance": {
+      "configuration_sha256": "d2bfe96bcae274f1ebb3f6a2e99fecea0869d56f5cb41358507310b0aad1ba8e",
+      "git_revision": "768a72b82099d08735aa3cb1fdd4a4484024ae9b",
+      "package_version": "0.1.0"
+    }
+  },
+  "position-outage": {
+    "case": {
+      "cruise_speed": 0.6,
+      "dt": 0.002,
+      "duration": 7,
+      "events": [
+        {
+          "end": 4,
+          "kind": "position_dropout",
+          "start": 1,
+          "value": 1
+        }
+      ],
+      "goal": [
+        2.3,
+        0.6
+      ],
+      "height": 3,
+      "initial_temperature": 25.0,
+      "margin": 0.18,
+      "name": "position-outage",
+      "radius": 0.22,
+      "resolution": 0.1,
+      "seed": 42,
+      "sensor_latency": 0.0,
+      "shelves": [],
+      "soc": 0.8,
+      "start": [
+        0.6,
+        0.6,
+        0
+      ],
+      "width": 3
+    },
+    "metrics": {
+      "completed": true,
+      "dissipated_j": 98.6095518289062,
+      "distance_m": 1.6738654237525827,
+      "duration_s": 7.0,
+      "energy_residual_j": -5.476837259266176e-05,
+      "external_work_j": 0.0,
+      "fault_transitions": 2,
+      "goal_error_m": 0.04805638835783782,
+      "heading_rmse_rad": 0.011121979225908631,
+      "minimum_clearance_m": 0.38,
+      "peak_current_a": 1.7027154765842036,
+      "peak_motor_temperature_c": 25.00899412371488,
+      "position_rmse_m": 0.01926997009921571,
+      "soc_consumed": 8.235146654800296e-05
+    },
+    "provenance": {
+      "configuration_sha256": "d343b08ed842bd0acae91c4b50a84b2b456e844876b37a6d74ce0d8e5c8abcce",
+      "git_revision": "5d5b3e8e09b93302d3df3b86958c85c5ce2fecc0",
+      "package_version": "0.1.0"
+    }
+  },
+  "sensor-latency": {
+    "case": {
+      "cruise_speed": 0.6,
+      "dt": 0.002,
+      "duration": 7,
+      "events": [],
+      "goal": [
+        2.3,
+        0.6
+      ],
+      "height": 3,
+      "initial_temperature": 25.0,
+      "margin": 0.18,
+      "name": "sensor-latency",
+      "radius": 0.22,
+      "resolution": 0.1,
+      "seed": 42,
+      "sensor_latency": 0.05,
+      "shelves": [],
+      "soc": 0.8,
+      "start": [
+        0.6,
+        0.6,
+        0
+      ],
+      "width": 3
+    },
+    "metrics": {
+      "completed": true,
+      "dissipated_j": 97.78603815755702,
+      "distance_m": 1.6564915279662766,
+      "duration_s": 7.0,
+      "energy_residual_j": -0.0006239537884198398,
+      "external_work_j": 0.0,
+      "fault_transitions": 0,
+      "goal_error_m": 0.04880221040911352,
+      "heading_rmse_rad": 0.0116118051671014,
+      "minimum_clearance_m": 0.3773115810272264,
+      "peak_current_a": 2.3653955439220278,
+      "peak_motor_temperature_c": 25.006529630370228,
+      "position_rmse_m": 0.017407850166840162,
+      "soc_consumed": 8.166316648083871e-05
+    },
+    "provenance": {
+      "configuration_sha256": "b1080ed3c93d852ed615b523ffccf1edd8f331f388eab4cd09f6932de50d2fdb",
+      "git_revision": "5d5b3e8e09b93302d3df3b86958c85c5ce2fecc0",
+      "package_version": "0.1.0"
+    }
+  },
+  "traction-loss": {
+    "case": {
+      "cruise_speed": 0.6,
+      "dt": 0.002,
+      "duration": 7,
+      "events": [
+        {
+          "end": 2.5,
+          "kind": "left_traction",
+          "start": 1,
+          "value": 0.004
+        }
+      ],
+      "goal": [
+        2.3,
+        0.6
+      ],
+      "height": 3,
+      "initial_temperature": 25.0,
+      "margin": 0.18,
+      "name": "traction-loss",
+      "radius": 0.22,
+      "resolution": 0.1,
+      "seed": 42,
+      "sensor_latency": 0.0,
+      "shelves": [],
+      "soc": 0.8,
+      "start": [
+        0.6,
+        0.6,
+        0
+      ],
+      "width": 3
+    },
+    "metrics": {
+      "completed": true,
+      "dissipated_j": 98.35913916621244,
+      "distance_m": 1.6583672490611814,
+      "duration_s": 7.0,
+      "energy_residual_j": -4.354901498970776e-05,
+      "external_work_j": 0.0,
+      "fault_transitions": 0,
+      "goal_error_m": 0.05418988454020846,
+      "heading_rmse_rad": 0.0140531148029312,
+      "minimum_clearance_m": 0.38,
+      "peak_current_a": 2.004840963759062,
+      "peak_motor_temperature_c": 25.006980330986195,
+      "position_rmse_m": 0.018721062333393178,
+      "soc_consumed": 8.214230087610908e-05
+    },
+    "provenance": {
+      "configuration_sha256": "743e1d30538543e01a9ffda53c22cc0881a1c07d6572a2f07374eb8694b8a53f",
+      "git_revision": "beb9dbf77e64031dd8aa94729ffd16e64b8bca5a",
+      "package_version": "0.1.0"
+    }
+  },
+  "warehouse": {
+    "case": {
+      "cruise_speed": 0.6,
+      "dt": 0.002,
+      "duration": 40.0,
+      "events": [],
+      "goal": [
+        7.1,
+        5.2
+      ],
+      "height": 6.0,
+      "initial_temperature": 25.0,
+      "margin": 0.18,
+      "name": "warehouse",
+      "radius": 0.22,
+      "resolution": 0.1,
+      "seed": 42,
+      "sensor_latency": 0.0,
+      "shelves": [
+        [
+          2.0,
+          1.0,
+          2.8,
+          4.5
+        ],
+        [
+          4.2,
+          1.5,
+          5.0,
+          5.0
+        ]
+      ],
+      "soc": 0.8,
+      "start": [
+        0.6,
+        0.6,
+        0.0
+      ],
+      "width": 8.0
+    },
+    "metrics": {
+      "completed": true,
+      "dissipated_j": 554.4225184958372,
+      "distance_m": 10.143987715179463,
+      "duration_s": 40.0,
+      "energy_residual_j": -8.505584571594227e-05,
+      "external_work_j": 0.0,
+      "fault_transitions": 0,
+      "goal_error_m": 0.04741761211910174,
+      "heading_rmse_rad": 0.0253521122741274,
+      "minimum_clearance_m": 0.18985438977947747,
+      "peak_current_a": 1.469123887312841,
+      "peak_motor_temperature_c": 25.013087450554544,
+      "position_rmse_m": 0.018768887512107885,
+      "soc_consumed": 0.00046304821757270354
+    },
+    "provenance": {
+      "configuration_sha256": "b64ca67fb3629a754dfad0e973796433c05971cef45aac3700b34795a8afc734",
+      "git_revision": "5d5b3e8e09b93302d3df3b86958c85c5ce2fecc0",
+      "package_version": "0.1.0"
+    }
+  }
+}
