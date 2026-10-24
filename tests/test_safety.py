@@ -28,3 +28,11 @@ def test_watchdog_stops_stale_command():
     assert np.allclose(watchdog.output(1.1)[0], [0.5, 0.1])
     command, expired = watchdog.output(1.21)
     assert expired and np.allclose(command, 0)
+
+
+def test_debounce_resets_after_healthy_sample():
+    debounce = m.Debounce(0.1)
+    assert not debounce.update(0, True)
+    assert not debounce.update(0.09, False)
+    assert not debounce.update(0.1, True)
+    assert debounce.update(0.21, True)

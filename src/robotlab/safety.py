@@ -57,3 +57,19 @@ class CommandWatchdog:
     def output(self, time):
         expired = time - self.stamp > self.timeout or time < self.stamp
         return (np.zeros(2) if expired else self.command.copy()), expired
+
+
+class Debounce:
+    def __init__(self, dwell):
+        if dwell < 0:
+            raise ValueError("negative debounce dwell")
+        self.dwell = dwell
+        self.since = None
+
+    def update(self, time, condition):
+        if not condition:
+            self.since = None
+            return False
+        if self.since is None:
+            self.since = time
+        return time - self.since >= self.dwell
