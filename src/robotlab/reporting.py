@@ -89,3 +89,17 @@ def save_archive(result, path):
         if temporary is not None and Path(temporary).exists():
             Path(temporary).unlink()
     return path
+
+
+def load_archive(path):
+    import json
+
+    with np.load(path, allow_pickle=False) as archive:
+        metadata = json.loads(str(archive["metadata_json"]))
+        if metadata.pop("schema_version", None) != 1:
+            raise ValueError("unsupported mission archive schema")
+        result = {key: archive[key].copy() for key in archive.files if key != "metadata_json"}
+    if set(result) & set(metadata):
+        raise ValueError("archive metadata shadows numeric arrays")
+    result.update(metadata)
+    return validate_result(result)

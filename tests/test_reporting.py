@@ -36,3 +36,13 @@ def test_archive_contains_no_python_object_arrays(tmp_path):
     with np.load(path, allow_pickle=False) as archive:
         assert all(archive[key].dtype.kind != "O" for key in archive.files)
         assert archive["state"].shape[1] == 18
+
+
+def test_archive_roundtrip(tmp_path):
+    from robotlab.cases import Scenario
+    from robotlab.simulation import run
+
+    result = run(Scenario(duration=0.1, width=3, height=3, goal=(2.3, 0.6), shelves=()))
+    restored = m.load_archive(m.save_archive(result, tmp_path / "mission.npz"))
+    assert np.array_equal(restored["state"], result["state"])
+    assert restored["energy_residual_j"] == pytest.approx(result["energy_residual_j"])
