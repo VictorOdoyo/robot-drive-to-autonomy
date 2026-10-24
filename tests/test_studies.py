@@ -22,3 +22,14 @@ def test_motor_dc_gain_matches_equilibrium():
     response = m.motor_frequency_response([0, 1e8], motor)
     assert np.allclose(response[0].real, motor_equilibrium(motor, 1))
     assert abs(response[1, 0]) < abs(response[0, 0])
+
+
+def test_loaded_operating_point():
+    from robotlab.plant import PlantParameters, mechanical_electrical_rhs
+
+    parameters = PlantParameters()
+    state, duty = m.operating_point(0.5, 0.2, parameters, grade=0.03)
+    derivative, _, _ = mechanical_electrical_rhs(parameters, state, duty, grade=0.03)
+    assert np.allclose(derivative[:6], 0, atol=1e-5)
+    assert state[4] == pytest.approx(0.5)
+    assert np.all(state[:2] > 0)
