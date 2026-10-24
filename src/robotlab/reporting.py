@@ -217,8 +217,10 @@ def plot_mission(result, path):
     axes[0, 1].plot(time, result["command"][:, 0], "--", label="command")
     axes[0, 1].set(title="Forward motion", ylabel="Speed (m/s)")
     for k, label in enumerate(("left", "right")):
-        axes[1, 0].plot(time, state[:, k], label=label)
-        axes[1, 0].plot(time, result["current_reference"][:, k], "--", alpha=0.45)
+        axes[1, 0].plot(time, state[:, k], color=("#2563eb", "#d97706")[k], label=label)
+        axes[1, 0].plot(
+            time, result["current_reference"][:, k], "--", color=("#2563eb", "#d97706")[k], alpha=0.45
+        )
         axes[2, 0].plot(time, state[:, 11 + k], label=label)
     axes[1, 0].set(title="Winding current; dashed = reference", ylabel="Current (A)")
     axes[1, 1].plot(time, result["bus_voltage"], color="#7c3aed")
@@ -244,11 +246,12 @@ def plot_mission(result, path):
             ax.set_xlabel("Time (s)")
         if ax.get_legend_handles_labels()[0] and ax is not axes[0, 0]:
             ax.legend(fontsize=8)
+    axes[2, 0].ticklabel_format(axis="y", useOffset=False, style="plain")
     fig.suptitle(
         f"{result['case']['name']} | simulated robot mission\n"
-        f"Goal error {metrics['goal_error_m']:.3f} m · minimum clearance {metrics['minimum_clearance_m']:.3f} m · "
-        f"energy residual {metrics['energy_residual_j']:.2e} J",
-        fontsize=14,
+        f"Goal error {metrics['goal_error_m']:.3f} m | minimum clearance {metrics['minimum_clearance_m']:.3f} m\n"
+        f"Energy ledger residual {metrics['energy_residual_j']:.2e} J",
+        fontsize=13,
     )
     fig.savefig(path, dpi=130)
     plt.close(fig)
