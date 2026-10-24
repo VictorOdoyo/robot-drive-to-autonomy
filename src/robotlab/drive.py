@@ -68,3 +68,24 @@ def current_tick(controller, measured_current, wheel_rates, bus_voltage, dt):
         )
         controller.duty[k] = voltage / bus_voltage
     return controller.duty.copy()
+
+
+def regulated_drive(duration=1, speed=0.5, dt=0.002, parameters=None):
+    from .numerics import timeline
+    from .plant import PlantParameters, bus_operating_point, initial_state, step
+
+    parameters = PlantParameters() if parameters is None else parameters
+    controller = DriveController(parameters)
+    state = initial_state(parameters)
+    times = timeline(duration, dt, np.arange(0, duration, 0.01))
+    states = [state.copy()]
+    for k in range(len(times) - 1):
+        time = times[k]
+        if abs(time / 0.01 - round(time / 0.01)) < 1e-8:
+            set_twist(controller, [speed, 0], 0.01)
+            velocity_tick(controller, state[2:4], state[11:13], 0.01)
+        voltage, _ = bus_operating_point(parameters, state, controller.duty)
+        duty = current_tick(controller, state[:2], state[2:4], voltage, times[k + 1] - time)
+        state = step(parameters, state, duty, times[k + 1] - time)
+        states.append(state.copy())
+    return times, np.array(states)

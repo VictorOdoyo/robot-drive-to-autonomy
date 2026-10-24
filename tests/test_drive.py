@@ -33,3 +33,10 @@ def test_current_duty_is_voltage_limited():
     duty = m.current_tick(controller, [0, 0], [100, -100], 24, 0.002)
     assert np.allclose(duty, [1, -1])
     assert np.all(np.abs(duty) <= 1)
+
+
+def test_cascade_tracks_speed_without_excess_current():
+    _, states = m.regulated_drive(1.5, 0.5)
+    assert states[-1, 4] == pytest.approx(0.5, abs=0.04)
+    assert np.max(abs(states[:, :2])) < 8.5
+    assert abs(states[-1, 5]) < 1e-10
