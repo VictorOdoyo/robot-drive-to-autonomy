@@ -71,3 +71,13 @@ def test_copper_thermal_runaway_boundary():
     assert not m.copper_thermal_analysis(critical * 1.01)["stable"]
     theta = safe["equilibrium_c"] - 25
     assert 5**2 * 0.35 * (1 + 0.00393 * theta) == pytest.approx(theta / 2)
+
+
+def test_reconstructed_map_contains_free_and_occupied_evidence():
+    from robotlab.cases import Scenario
+    from robotlab.simulation import run
+
+    result = run(Scenario(duration=0.2, width=3, height=3, goal=(2.3, 0.6), shelves=()))
+    grid = m.mapping_reconstruction(result)
+    assert np.any(grid.log_odds < 0) and np.any(grid.log_odds > 0)
+    assert np.mean(grid.observed) > 0.1

@@ -132,3 +132,24 @@ def copper_thermal_analysis(current, resistance=0.35, thermal_resistance=2, ambi
         "stable": conductance > 0,
         "equilibrium_c": None if equilibrium is None else float(equilibrium),
     }
+
+
+def mapping_reconstruction(result, beam_count=61, scan_stride=10):
+    from .cases import from_dict
+    from .mapping import OccupancyGrid, insert_scan
+    from .sensors import lidar_scan
+
+    case = from_dict(result["case"])
+    if beam_count < 3 or scan_stride < 1:
+        raise ValueError("invalid mapping sampling")
+    grid = OccupancyGrid(
+        int(np.ceil(case.width / case.resolution)),
+        int(np.ceil(case.height / case.resolution)),
+        case.resolution,
+    )
+    angles = np.linspace(-np.pi, np.pi, beam_count, endpoint=False)
+    rng = np.random.default_rng(case.seed + 1)
+    for k in range(0, len(result["time"]), scan_stride):
+        ranges = lidar_scan(result["state"][k, 6:9], angles, case.obstacles(), noise_std=0.01, rng=rng)
+        insert_scan(grid, result["estimate"][k, :3], angles, ranges, 10.0)
+    return grid
