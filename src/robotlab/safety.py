@@ -199,3 +199,16 @@ def disturbance_value(events, kind, time, default=0):
     if len(active) > 1:
         raise ValueError("overlapping disturbances of the same kind")
     return active[0] if active else default
+
+
+class FaultJournal:
+    def __init__(self):
+        self.events = []
+        self.reason = None
+
+    def update(self, time, reason):
+        if self.events and time < self.events[-1]["time"]:
+            raise ValueError("fault transitions must be time ordered")
+        if reason != self.reason:
+            self.events.append({"time": float(time), "previous": self.reason, "reason": reason})
+            self.reason = reason

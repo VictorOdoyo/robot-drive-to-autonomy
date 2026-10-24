@@ -80,3 +80,12 @@ def test_disturbance_boundaries():
     assert not event.active(0.199)
     assert event.active(0.2) and not event.active(0.4)
     assert m.disturbance_value([event], "grade", 0.4) == 0
+
+
+def test_fault_journal_records_edges():
+    journal = m.FaultJournal()
+    journal.update(0, "watchdog")
+    journal.update(0.1, "watchdog")
+    journal.update(0.2, None)
+    assert len(journal.events) == 2
+    assert journal.events[-1]["previous"] == "watchdog"
