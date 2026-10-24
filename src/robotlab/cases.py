@@ -26,6 +26,12 @@ class Scenario:
     events: tuple = field(default_factory=tuple)
 
     def __post_init__(self):
+        if not isinstance(self.name, str) or not self.name.strip():
+            raise ValueError("nonempty scenario name required")
+        if not isinstance(self.seed, int) or isinstance(self.seed, bool):
+            raise ValueError("integer random seed required")
+        if not np.all(np.isfinite([self.margin, self.sensor_latency, self.initial_temperature])):
+            raise ValueError("finite scenario initial conditions required")
         values = (
             self.duration,
             self.dt,
@@ -46,7 +52,12 @@ class Scenario:
         ):
             raise ValueError("finite planar start and goal required")
         for rectangle in self.shelves:
-            if len(rectangle) != 4 or rectangle[0] >= rectangle[2] or rectangle[1] >= rectangle[3]:
+            if (
+                len(rectangle) != 4
+                or not np.all(np.isfinite(rectangle))
+                or rectangle[0] >= rectangle[2]
+                or rectangle[1] >= rectangle[3]
+            ):
                 raise ValueError("invalid shelf rectangle")
         for event in self.events:
             if not isinstance(event, Disturbance) or event.end > self.duration:

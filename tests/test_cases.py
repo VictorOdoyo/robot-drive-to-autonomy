@@ -45,3 +45,19 @@ def test_all_experiments_have_portable_valid_disturbances():
     for name, case in cases.items():
         assert case.name == name
         assert m.from_dict(json.loads(json.dumps(case.to_dict()))) == case
+
+
+@pytest.mark.parametrize(
+    "values",
+    [
+        {"seed": 1.5},
+        {"seed": True},
+        {"name": ""},
+        {"margin": np.nan},
+        {"sensor_latency": np.inf},
+        {"shelves": ((0, 0, np.nan, 1),)},
+    ],
+)
+def test_malformed_scenario_values(values):
+    with pytest.raises(ValueError):
+        m.Scenario(**values)
