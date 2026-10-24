@@ -76,3 +76,20 @@ def linearize_drive(parameters, state, duty, **environment):
     matrix = jacobian(lambda value: dynamics(value, duty), state[:6])
     inputs = jacobian(lambda command: dynamics(state[:6], command), duty)
     return matrix, inputs
+
+
+def drive_lqr(parameters, speed=0.5, yaw_rate=0, dt=0.002):
+    from .control import discrete_lqr
+    from .numerics import discretize
+
+    state, duty = operating_point(speed, yaw_rate, parameters)
+    matrix, inputs = linearize_drive(parameters, state, duty)
+    ad, bd = discretize(matrix, inputs, dt)
+    gain, solution = discrete_lqr(ad, bd, np.diag([0.01, 0.01, 0.1, 0.1, 100, 20]), np.eye(2) * 5)
+    return {
+        "state": state,
+        "duty": duty,
+        "gain": gain,
+        "cost": solution,
+        "poles": np.linalg.eigvals(ad - bd @ gain),
+    }

@@ -47,3 +47,11 @@ def test_drive_linearization_predicts_small_perturbations():
     exact = mechanical_electrical_rhs(parameters, perturbed, duty)[0][:6]
     assert np.allclose(exact, matrix @ delta, atol=1e-7)
     assert inputs.shape == (6, 2)
+
+
+def test_coupled_lqr_is_schur_stable():
+    from robotlab.plant import PlantParameters
+
+    design = m.drive_lqr(PlantParameters())
+    assert np.max(abs(design["poles"])) < 1
+    assert np.linalg.eigvalsh(design["cost"]).min() > 0
