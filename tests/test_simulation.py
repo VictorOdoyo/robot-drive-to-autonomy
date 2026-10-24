@@ -30,3 +30,15 @@ def test_seeded_sensor_stream_and_dropout():
     assert np.all(rates > 0)
     first.sample_wheels(state, 0.02, True)
     assert first.age_stamp == pytest.approx(0.01)
+
+
+def test_short_mission_runs_real_drive_and_estimation():
+    from robotlab.cases import Scenario
+
+    result = m.run(Scenario(duration=1, width=3, height=3, start=(0.6, 0.6, 0), goal=(2.3, 0.6), shelves=()))
+    state = result["state"]
+    assert state[-1, 6] > state[0, 6] + 0.1
+    assert np.max(abs(state[:, :2])) < 9
+    assert np.all(np.linalg.eigvalsh(result["covariance"]) > 0)
+    assert result["time"][-1] == pytest.approx(1)
+    assert abs(result["energy_residual_j"]) < 0.01
