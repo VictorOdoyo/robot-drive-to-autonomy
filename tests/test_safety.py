@@ -67,3 +67,9 @@ def test_rearm_motion_interlock():
     assert m.rearm_allowed(0, 0, 0.5, True, 1)
     assert not m.rearm_allowed(0.1, 0, 0.5, True, 1)
     assert not m.rearm_allowed(0, 0, 0.5, False, 1)
+
+
+def test_nonfinite_commands_disable_actuation():
+    command, valid = m.bounded_command([np.nan, 1], [1, 2])
+    assert not valid and np.allclose(command, 0)
+    assert np.allclose(m.bounded_command([2, -4], [1, 2])[0], [1, -2])

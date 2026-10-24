@@ -157,3 +157,12 @@ def rearm_allowed(
         and clearance >= required_clearance
         and healthy_dwell >= required_dwell
     )
+
+
+def bounded_command(command, limits):
+    command, limits = np.asarray(command), np.asarray(limits)
+    if command.shape != limits.shape or np.any(limits <= 0) or np.any(~np.isfinite(limits)):
+        raise ValueError("matching finite positive command limits required")
+    if np.any(~np.isfinite(command)):
+        return np.zeros_like(command, dtype=float), False
+    return np.clip(command, -limits, limits), True
