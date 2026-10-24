@@ -16,3 +16,19 @@ class DriveController:
         self.reference = np.zeros(2)
         self.current_reference = np.zeros(2)
         self.duty = np.zeros(2)
+
+
+def set_twist(controller, twist, dt, max_wheel_acceleration=12):
+    from .control import slew
+    from .kinematics import DriveGeometry, limit_twist
+
+    chassis = controller.parameters.chassis
+    geometry = DriveGeometry(chassis.radius, chassis.radius, chassis.track)
+    target, _ = limit_twist(*twist, controller.wheel_limit, geometry)
+    controller.reference = np.array(
+        [
+            slew(previous, next_, max_wheel_acceleration, dt)
+            for previous, next_ in zip(controller.reference, target, strict=True)
+        ]
+    )
+    return controller.reference.copy()
