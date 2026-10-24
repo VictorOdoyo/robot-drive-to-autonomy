@@ -29,6 +29,9 @@ def parser():
     replay.add_argument("--output", default="outputs/replay")
     verify = commands.add_parser("verify", help="check report file hashes")
     verify.add_argument("directory")
+    batch = commands.add_parser("batch", help="run the experiment catalog")
+    batch.add_argument("--cases", nargs="+", choices=sorted(experiment_catalog()))
+    batch.add_argument("--output", default="outputs/batch")
     return root
 
 
@@ -61,6 +64,18 @@ def main(argv=None):
                     indent=2,
                 )
             )
+        elif arguments.command == "batch":
+            import sys
+
+            from .batch import run_batch
+
+            names = arguments.cases or list(experiment_catalog())
+            summary = run_batch(
+                [get_case(name) for name in names],
+                arguments.output,
+                lambda message: print(message, file=sys.stderr, flush=True),
+            )
+            print(json.dumps(summary, indent=2))
         elif arguments.command == "replay":
             print(json.dumps(replay_command(arguments.archive, arguments.output), indent=2))
         elif arguments.command == "verify":
