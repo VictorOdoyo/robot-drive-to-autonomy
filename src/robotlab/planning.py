@@ -74,10 +74,22 @@ def distance_map(blocked, start):
 
 
 def line_free(blocked, start, end):
+    """Exact cell-boundary supercover, including cells touched only at a corner."""
     start, end = np.asarray(start, dtype=float), np.asarray(end, dtype=float)
-    count = max(1, int(np.ceil(np.linalg.norm(end - start) * 4)))
-    for point in np.linspace(start, end, count + 1):
-        # Integer coordinates denote cell centers. Check both sides of exact boundaries.
+    delta = end - start
+    crossing = [0.0, 1.0]
+    for axis in range(2):
+        if abs(delta[axis]) < 1e-15:
+            continue
+        low, high = sorted([start[axis] + 0.5, end[axis] + 0.5])
+        for boundary in range(int(np.ceil(low)), int(np.floor(high)) + 1):
+            fraction = (boundary - 0.5 - start[axis]) / delta[axis]
+            if 0 <= fraction <= 1:
+                crossing.append(fraction)
+    crossing = np.unique(crossing)
+    samples = np.r_[crossing, (crossing[:-1] + crossing[1:]) / 2]
+    for fraction in samples:
+        point = start + fraction * delta
         for epsilon in ((-1e-10, -1e-10), (-1e-10, 1e-10), (1e-10, -1e-10), (1e-10, 1e-10)):
             cell = np.floor(point + 0.5 + epsilon).astype(int)
             if (

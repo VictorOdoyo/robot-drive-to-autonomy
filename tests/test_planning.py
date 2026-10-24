@@ -115,3 +115,10 @@ def test_route_invalidated_by_new_obstacle():
     assert m.route_valid(route, blocked)
     blocked[4, 4] = True
     assert not m.route_valid(route, blocked)
+
+
+def test_visibility_catches_short_corner_intersections():
+    blocked = np.zeros((4, 4), bool)
+    blocked[1, 1] = True
+    assert not m.line_free(blocked, [0, 1.4999], [3, 1.5001])
+    assert m.line_free(blocked, [0, 1.501], [3, 1.502])
