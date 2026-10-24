@@ -48,3 +48,23 @@ def consistency(result, probability=0.95):
         "coverage": float(np.mean(errors <= bound)),
         "mean_nees": float(errors.mean()),
     }
+
+
+def step_metrics(time, response, target, band=0.02):
+    time, response = np.asarray(time), np.asarray(response)
+    if response.shape != time.shape or len(time) < 2 or np.any(np.diff(time) <= 0) or band <= 0:
+        raise ValueError("invalid response series")
+    scale = max(abs(target - response[0]), 1e-12)
+    outside = np.flatnonzero(abs(response - target) > band * scale)
+    settling = (
+        float(time[0] if len(outside) == 0 else time[outside[-1] + 1])
+        if len(outside) == 0 or outside[-1] < len(time) - 1
+        else None
+    )
+    direction = np.sign(target - response[0])
+    overshoot = max(0, float(np.max(direction * (response - target)))) / scale
+    return {
+        "settling_s": settling,
+        "overshoot_fraction": overshoot,
+        "steady_error": float(target - np.mean(response[-max(1, len(response) // 10) :])),
+    }

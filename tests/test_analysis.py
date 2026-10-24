@@ -25,3 +25,11 @@ def test_consistency_detects_underestimated_covariance():
     summary = m.consistency(result)
     assert summary["mean_nees"] == pytest.approx(1000)
     assert summary["coverage"] == 0
+
+
+def test_analytic_first_order_settling():
+    time = np.linspace(0, 10, 10001)
+    response = 1 - np.exp(-time)
+    summary = m.step_metrics(time, response, 1)
+    assert summary["settling_s"] == pytest.approx(-np.log(0.02), abs=0.002)
+    assert summary["overshoot_fraction"] == 0
